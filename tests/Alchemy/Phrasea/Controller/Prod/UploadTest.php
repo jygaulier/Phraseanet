@@ -243,7 +243,7 @@ class UploadTest extends \PhraseanetWebTestCaseAuthenticatedAbstract
         $params = array(
             'base_id'     => self::$collection->get_base_id(),
             'forceAction' => \Alchemy\Phrasea\Border\Manager::FORCE_RECORD,
-            'status'      => array(4 => 1),
+            'status'      => array( self::$collection->get_sbas_id() => array( 4 => 1)),
         );
 
         $files = array(
@@ -268,7 +268,7 @@ class UploadTest extends \PhraseanetWebTestCaseAuthenticatedAbstract
         $id = explode('_', $datas['id']);
         $record = new \record_adapter($id[0], $id[1]);
         $this->assertFalse($record->is_grouping());
-        $this->assertEquals(1, substr(strrev($record->get_status()), 5, 1));
+        $this->assertEquals(1, substr(strrev($record->get_status()), 4, 1));
         $this->assertEquals(array(), $datas['reasons']);
     }
 

@@ -18,6 +18,7 @@ use Silex\ControllerProviderInterface;
 use Silex\ControllerCollection;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Serializer\Serializer;
 
 /**
@@ -52,7 +53,7 @@ class Upload implements ControllerProviderInterface
          *
          * return       : HTML Response
          */
-        $app->get('/upload/', $this->call('getUploadForm'))
+        $controllers->get('/', $this->call('getUploadForm'))
             ->bind('upload_form');
 
         /**
@@ -73,7 +74,7 @@ class Upload implements ControllerProviderInterface
          *
          * return       : JSON Response
          */
-        $app->post('/upload/', $this->call('upload'))
+        $controllers->post('/', $this->call('upload'))
             ->bind('upload');
 
         return $controllers;
@@ -104,8 +105,29 @@ class Upload implements ControllerProviderInterface
             $collections[$databox->get_sbas_id()]['databox_collections'][] = $collection;
         }
 
+        $postMaxSize = trim(ini_get('post_max_size'));
+
+        if ('' === $postMaxSize) {
+            $postMaxSize = PHP_INT_MAX;
+        }
+
+        switch (strtolower(substr($postMaxSize, -1))) {
+            case 'g':
+                $postMaxSize *= 1024;
+            case 'm':
+                $postMaxSize *= 1024;
+            case 'k':
+                $postMaxSize *= 1024;
+        }
+
+        $maxFileSize = min(UploadedFile::getMaxFilesize(), (int) $postMaxSize);
+
         $html = $app['Core']['Twig']->render(
-            'prod/upload/upload.html.twig', array('collections' => $collections)
+            'prod/upload/upload.html.twig', array(
+            'collections'         => $collections,
+            'maxFileSize'         => $maxFileSize,
+            'maxFileSizeReadable' => \p4string::format_octets($maxFileSize)
+            )
         );
 
         return new Response($html);
@@ -167,10 +189,11 @@ class Upload implements ControllerProviderInterface
 
             $postStatus = $request->get('status');
 
-            if (is_array($postStatus)) {
+            if (isset($postStatus[$collection->get_sbas_id()]) && is_array($postStatus[$collection->get_sbas_id()])) {
+                $postStatus = $postStatus[$collection->get_sbas_id()];
 
                 $status = '';
-                foreach (range(0, 64) as $i) {
+                foreach (range(0, 63) as $i) {
                     $status .= isset($postStatus[$i]) ? ($postStatus[$i] ? '1' : '0') : '0';
                 }
                 $packageFile->addAttribute(new Border\Attribute\Status(strrev($status)));
@@ -178,7 +201,8 @@ class Upload implements ControllerProviderInterface
 
             $forceBehavior = $request->get('forceAction');
 
-            $reasons = $elementCreated = null;
+            $reasons = array();
+            $elementCreated = null;
 
             $callback = function($element, $visa, $code) use (&$reasons, &$elementCreated) {
                     foreach ($visa->getResponses() as $response) {
@@ -186,6 +210,7 @@ class Upload implements ControllerProviderInterface
                             $reasons[] = $response->getMessage();
                         }
                     }
+
                     $elementCreated = $element;
                 };
 
@@ -193,27 +218,30 @@ class Upload implements ControllerProviderInterface
                 $lazaretSession, $packageFile, $callback, $forceBehavior
             );
 
+            if ( ! ! $forceBehavior) {
+                $reasons = array();
+            }
 
             if ($elementCreated instanceof \record_adapter) {
                 $id = $elementCreated->get_serialize_key();
                 $element = 'record';
-                $reasons = array();
+                $message = _('The record was successfully created');
             } else {
                 $id = $elementCreated->getId();
                 $element = 'lazaret';
+                $message = _('The file was moved to the quarantine');
             }
 
             $datas = array(
                 'success' => true,
                 'code'    => $code,
-                'message' => '',
+                'message' => $message,
                 'element' => $element,
                 'reasons' => $reasons,
                 'id'      => $id,
             );
         } catch (\Exception $e) {
-
-            $datas['message'] = _('Unable to add file to Phraseanet') . $e->getFile() . ':' . $e->getLine() . $e->getMessage();
+            $datas['message'] = _('Unable to add file to Phraseanet');
         }
 
         return self::getJsonResponse($app['Core']['Serializer'], $datas);

@@ -30,12 +30,6 @@ class media_subdef extends media_abstract implements cache_cacheableInterface
      *
      * @var string
      */
-    protected $baseurl;
-
-    /**
-     *
-     * @var string
-     */
     protected $file;
 
     /**
@@ -155,10 +149,7 @@ class media_subdef extends media_abstract implements cache_cacheableInterface
         $this->record = $record;
         $this->load($substitute);
 
-        $nowtime = new DateTime('-3 days');
-        $random = $record->get_modification_date() > $nowtime;
-
-        $this->generate_url($random);
+        $this->generate_url();
 
         return $this;
     }
@@ -176,8 +167,8 @@ class media_subdef extends media_abstract implements cache_cacheableInterface
             $this->width = $datas['width'];
             $this->height = $datas['height'];
             $this->etag = $datas['etag'];
-            $this->baseurl = $datas['baseurl'];
             $this->path = $datas['path'];
+            $this->url = $datas['url'];
             $this->file = $datas['file'];
             $this->is_physically_present = $datas['physically_present'];
             $this->is_substituted = $datas['is_substituted'];
@@ -187,12 +178,12 @@ class media_subdef extends media_abstract implements cache_cacheableInterface
 
             return $this;
         } catch (Exception $e) {
-
+            
         }
 
         $connbas = $this->record->get_databox()->get_connection();
 
-        $sql = 'SELECT subdef_id, name, baseurl, file, width, height, mime,
+        $sql = 'SELECT subdef_id, name, file, width, height, mime,
                 path, size, substit, created_on, updated_on, etag
                 FROM subdef
                 WHERE name = :name AND record_id = :record_id';
@@ -212,7 +203,6 @@ class media_subdef extends media_abstract implements cache_cacheableInterface
             $this->width = (int) $row['width'];
             $this->height = (int) $row['height'];
             $this->mime = $row['mime'];
-            $this->baseurl = trim($row['baseurl']);
             $this->file = $row['file'];
             $this->etag = $row['etag'];
             $this->path = p4string::addEndSlash($row['path']);
@@ -239,9 +229,9 @@ class media_subdef extends media_abstract implements cache_cacheableInterface
             'mime'               => $this->mime
             , 'width'              => $this->width
             , 'height'             => $this->height
-            , 'baseurl'            => $this->baseurl
             , 'etag'               => $this->etag
             , 'path'               => $this->path
+            , 'url'                => $this->url
             , 'file'               => $this->file
             , 'physically_present' => $this->is_physically_present
             , 'is_substituted'     => $this->is_substituted
@@ -290,10 +280,9 @@ class media_subdef extends media_abstract implements cache_cacheableInterface
             $this->mime = 'image/png';
             $this->width = 256;
             $this->height = 256;
-            $this->baseurl = 'skins/icons/substitution/';
             $this->path = $registry->get('GV_RootPath') . 'www/skins/icons/substitution/';
             $this->file = 'regroup_thumb.png';
-            $this->is_substituted = true;
+            $this->url = '/skins/icons/substitution/regroup_thumb.png';
         } else {
             $mime = $this->record->get_mime();
             $mime = trim($mime) != '' ? str_replace('/', '_', $mime) : 'application_octet-stream';
@@ -301,19 +290,17 @@ class media_subdef extends media_abstract implements cache_cacheableInterface
             $this->mime = 'image/png';
             $this->width = 256;
             $this->height = 256;
-            $this->baseurl = 'skins/icons/substitution/';
             $this->path = $registry->get('GV_RootPath') . 'www/skins/icons/substitution/';
             $this->file = str_replace('+', '%20', $mime) . '.png';
-            $this->is_substituted = true;
+            $this->url = '/skins/icons/substitution/' . $this->file;
         }
 
         $this->is_physically_present = false;
 
         if ( ! file_exists($this->path . $this->file)) {
-            $this->baseurl = 'skins/icons/';
             $this->path = $registry->get('GV_RootPath') . 'www/skins/icons/';
             $this->file = 'substitution.png';
-            $this->is_substituted = true;
+            $this->url = '/skins/icons/' . $this->file;
         }
 
         return $this;
@@ -361,7 +348,7 @@ class media_subdef extends media_abstract implements cache_cacheableInterface
     public function getEtag()
     {
         if ( ! $this->etag && $this->is_physically_present()) {
-            $this->setEtag(md5_file($this->get_pathfile()));
+            $this->setEtag(md5(time() . $this->get_pathfile()));
         }
 
         return $this->etag;
@@ -375,8 +362,6 @@ class media_subdef extends media_abstract implements cache_cacheableInterface
         $stmt = $this->record->get_databox()->get_connection()->prepare($sql);
         $stmt->execute(array(':subdef_id' => $this->subdef_id, ':etag'      => $etag));
         $stmt->closeCursor();
-
-        $this->delete_data_from_cache();
 
         return $this;
     }
@@ -438,15 +423,6 @@ class media_subdef extends media_abstract implements cache_cacheableInterface
     public function get_path()
     {
         return $this->path;
-    }
-
-    /**
-     *
-     * @return string
-     */
-    public function get_baseurl()
-    {
-        return $this->baseurl;
     }
 
     /**
@@ -602,12 +578,16 @@ class media_subdef extends media_abstract implements cache_cacheableInterface
             ':name'      => $this->get_name(),
         );
 
-        unset($media);
-
         $stmt = $this->record->get_databox()->get_connection()->prepare($sql);
         $stmt->execute($params);
         $stmt->closeCursor();
+
+        $this->width = $media->getWidth();
+        $this->height = $media->getHeight();
+
         $this->delete_data_from_cache();
+
+        unset($media);
 
         return $this;
     }
@@ -628,59 +608,35 @@ class media_subdef extends media_abstract implements cache_cacheableInterface
 
         $datas = array();
 
-        if (method_exists($media, 'getWidth')) {
-            $datas[self::TC_DATA_WIDTH] = $media->getWidth();
-        }
-        if (method_exists($media, 'getHeight')) {
-            $datas[self::TC_DATA_HEIGHT] = $media->getHeight();
-        }
-        if (method_exists($media, 'getFocalLength')) {
-            $datas[self::TC_DATA_FOCALLENGTH] = $media->getFocalLength();
-        }
-        if (method_exists($media, 'getChannels')) {
-            $datas[self::TC_DATA_CHANNELS] = $media->getChannels();
-        }
-        if (method_exists($media, 'getColorDepth')) {
-            $datas[self::TC_DATA_COLORDEPTH] = $media->getColorDepth();
-        }
-        if (method_exists($media, 'getCameraModel')) {
-            $datas[self::TC_DATA_CAMERAMODEL] = $media->getCameraModel();
-        }
-        if (method_exists($media, 'getFlashFired')) {
-            $datas[self::TC_DATA_FLASHFIRED] = $media->getFlashFired();
-        }
-        if (method_exists($media, 'getAperture')) {
-            $datas[self::TC_DATA_APERTURE] = $media->getAperture();
-        }
-        if (method_exists($media, 'getShutterSpeed')) {
-            $datas[self::TC_DATA_SHUTTERSPEED] = $media->getShutterSpeed();
-        }
-        if (method_exists($media, 'getHyperfocalDistance')) {
-            $datas[self::TC_DATA_HYPERFOCALDISTANCE] = $media->getHyperfocalDistance();
-        }
-        if (method_exists($media, 'getISO')) {
-            $datas[self::TC_DATA_ISO] = $media->getISO();
-        }
-        if (method_exists($media, 'getLightValue')) {
-            $datas[self::TC_DATA_LIGHTVALUE] = $media->getLightValue();
-        }
-        if (method_exists($media, 'getColorSpace')) {
-            $datas[self::TC_DATA_COLORSPACE] = $media->getColorSpace();
-        }
-        if (method_exists($media, 'getDuration')) {
-            $datas[self::TC_DATA_DURATION] = $media->getDuration();
-        }
-        if (method_exists($media, 'getFrameRate')) {
-            $datas[self::TC_DATA_FRAMERATE] = $media->getFrameRate();
-        }
-        if (method_exists($media, 'getAudioSampleRate')) {
-            $datas[self::TC_DATA_AUDIOSAMPLERATE] = $media->getAudioSampleRate();
-        }
-        if (method_exists($media, 'getVideoCodec')) {
-            $datas[self::TC_DATA_VIDEOCODEC] = $media->getVideoCodec();
-        }
-        if (method_exists($media, 'getAudioCodec')) {
-            $datas[self::TC_DATA_AUDIOCODEC] = $media->getAudioCodec();
+        $methods = array(
+            self::TC_DATA_WIDTH              => 'getWidth',
+            self::TC_DATA_HEIGHT             => 'getHeight',
+            self::TC_DATA_FOCALLENGTH        => 'getFocalLength',
+            self::TC_DATA_CHANNELS           => 'getChannels',
+            self::TC_DATA_COLORDEPTH         => 'getColorDepth',
+            self::TC_DATA_CAMERAMODEL        => 'getCameraModel',
+            self::TC_DATA_FLASHFIRED         => 'getFlashFired',
+            self::TC_DATA_APERTURE           => 'getAperture',
+            self::TC_DATA_SHUTTERSPEED       => 'getShutterSpeed',
+            self::TC_DATA_HYPERFOCALDISTANCE => 'getHyperfocalDistance',
+            self::TC_DATA_ISO                => 'getISO',
+            self::TC_DATA_LIGHTVALUE         => 'getLightValue',
+            self::TC_DATA_COLORSPACE         => 'getColorSpace',
+            self::TC_DATA_DURATION           => 'getDuration',
+            self::TC_DATA_FRAMERATE          => 'getFrameRate',
+            self::TC_DATA_AUDIOSAMPLERATE    => 'getAudioSampleRate',
+            self::TC_DATA_VIDEOCODEC         => 'getVideoCodec',
+            self::TC_DATA_AUDIOCODEC         => 'getAudioCodec',
+        );
+
+        foreach ($methods as $tc_name => $method) {
+            if (method_exists($media, $method)) {
+                $result = call_user_method($method, $media);
+
+                if (null !== $result) {
+                    $datas[$tc_name] = $result;
+                }
+            }
         }
 
         $datas[self::TC_DATA_LONGITUDE] = $media->getLongitude();
@@ -693,7 +649,7 @@ class media_subdef extends media_abstract implements cache_cacheableInterface
         return $datas;
     }
 
-    public static function create(record_Interface $record, $name, Media $media, $baseurl = '')
+    public static function create(record_Interface $record, $name, Media $media)
     {
         $databox = $record->get_databox();
         $connbas = $databox->get_connection();
@@ -704,7 +660,6 @@ class media_subdef extends media_abstract implements cache_cacheableInterface
         $params = array(
             ':path'       => $path,
             ':file'       => $newname,
-            ':baseurl'    => $baseurl,
             ':width'      => 0,
             ':height'     => 0,
             ':mime'       => $media->getFile()->getMimeType(),
@@ -712,30 +667,41 @@ class media_subdef extends media_abstract implements cache_cacheableInterface
             ':dispatched' => 1,
         );
 
-        if (in_array($media->getType(), array(Media::TYPE_IMAGE, Media::TYPE_VIDEO))) {
+        if (method_exists($media, 'getWidth') && null !== $media->getWidth()) {
             $params[':width'] = $media->getWidth();
+        }
+        if (method_exists($media, 'getHeight') && null !== $media->getHeight()) {
             $params[':height'] = $media->getHeight();
         }
 
         try {
-            $subdef = new self($record, $name);
 
-            if ( ! $subdef->is_physically_present()) {
+            $sql = 'SELECT subdef_id FROM subdef 
+                    WHERE record_id = :record_id AND name = :name';
+            $stmt = $connbas->prepare($sql);
+            $stmt->execute(array(
+                ':record_id' => $record->get_record_id(),
+                ':name'      => $name,
+            ));
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            $stmt->closeCursor();
+
+            if ( ! $row) {
                 throw new \Exception_Media_SubdefNotFound('Require the real one');
             }
 
             $sql = "UPDATE subdef
-              SET path = :path, file = :file, baseurl = :baseurl
+              SET path = :path, file = :file
                   , width = :width , height = :height, mime = :mime
                   , size = :size, dispatched = :dispatched, updated_on = NOW()
               WHERE subdef_id = :subdef_id";
 
-            $params[':subdef_id'] = $subdef->get_subdef_id();
+            $params[':subdef_id'] = $row['subdef_id'];
         } catch (\Exception_Media_SubdefNotFound $e) {
             $sql = "INSERT INTO subdef
-              (record_id, name, path, file, baseurl, width
+              (record_id, name, path, file, width
                 , height, mime, size, dispatched, created_on, updated_on)
-              VALUES (:record_id, :name, :path, :file, :baseurl, :width, :height
+              VALUES (:record_id, :name, :path, :file, :width, :height
                 , :mime, :size, :dispatched, NOW(), NOW())";
 
             $params[':record_id'] = $record->get_record_id();
@@ -747,6 +713,7 @@ class media_subdef extends media_abstract implements cache_cacheableInterface
         $stmt->closeCursor();
 
         $subdef = new self($record, $name);
+        $subdef->delete_data_from_cache();
 
         if ($subdef->get_permalink() instanceof media_Permalink_Adapter) {
             $subdef->get_permalink()->delete_data_from_cache();
@@ -762,14 +729,9 @@ class media_subdef extends media_abstract implements cache_cacheableInterface
      * @param  boolean $random
      * @return string
      */
-    protected function generate_url($random = false)
+    protected function generate_url()
     {
-        if ($this->baseurl !== '') {
-            $registry = registry::get_instance();
-            $this->url = $registry->get('GV_STATIC_URL')
-                . '/' . p4string::addEndSlash($this->baseurl)
-                . $this->file . ($random ? '?rand=' . mt_rand(10000, 99999) : '');
-
+        if ( ! $this->is_physically_present()) {
             return;
         }
 
@@ -784,8 +746,7 @@ class media_subdef extends media_abstract implements cache_cacheableInterface
 
         $this->url = "/datafiles/" . $this->record->get_sbas_id()
             . "/" . $this->record->get_record_id() . "/"
-            . $this->get_name() . "/"
-            . ($random ? '?' . mt_rand(10000, 99999) : '');
+            . $this->get_name() . "/";
 
         return;
     }
@@ -812,6 +773,7 @@ class media_subdef extends media_abstract implements cache_cacheableInterface
 
     public function delete_data_from_cache($option = null)
     {
+        $this->setEtag(null);
         $databox = $this->get_record()->get_databox();
 
         return $databox->delete_data_from_cache($this->get_cache_key($option));

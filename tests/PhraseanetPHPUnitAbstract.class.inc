@@ -3,8 +3,6 @@
 require_once __DIR__ . "/PhraseanetPHPUnitListener.class.inc";
 
 use Silex\WebTestCase;
-use Symfony\Component\HttpKernel\Client;
-use Symfony\Component\HttpFoundation\Response;
 use Doctrine\Common\DataFixtures\Loader;
 
 abstract class PhraseanetPHPUnitAbstract extends WebTestCase
@@ -131,7 +129,6 @@ abstract class PhraseanetPHPUnitAbstract extends WebTestCase
         self::deleteRessources();
 
         if (self::$time_start) {
-            $stop = microtime(true);
             self::$time_start = null;
         }
     }
@@ -238,6 +235,30 @@ abstract class PhraseanetPHPUnitAbstract extends WebTestCase
             $this->insertFixtureInDatabase($loader);
 
             return $basketFixture->basket;
+        } catch (\Exception $e) {
+            $this->fail('Fail load one Basket : ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Insert one basket entry ans set current authenticated user as owner
+     *
+     * @return \Entities\Basket
+     */
+    protected function insertOneLazaretFile()
+    {
+        try {
+            $lazaretFixture = new PhraseaFixture\Lazaret\LoadOneFile();
+
+            $lazaretFixture->setUser(self::$user);
+            $lazaretFixture->setCollectionId(self::$collection->get_base_id());
+
+            $loader = new Loader();
+            $loader->addFixture($lazaretFixture);
+
+            $this->insertFixtureInDatabase($loader);
+
+            return $lazaretFixture->file;
         } catch (\Exception $e) {
             $this->fail('Fail load one Basket : ' . $e->getMessage());
         }
@@ -404,9 +425,6 @@ abstract class PhraseanetPHPUnitAbstract extends WebTestCase
     protected function insertOneBasketEnv()
     {
         try {
-            $em = self::$core->getEntityManager();
-            /* @var $em \Doctrine\ORM\EntityManager */
-
             $basketFixture = new PhraseaFixture\Basket\LoadOneBasketEnv();
 
             $basketFixture->setUser(self::$user);
@@ -689,6 +707,9 @@ abstract class PhraseanetPHPUnitAbstract extends WebTestCase
      */
     private static function generateRecords()
     {
+        $logger = new \Monolog\Logger('tests');
+        $logger->pushHandler(new \Monolog\Handler\NullHandler());
+
         if (self::$recordsInitialized === false) {
 
             self::$recordsInitialized = array();
@@ -712,7 +733,7 @@ abstract class PhraseanetPHPUnitAbstract extends WebTestCase
                 };
 
             foreach (range(1, 24) as $i) {
-                static::$records['record_' . $i] = static::$records->share(function() use ($collection, $resolvePathfile, $i) {
+                static::$records['record_' . $i] = static::$records->share(function() use ($logger, $collection, $resolvePathfile, $i) {
 
                         PhraseanetPHPUnitAbstract::$recordsInitialized[] = $i;
 
@@ -720,7 +741,7 @@ abstract class PhraseanetPHPUnitAbstract extends WebTestCase
 
                         $record = record_adapter::createFromFile($file);
 
-                        $record->generate_subdefs($record->get_databox());
+                        $record->generate_subdefs($record->get_databox(), $logger);
 
                         return $record;
                     });
@@ -768,11 +789,13 @@ abstract class PhraseanetPHPUnitAbstract extends WebTestCase
 
         \PhraseanetPHPUnitListener::resetSkipped();
 
-        foreach (self::$recordsInitialized as $i) {
-            static::$records['record_' . $i]->delete();
-        }
+        if (self::$recordsInitialized !== false) {
+            foreach (self::$recordsInitialized as $i) {
+                static::$records['record_' . $i]->delete();
+            }
 
-        self::$recordsInitialized = array();
+            self::$recordsInitialized = array();
+        }
 
         return;
     }

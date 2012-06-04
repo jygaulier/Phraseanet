@@ -15,10 +15,12 @@
  * @license     http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link        www.phraseanet.com
  */
+
+use Alchemy\Phrasea\Command\Command;
+use Monolog\Handler;
+use Monolog\Logger;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Command\Command;
 
 class module_console_schedulerStart extends Command
 {
@@ -28,44 +30,36 @@ class module_console_schedulerStart extends Command
         parent::__construct($name);
 
         $this->setDescription('Start the scheduler');
-        $this->addOption(
-            'nolog'
-            , NULL
-            , 1 | InputOption::VALUE_NONE
-            , 'do not log (scheduler) to logfile'
-            , NULL
-        );
-        $this->addOption(
-            'notasklog'
-            , NULL
-            , 1 | InputOption::VALUE_NONE
-            , 'do not log (tasks) to logfiles'
-            , NULL
-        );
-        $this->setHelp(
-            "You should use launch the command and finish it with `&`"
-            . " to return to the console\n\n"
-            . "\tie : <info>bin/console scheduler:start &</info>"
-        );
 
         return $this;
     }
 
+    public function requireSetup()
+    {
+        return true;
+    }
+
     public function execute(InputInterface $input, OutputInterface $output)
     {
-        if ( ! setup::is_installed()) {
-            $output->writeln('Phraseanet is not set up');
+        $this->checkSetup();
 
-            return 1;
-        }
+        $logger = new Logger('Task logger');
+
+        $streamHandler = new Handler\StreamHandler(fopen('php://stdout', 'a'), $input->getOption('verbose') ? Logger::DEBUG : Logger::WARNING);
+        $logger->pushHandler($streamHandler);
+
+        $logfile = __DIR__ . '/../../../../logs/scheduler.log';
+        $rotateHandler = new Handler\RotatingFileHandler($logfile, 10);
+        $logger->pushHandler($rotateHandler);
 
         try {
-            $scheduler = new task_Scheduler();
-            $scheduler->run($input, $output);
+            $scheduler = new task_Scheduler($logger);
+            $scheduler->run();
         } catch (\Exception $e) {
             switch ($e->getCode()) {
-                case task_Scheduler::ERR_ALREADY_RUNNING:   // 114 : aka EALREADY (Operation already in progress)
-                    $exitCode = ERR_ALREADY_RUNNING;
+                // 114 : aka EALREADY (Operation already in progress)
+                case task_Scheduler::ERR_ALREADY_RUNNING:
+                    $exitCode = task_Scheduler::ERR_ALREADY_RUNNING;
                     break;
                 default:
                     $exitCode = 1;   // default exit code (error)

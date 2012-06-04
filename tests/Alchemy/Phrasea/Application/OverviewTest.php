@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ApplicationOverviewTest extends PhraseanetWebTestCaseAuthenticatedAbstract
 {
+
     public function setUp()
     {
         parent::setUp();
@@ -25,24 +26,55 @@ class ApplicationOverviewTest extends PhraseanetWebTestCaseAuthenticatedAbstract
         $crawler = $this->client->request('GET', '/datafiles/' . static::$records['record_1']->get_sbas_id() . '/' . static::$records['record_1']->get_record_id() . '/preview/');
         $response = $this->client->getResponse();
 
-        if (static::$records['record_1']->get_preview()->get_baseurl() !== '') {
-            $this->assertEquals(302, $response->getStatusCode());
-            $url = p4string::delEndSlash($registry->get('GV_ServerName')) . $response->headers->get('Location');
-            $headers = http_query::getHttpHeaders($url);
-            $this->assertEquals(static::$records['record_1']->get_preview()->get_mime(), $headers['content_type']);
-            $this->assertEquals(static::$records['record_1']->get_preview()->get_size(), $headers['download_content_length']);
-        } else {
-            $this->assertEquals(200, $response->getStatusCode());
-            $content_disposition = explode(';', $response->headers->get('content-disposition'));
-            $this->assertEquals($content_disposition[0], 'attachment');
-            $this->assertEquals(static::$records['record_1']->get_preview()->get_mime(), $response->headers->get('content-type'));
-            $this->assertEquals(static::$records['record_1']->get_preview()->get_size(), $response->headers->get('content-length'));
-        }
+        $this->assertEquals(200, $response->getStatusCode());
+        $content_disposition = explode(';', $response->headers->get('content-disposition'));
+        $this->assertEquals('attachment', $content_disposition[0]);
+        $this->assertEquals(static::$records['record_1']->get_preview()->get_mime(), $response->headers->get('content-type'));
+        $this->assertEquals(static::$records['record_1']->get_preview()->get_size(), $response->headers->get('content-length'));
 
         $crawler = $this->client->request('GET', '/datafiles/' . static::$records['record_1']->get_sbas_id() . '/' . static::$records['record_1']->get_record_id() . '/asubdefthatdoesnotexists/');
         $response = $this->client->getResponse();
 
         $this->assertEquals(404, $response->getStatusCode());
+    }
+
+    function testEtag()
+    {
+        $tmp = tempnam(sys_get_temp_dir(), 'testEtag');
+        copy(__DIR__ . '/../../../testfiles/cestlafete.jpg', $tmp);
+
+        $media = \MediaVorus\MediaVorus::guess(new \SplFileInfo($tmp));
+
+        $file = new Alchemy\Phrasea\Border\File($media, self::$collection);
+        $record = record_adapter::createFromFile($file);
+
+        $crawler = $this->client->request('GET', '/datafiles/' . $record->get_sbas_id() . '/' . $record->get_record_id() . '/preview/');
+        $response = $this->client->getResponse();
+
+        /* @var $response \Symfony\Component\HttpFoundation\Response */
+        $this->assertTrue($response->isOk());
+        $this->assertNull($response->getEtag());
+        $this->assertNull($response->getLastModified());
+        $this->assertNull($response->getMaxAge());
+        $this->assertNull($response->getTtl());
+        $this->assertEquals(0, $response->getAge());
+        $this->assertNull($response->getExpires());
+
+        $record->generate_subdefs($record->get_databox(), self::$core['monolog']);
+
+        $crawler = $this->client->request('GET', '/datafiles/' . $record->get_sbas_id() . '/' . $record->get_record_id() . '/preview/');
+        $response = $this->client->getResponse();
+
+        /* @var $response \Symfony\Component\HttpFoundation\Response */
+        $this->assertTrue($response->isOk());
+        $this->assertNotNull($response->getEtag());
+        $this->assertInstanceOf('DateTime', $response->getLastModified());
+        $this->assertNull($response->getMaxAge());
+        $this->assertNull($response->getTtl());
+        $this->assertGreaterThanOrEqual(0, $response->getAge());
+        $this->assertNull($response->getExpires());
+
+        unlink($tmp);
     }
 
     function testDatafilesRouteNotAuthenticated()
@@ -81,11 +113,7 @@ class ApplicationOverviewTest extends PhraseanetWebTestCaseAuthenticatedAbstract
         $crawler = $this->client->request('GET', $url);
         $response = $this->client->getResponse();
 
-        if (static::$records['record_1']->get_preview()->get_baseurl() !== '') {
-            $this->assertEquals(302, $response->getStatusCode());
-        } else {
-            $this->assertEquals(200, $response->getStatusCode());
-        }
+        $this->assertEquals(200, $response->getStatusCode());
 
         $url = $url . 'view/';
         $crawler = $this->client->request('GET', $url);

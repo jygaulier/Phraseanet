@@ -23,11 +23,14 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Application;
 
-$Core = require_once dirname(__FILE__) . '/../lib/bootstrap.php';
+require_once dirname(__FILE__) . '/../lib/classes/bootstrap.class.php';
 
-$result_code = 1;
+bootstrap::register_autoloads();
 
-$result_code = 1;
+$configuration = Alchemy\Phrasea\Core\Configuration::build();
+if ($configuration->isInstalled()) {
+    require_once dirname(__FILE__) . '/../lib/bootstrap.php';
+}
 
 try {
     $app = new Application("
@@ -58,10 +61,10 @@ try {
 
     $app->add(new module_console_sphinxGenerateSuggestion('sphinx:generate-suggestions'));
 
-    $app->add(new module_console_systemMailCheck('system:mailCheck'));
-    $app->add(new module_console_systemBackupDB('system:backupDB'));
-    $app->add(new module_console_systemClearCache('system:clearCache'));
-    $app->add(new module_console_systemTemplateGenerator('system:templateGenerator'));
+    $app->add(new module_console_systemMailCheck('system:mail-check'));
+    $app->add(new module_console_systemBackupDB('system:backup-db'));
+    $app->add(new module_console_systemClearCache('system:clear-cache'));
+    $app->add(new module_console_systemTemplateGenerator('system:template-generator'));
     $app->add(new module_console_systemExport('system:export'));
 
     $app->add(new module_console_taskrun('task:run'));
@@ -70,8 +73,8 @@ try {
     $app->add(new module_console_schedulerState('scheduler:state'));
     $app->add(new module_console_schedulerStop('scheduler:stop'));
     $app->add(new module_console_schedulerStart('scheduler:start'));
-    $app->add(new module_console_fileEnsureProductionSetting('check:ensureProductionSettings'));
-    $app->add(new module_console_fileEnsureDevSetting('check:ensureDevSettings'));
+    $app->add(new module_console_fileEnsureProductionSetting('check:ensure-production-settings'));
+    $app->add(new module_console_fileEnsureDevSetting('check:ensure-dev-settings'));
     $app->add(new module_console_systemConfigCheck('check:system'));
 
 
@@ -80,8 +83,10 @@ try {
     $app->add(new module_console_fieldsRename('fields:rename'));
     $app->add(new module_console_fieldsMerge('fields:merge'));
 
-
-    $result_code = $app->run() === 0 ? : 1;
+    $app->add(new Alchemy\Phrasea\Command\RescanTechnicalDatas('records:rescan-technical-datas'));
+    $app->add(new Alchemy\Phrasea\Command\BuildMissingSubdefs('records:build-missing-subdefs'));
+    
+    $result_code = is_int($app->run()) ? : 1;
 } catch (Exception $e) {
     echo sprintf("an error occured : %s", $e->getMessage());
 }

@@ -9,6 +9,7 @@
  * file that was distributed with this source code.
  */
 
+use Monolog\Logger;
 use MediaVorus\Media\Media;
 use Symfony\Component\HttpFoundation\File\File as SymfoFile;
 
@@ -179,7 +180,7 @@ class record_adapter implements record_Interface, cache_cacheableInterface
 
             return $this;
         } catch (Exception $e) {
-
+            
         }
 
         $connbas = $this->databox->get_connection();
@@ -455,7 +456,7 @@ class record_adapter implements record_Interface, cache_cacheableInterface
     public function get_duration()
     {
         if ( ! $this->duration) {
-            $this->duration = $this->get_technical_infos(media_subdef::TC_DATA_DURATION);
+            $this->duration = round($this->get_technical_infos(media_subdef::TC_DATA_DURATION));
         }
 
         return $this->duration;
@@ -503,7 +504,7 @@ class record_adapter implements record_Interface, cache_cacheableInterface
         try {
             return $this->get_subdef('thumbnailGIF');
         } catch (Exception $e) {
-
+            
         }
 
         return null;
@@ -549,7 +550,7 @@ class record_adapter implements record_Interface, cache_cacheableInterface
         try {
             return $this->get_data_from_cache(self::CACHE_STATUS);
         } catch (Exception $e) {
-
+            
         }
         $sql = 'SELECT BIN(status) as status FROM record
               WHERE record_id = :record_id';
@@ -630,7 +631,11 @@ class record_adapter implements record_Interface, cache_cacheableInterface
 
         $searchDevices = array_merge((array) $devices, (array) databox_subdef::DEVICE_ALL);
 
-        foreach ($this->databox->get_subdef_structure() as $databoxSubdefs) {
+        foreach ($this->databox->get_subdef_structure() as $group => $databoxSubdefs) {
+
+            if ($this->get_type() != $group) {
+                continue;
+            }
 
             foreach ($databoxSubdefs as $databoxSubdef) {
 
@@ -689,7 +694,7 @@ class record_adapter implements record_Interface, cache_cacheableInterface
         try {
             return $this->get_data_from_cache(self::CACHE_SUBDEFS);
         } catch (Exception $e) {
-
+            
         }
 
         $connbas = $this->get_databox()->get_connection();
@@ -752,23 +757,6 @@ class record_adapter implements record_Interface, cache_cacheableInterface
                             break;
                     }
                 }
-                /**
-                 * @todo un patch pour ca, et rentrer les infos à l'insert
-                 */
-//        try
-//        {
-//          $hd = $this->get_subdef('document');
-////          if ($hd)
-////          {
-//          $this->technical_datas['size'] = $hd->get_size();
-//          $this->technical_datas['width'] = $hd->get_width();
-//          $this->technical_datas['height'] = $hd->get_height();
-////          }
-//        }
-//        catch (Exception $e)
-//        {
-//
-//        }
                 $this->set_data_to_cache($this->technical_datas, self::CACHE_TECHNICAL_DATAS);
                 unset($e);
             }
@@ -896,7 +884,7 @@ class record_adapter implements record_Interface, cache_cacheableInterface
             $title = trim($this->get_original_name($removeExtension));
         }
 
-        $title = $title != "" ? $title : "<i>" . _('reponses::document sans titre') . "</i>";
+        $title = $title != "" ? $title : _('reponses::document sans titre');
 
         return $title;
     }
@@ -982,14 +970,6 @@ class record_adapter implements record_Interface, cache_cacheableInterface
                 $path_file_dest = $path . $newfilename;
             }
 
-            if (trim($subdef_def->get_baseurl()) !== '') {
-                $base_url = str_replace(
-                    array($subdef_def->get_path(), $newfilename)
-                    , array($subdef_def->get_baseurl(), '')
-                    , $path_file_dest
-                );
-            }
-
             try {
                 $Core = \bootstrap::getCore();
                 $Core['media-alchemyst']->open($media->getFile()->getRealPath())
@@ -1005,64 +985,27 @@ class record_adapter implements record_Interface, cache_cacheableInterface
         }
 
         $core['file-system']->chmod($subdefFile->getRealPath(), 0760);
+        $media = \MediaVorus\MediaVorus::guess($subdefFile);
 
-        try {
-            $appbox = \appbox::get_instance(\bootstrap::getCore());
-            $session = $appbox->get_session();
+        media_subdef::create($this, $name, $media);
 
-            $connbas = connection::getPDOConnection($this->get_sbas_id());
+        $appbox = \appbox::get_instance(\bootstrap::getCore());
+        $session = $appbox->get_session();
 
-            $sql = 'UPDATE subdef
-                SET baseurl = :baseurl,
-                    file = :filename,
-                    width = :width,
-                    height = :height,
-                    mime = :mime,
-                    path = :path,
-                    size = :size,
-                    substit = 1
-                WHERE name = :name AND record_id = :record_id';
+        $this->delete_data_from_cache(self::CACHE_SUBDEFS);
 
-            $params = array(
-                ':record_id' => $this->record_id,
-                ':name'      => $name,
-                ':baseurl'   => $base_url,
-                ':filename'  => $subdefFile->getFilename(),
-                ':mime'      => $subdefFile->getMimeType(),
-                ':path'      => $subdefFile->getPath(),
-                ':filesize'  => $subdefFile->getSize(),
-            );
-
-            if (method_exists($media, 'getWidth')) {
-                $params[':width'] = $media->getWidth();
-            }
-            if (method_exists($media, 'getHeight')) {
-                $params[':height'] = $media->getHeight();
-            }
-
-            $stmt = $connbas->prepare($sql);
-
-            $stmt->execute($params);
-
-            $subdef = $this->get_subdef($name);
-            $subdef->delete_data_from_cache();
-
-            $this->delete_data_from_cache(self::CACHE_SUBDEFS);
-
-            if ($meta_writable) {
-                $this->write_metas();
-            }
-            if ($name == 'document') {
-                $this->rebuild_subdefs();
-            }
-
-            $type = $name == 'document' ? 'HD' : $name;
-
-            $session->get_logger($this->get_databox())
-                ->log($this, Session_Logger::EVENT_SUBSTITUTE, $type, '');
-        } catch (Exception $e) {
-
+        if ($meta_writable) {
+            $this->write_metas();
         }
+
+        if ($name == 'document') {
+            $this->rebuild_subdefs();
+        }
+
+        $type = $name == 'document' ? 'HD' : $name;
+
+        $session->get_logger($this->get_databox())
+            ->log($this, Session_Logger::EVENT_SUBSTITUTE, $type, '');
 
         return $this;
     }
@@ -1271,7 +1214,7 @@ class record_adapter implements record_Interface, cache_cacheableInterface
                 $sphinx->update_status(array("metadatas" . $sbas_crc, "metadatas" . $sbas_crc . "_stemmed_en", "metadatas" . $sbas_crc . "_stemmed_fr", "documents" . $sbas_crc), $this->get_sbas_id(), $this->get_record_id(), strrev($status));
             }
         } catch (Exception $e) {
-
+            
         }
         $this->delete_data_from_cache(self::CACHE_STATUS);
 
@@ -1384,7 +1327,7 @@ class record_adapter implements record_Interface, cache_cacheableInterface
         }
 
         $pathhd = databox::dispatch(trim($databox->get_sxml_structure()->path));
-        $newname = $record->get_record_id() . "_document." . $file->getFile()->getExtension();
+        $newname = $record->get_record_id() . "_document." . pathinfo($file->getOriginalName(), PATHINFO_EXTENSION);
 
         $core['file-system']->copy($file->getFile()->getRealPath(), $pathhd . $newname, true);
 
@@ -1393,26 +1336,46 @@ class record_adapter implements record_Interface, cache_cacheableInterface
 
         $record->delete_data_from_cache(record_adapter::CACHE_SUBDEFS);
 
+        $record->insertTechnicalDatas();
+        
+        return $record;
+    }
+
+    /**
+     * Read technical datas an insert them
+     * This method can be long to perform
+     *
+     * @return record_adapter 
+     */
+    public function insertTechnicalDatas()
+    {
+        try {
+            $document = $this->get_subdef('document');
+        } catch (\Exception_Media_SubdefNotFound $e) {
+            return $this;
+        }
+
         $sql = 'REPLACE INTO technical_datas (id, record_id, name, value)
         VALUES (null, :record_id, :name, :value)';
-        $stmt = $databox->get_connection()->prepare($sql);
+        $stmt = $this->get_databox()->get_connection()->prepare($sql);
 
-        foreach ($subdef->readTechnicalDatas() as $name => $value) {
-            if (is_null($value))
+        foreach ($document->readTechnicalDatas() as $name => $value) {
+            if (is_null($value)) {
                 continue;
+            }
 
             $stmt->execute(array(
-                ':record_id' => $record_id
+                ':record_id' => $this->get_record_id()
                 , ':name'      => $name
                 , ':value'     => $value
             ));
         }
 
         $stmt->closeCursor();
+        
+        $this->delete_data_from_cache(self::CACHE_TECHNICAL_DATAS);
 
-        $filessystem = null;
-
-        return $record;
+        return $this;
     }
 
     /**
@@ -1446,8 +1409,7 @@ class record_adapter implements record_Interface, cache_cacheableInterface
         $records = array();
 
         foreach ($rs as $row) {
-            $k = count($records);
-            $records[$k] = new record_adapter($sbas_id, $row['record_id']);
+            $records[] = new record_adapter($sbas_id, $row['record_id']);
         }
 
         return $records;
@@ -1481,8 +1443,7 @@ class record_adapter implements record_Interface, cache_cacheableInterface
         $records = array();
 
         foreach ($rs as $row) {
-            $k = count($records);
-            $records[$k] = new record_adapter($databox->get_sbas_id(), $row['record_id']);
+            $records[] = new record_adapter($databox->get_sbas_id(), $row['record_id']);
         }
 
         return $records;
@@ -1652,17 +1613,19 @@ class record_adapter implements record_Interface, cache_cacheableInterface
     }
 
     /**
+     * Generates subdefs
      *
-     * @param databox $databox
+     * @param  databox         $databox        The databox
+     * @param  \Monolog\Logger $logger         A logger for binary operation
+     * @param  array           $wanted_subdefs An array of subdef names
+     * @return \record_adapter
      */
-    public function generate_subdefs(databox $databox, Array $wanted_subdefs = null)
+    public function generate_subdefs(databox $databox, Logger $logger, Array $wanted_subdefs = null)
     {
         $subdefs = $databox->get_subdef_structure()->getSubdefGroup($this->get_type());
 
-        $Core = bootstrap::getCore();
-
         if ( ! $subdefs) {
-            $Core['monolog']->addInfo(sprintf('Nothing to do for %s', $this->get_type()));
+            $logger->addInfo(sprintf('Nothing to do for %s', $this->get_type()));
 
             return;
         }
@@ -1678,22 +1641,21 @@ class record_adapter implements record_Interface, cache_cacheableInterface
             $pathdest = null;
 
             if ($this->has_subdef($subdefname) && $this->get_subdef($subdefname)->is_physically_present()) {
-
                 $pathdest = $this->get_subdef($subdefname)->get_pathfile();
                 $this->get_subdef($subdefname)->remove_file();
-
+                $logger->addInfo(sprintf('Removed old file for %s', $subdefname));
                 $this->clearSubdefCache($subdefname);
             }
 
             $pathdest = $this->generateSubdefPathname($subdef, $pathdest);
 
-            $this->generate_subdef($subdef, $pathdest);
+            $logger->addInfo(sprintf('Generating subdef %s to %s', $subdefname, $pathdest));
+            $this->generate_subdef($subdef, $pathdest, $logger);
 
             if (file_exists($pathdest)) {
                 $media = \MediaVorus\MediaVorus::guess(new \SplFileInfo($pathdest));
-                $baseurl = $subdef->get_baseurl() ? $subdef->get_baseurl() . substr(dirname($pathdest), strlen($subdef->get_path())) : '';
 
-                media_subdef::create($this, $subdef->get_name(), $media, $baseurl);
+                media_subdef::create($this, $subdef->get_name(), $media);
             }
 
             $this->clearSubdefCache($subdefname);
@@ -1718,21 +1680,28 @@ class record_adapter implements record_Interface, cache_cacheableInterface
     }
 
     /**
+     * Generate a subdef
      *
-     * @todo move to media_subdef class
-     * @param databox_subdef $subdef_class
-     * @param string         $pathdest
+     * @param  databox_subdef  $subdef_class The related databox subdef
+     * @param  type            $pathdest     The destination of the file
+     * @param  Logger          $logger       A logger for binary operation
+     * @return \record_adapter
      */
-    protected function generate_subdef(databox_subdef $subdef_class, $pathdest)
+    protected function generate_subdef(databox_subdef $subdef_class, $pathdest, Logger $logger)
     {
         $Core = \bootstrap::getCore();
 
         try {
+            if (null === $this->get_hd_file()) {
+                $logger->addInfo('No HD file found, aborting');
+                return;
+            }
+
             $Core['media-alchemyst']->open($this->get_hd_file()->getPathname());
             $Core['media-alchemyst']->turnInto($pathdest, $subdef_class->getSpecs());
             $Core['media-alchemyst']->close();
         } catch (\MediaAlchemyst\Exception\Exception $e) {
-            $Core['monolog']->addError(sprintf('Subdef generation failed with message %s', $e->getMessage()));
+            $logger->addError(sprintf('Subdef generation failed for record %d with message %s', $this->get_record_id(), $e->getMessage()));
         }
 
         return $this;
@@ -1903,7 +1872,7 @@ class record_adapter implements record_Interface, cache_cacheableInterface
             try {
                 $subdef->rotate($angle);
             } catch (\Exception $e) {
-
+                
             }
         }
 

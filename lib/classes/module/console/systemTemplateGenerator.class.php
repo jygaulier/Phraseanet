@@ -15,9 +15,9 @@
  * @license     http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link        www.phraseanet.com
  */
+use Alchemy\Phrasea\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Command\Command;
 
 class module_console_systemTemplateGenerator extends Command
 {
@@ -31,8 +31,15 @@ class module_console_systemTemplateGenerator extends Command
         return $this;
     }
 
+    public function requireSetup()
+    {
+        return false;
+    }
+
     public function execute(InputInterface $input, OutputInterface $output)
     {
+        $this->checkSetup();
+
         $tplDirs = array(
             realpath(__DIR__ . '/../../../../templates/web/'),
             realpath(__DIR__ . '/../../../../templates/mobile/')
@@ -87,9 +94,8 @@ class module_console_systemTemplateGenerator extends Command
             $twig->addFilter('getDate', new Twig_Filter_Function('phraseadate::getDate'));
             $twig->addFilter('geoname_name_from_id', new Twig_Filter_Function('geonames::name_from_id'));
 
-
             $finder = new Symfony\Component\Finder\Finder();
-            foreach ($finder->files()->in(array($tplDir)) as $file) {
+            foreach ($finder->files()->in(array($tplDir))->exclude('Mustache') as $file) {
                 try {
                     $twig->loadTemplate(str_replace($tplDir, '', $file->getPathname()));
                     $output->writeln('' . $file . '');

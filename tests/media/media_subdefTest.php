@@ -29,8 +29,11 @@ class media_subdefTest extends \PhraseanetPHPUnitAbstract
 
         $file = new Alchemy\Phrasea\Border\File(\MediaVorus\MediaVorus::guess(new \SplFileInfo(__DIR__ . "/../testfiles/iphone_pic.jpg")), self::$collection);
 
+        $logger = new \Monolog\Logger('test');
+        $logger->pushHandler(new \Monolog\Handler\NullHandler());
+
         self::$recordonbleu = record_adapter::createFromFile($file);
-        self::$recordonbleu->generate_subdefs(self::$recordonbleu->get_databox());
+        self::$recordonbleu->generate_subdefs(self::$recordonbleu->get_databox(), $logger);
 
         foreach (self::$recordonbleu->get_subdefs() as $subdef) {
 
@@ -145,15 +148,6 @@ class media_subdefTest extends \PhraseanetPHPUnitAbstract
     }
 
     /**
-     * @covers media_subdef::get_baseurl
-     */
-    public function testGet_baseurl()
-    {
-        $this->assertInternalType('string', self::$objectPresent->get_baseurl());
-        $this->assertInternalType('string', self::$objectNotPresent->get_baseurl());
-    }
-
-    /**
      * @covers media_subdef::get_file
      */
     public function testGet_file()
@@ -197,7 +191,7 @@ class media_subdefTest extends \PhraseanetPHPUnitAbstract
     public function testIs_substituted()
     {
         $this->assertFalse(self::$objectPresent->is_substituted());
-        $this->assertTrue(self::$objectNotPresent->is_substituted());
+        $this->assertFalse(self::$objectNotPresent->is_substituted());
     }
 
     /**

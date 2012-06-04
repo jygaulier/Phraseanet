@@ -9,18 +9,20 @@
  * file that was distributed with this source code.
  */
 
+use Alchemy\Phrasea\Command\Command;
+use Monolog\Handler;
+use Monolog\Logger;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
+
 /**
  * @todo write tests
  *
  * @license     http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link        www.phraseanet.com
  */
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Command\Command;
-
 class module_console_taskrun extends Command
 {
     private $task;
@@ -63,12 +65,17 @@ class module_console_taskrun extends Command
         }
     }
 
+    public function requireSetup()
+    {
+        return true;
+    }
+
     public function execute(InputInterface $input, OutputInterface $output)
     {
-        if ( ! setup::is_installed()) {
-            $output->writeln('Phraseanet is not set up');
-
-            return 1;
+        try{
+            $this->checkSetup();
+        } catch (\RuntimeException $e){
+            return self::EXITCODE_SETUP_ERROR;
         }
 
         $task_id = (int) $input->getArgument('task_id');
@@ -78,7 +85,6 @@ class module_console_taskrun extends Command
 
         $appbox = \appbox::get_instance(\bootstrap::getCore());
         $task_manager = new task_manager($appbox);
-        $this->task = $task_manager->getTask($task_id);
 
         if ($input->getOption('runner') === task_abstract::RUNNER_MANUAL) {
             $schedStatus = $task_manager->getSchedulerState();
@@ -95,14 +101,30 @@ class module_console_taskrun extends Command
             }
         }
 
+        $core = \bootstrap::getCore();
+
+        $logger = $core['monolog'];
+
+        if ($input->getOption('verbose')) {
+            $handler = new Handler\StreamHandler(fopen('php://stdout', 'a'));
+            $logger->pushHandler($handler);
+        }
+
+        $logfile = __DIR__ . '/../../../../logs/task_' . $task_id . '.log';
+        $handler = new Handler\RotatingFileHandler($logfile, 10);
+        $logger->pushHandler($handler);
+
+        $this->task = $task_manager->getTask($task_id, $logger);
+
         register_tick_function(array($this, 'tick_handler'), true);
         declare(ticks = 1);
+
         if (function_exists('pcntl_signal')) {
             pcntl_signal(SIGTERM, array($this, 'sig_handler'));
         }
 
         try {
-            $this->task->run($runner, $input, $output);
+            $this->task->run($runner);
         } catch (Exception $e) {
             $this->task->log(sprintf("taskrun : exception from 'run()', %s \n", $e->getMessage()));
 

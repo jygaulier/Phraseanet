@@ -18,7 +18,7 @@
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Command\Command;
+use Alchemy\Phrasea\Command\Command;
 
 class module_console_checkExtension extends Command
 {
@@ -27,28 +27,39 @@ class module_console_checkExtension extends Command
     {
         parent::__construct($name);
 
-        $this->setDescription('Delete a documentation field from a Databox');
+        $this->setDescription('Checks if the Phrasea PHP Extension is well installed & working properly.');
 
-        $this->addOption('usr_id', 'u', InputOption::VALUE_OPTIONAL, 'Usr_id to use. If no user, get the first available');
+        $this->addArgument('usr_id', InputOption::VALUE_REQUIRED, 'Usr_id to use.');
 
         $this->addOption('query', '', InputOption::VALUE_OPTIONAL, 'The query', 'last');
 
         return $this;
     }
 
+    public function requireSetup()
+    {
+        return true;
+    }
+
     public function execute(InputInterface $input, OutputInterface $output)
     {
+        $this->checkSetup();
 
-        if ( ! extension_loaded('phrasea2'))
-            printf("Missing Extension php-phrasea");
+        if ( ! extension_loaded('phrasea2')) {
+            $output->writeln("<error>Missing Extension php-phrasea.</error>");
+            return 1;
+        }
 
-        $appbox = \appbox::get_instance(\bootstrap::getCore());
+        $Core = \bootstrap::getCore();
+
+        $appbox = \appbox::get_instance($Core);
+
         $registry = $appbox->get_registry();
 
-        $usr_id = $input->getOption('usr_id');
+        $usrId = $input->getArgument('usr_id');
 
         try {
-            $TestUser = \User_Adapter::getInstance($usr_id, $appbox);
+            $TestUser = \User_Adapter::getInstance($usrId, $appbox);
         } catch (\Exception $e) {
             $output->writeln("<error>Wrong user !</error>");
 
@@ -69,7 +80,6 @@ class module_console_checkExtension extends Command
             $output->writeln("<info>$function</info>");
         }
 
-        $Core = \bootstrap::getCore();
         $configuration = $Core->getConfiguration();
         $choosenConnection = $configuration->getPhraseanet()->get('database');
         $connexion = $configuration->getConnexion($choosenConnection);
@@ -114,9 +124,9 @@ class module_console_checkExtension extends Command
 
         $output->writeln("\n-- phrasea_open_session --");
 
-        $ph_session = phrasea_open_session($sessid, $usr_id);
+        $phSession = phrasea_open_session($sessid, $usrId);
 
-        if ($ph_session) {
+        if ($phSession) {
             $output->writeln("<info>Succes ! </info> got session ");
         } else {
             $output->writeln("<error>Failed ! </error> got no session ");
@@ -138,7 +148,7 @@ class module_console_checkExtension extends Command
 
         $tbases = array();
 
-        foreach ($ph_session["bases"] as $phbase) {
+        foreach ($phSession["bases"] as $phbase) {
             $tcoll = array();
             foreach ($phbase["collections"] as $coll) {
                 $tcoll[] = 0 + $coll["base_id"];
@@ -166,12 +176,12 @@ class module_console_checkExtension extends Command
             $tbases[$kb]["results"] = NULL;
 
             $ret = phrasea_query2(
-                $ph_session["session_id"]
+                $phSession["session_id"]
                 , $base["sbas_id"]
                 , $base["searchcoll"]
                 , $base["arrayq"]
                 , $registry->get('GV_sit')
-                , $usr_id
+                , $usrId
                 , FALSE
                 , PHRASEA_MULTIDOC_DOCONLY
                 , ''
@@ -197,7 +207,7 @@ class module_console_checkExtension extends Command
 
         $output->writeln("\n-- phrasea_fetch_results --");
 
-        $rs = phrasea_fetch_results($sessid, $usr_id, 1, true, '[[em]]', '[[/em]]');
+        $rs = phrasea_fetch_results($sessid, $usrId, 1, true, '[[em]]', '[[/em]]');
 
         if ($rs) {
             $output->writeln("<info>Succes ! </info> got result ");

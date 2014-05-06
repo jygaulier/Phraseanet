@@ -1130,7 +1130,7 @@ $(document).ready(function () {
 
     initLook();
 
-    setTimeout("sessionactive();", 30000);
+    setTimeout("pollNotifications();", 10000);
 
     $(this).bind('keydown', function (event) {
         var cancelKey = false;

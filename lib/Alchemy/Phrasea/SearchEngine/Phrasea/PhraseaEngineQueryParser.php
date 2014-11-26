@@ -720,6 +720,13 @@ class PhraseaEngineQueryParser
         }
     }
 
+    /**
+     * @param $tree
+     * @param $bid
+     * @param $domthe
+     * @param $searchsynonyms
+     * @return int
+     */
     public function setTids(&$tree, $bid, &$domthe, $searchsynonyms)
     {
         if ($this->debug)
@@ -772,6 +779,9 @@ class PhraseaEngineQueryParser
             $prophtml = "";
             $this->propAsHTML($domthe->documentElement, $prophtml, $path);
             $this->proposals["BASES"]["b$bid"]["TERMS"][$path]["HTML"] = $prophtml;
+        }
+        else {
+            $tree = null;
         }
 
         return($ambigus);

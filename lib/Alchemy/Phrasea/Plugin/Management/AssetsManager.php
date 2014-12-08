@@ -25,6 +25,7 @@ class AssetsManager
 
     /**
      * Updates plugins assets so that they are available online.
+     * Copy plugin configuration files (initial conf, samples...) where they can be edited
      *
      * @param Manifest $manifest
      *
@@ -42,11 +43,25 @@ class AssetsManager
                 sprintf('Unable to copy assets for plugin %s', $manifest->getName()), $e->getCode(), $e
             );
         }
+        try {
+            // copy the "config" dir only if it exists ( = backward compatibility with plugins without "config" dir)
+            $src = $this->pluginsDirectory . DIRECTORY_SEPARATOR . $manifest->getName() . DIRECTORY_SEPARATOR . 'config';
+            if($this->fs->exists($src)) {
+                $this->fs->mirror(
+                    $src,
+                    $this->rootPath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'plugins' . DIRECTORY_SEPARATOR . $manifest->getName()
+                );
+            }
+        } catch (IOException $e) {
+            throw new RuntimeException(
+                sprintf('Unable to copy config for plugin %s', $manifest->getName()), $e->getCode(), $e
+            );
+        }
     }
 
     /**
      * Removes assets for the plugin named with the given name
-     *
+     * nb : "config" files are NOT removed when plugin is removed ( = allow update without loosing the conf)
      * @param string $name
      *
      * @throws RuntimeException

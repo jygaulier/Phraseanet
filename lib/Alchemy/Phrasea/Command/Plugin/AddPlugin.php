@@ -50,7 +50,7 @@ class AddPlugin extends AbstractPluginCommand
         $this->container['filesystem']->mirror($temporaryDir, $targetDir);
         $output->writeln(" <comment>OK</comment>");
 
-        $output->write("Copying public files <info>".$manifest->getName()."</info>...");
+        $output->write("Copying public files and configuration files <info>".$manifest->getName()."</info>...");
         $this->container['plugins.assets-manager']->update($manifest);
         $output->writeln(" <comment>OK</comment>");
 

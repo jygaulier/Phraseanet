@@ -18,14 +18,13 @@ class ScheduledFetcherDelegate implements FetcherDelegateInterface
 {
     public function buildWhereClause()
     {
-        return 'WHERE (r.jeton & :to_index) > 0 AND (jeton & :indexing) = 0';
+        return '(r.jeton & :to_index) != 0';
     }
 
     public function getParameters()
     {
         return array(
             ':to_index' => PhraseaTokens::TO_INDEX,
-            ':indexing' => PhraseaTokens::INDEXING
         );
     }
 
@@ -33,7 +32,6 @@ class ScheduledFetcherDelegate implements FetcherDelegateInterface
     {
         return array(
             ':to_index' => PDO::PARAM_INT,
-            ':indexing' => PDO::PARAM_INT
         );
     }
 }

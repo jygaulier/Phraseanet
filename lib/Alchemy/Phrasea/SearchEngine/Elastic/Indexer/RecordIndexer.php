@@ -11,6 +11,7 @@
 namespace Alchemy\Phrasea\SearchEngine\Elastic\Indexer;
 
 use Alchemy\Phrasea\Model\RecordInterface;
+use Alchemy\Phrasea\SearchEngine\Elastic\Indexer;
 use Alchemy\Phrasea\SearchEngine\Elastic\Indexer\Record\Delegate\FetcherDelegateInterface;
 use Alchemy\Phrasea\SearchEngine\Elastic\Indexer\Record\Delegate\RecordListFetcherDelegate;
 use Alchemy\Phrasea\SearchEngine\Elastic\Indexer\Record\Delegate\ScheduledFetcherDelegate;
@@ -94,34 +95,31 @@ class RecordIndexer
      * called by command "populate"
      *
      * @param BulkOperation $bulk
-     * @param databox[] $databoxes
+     * @param databox $databox
      */
-    public function populateIndex(BulkOperation $bulk, array $databoxes)
+    public function populateIndex(BulkOperation $bulk, databox $databox)
     {
-        foreach ($databoxes as $databox) {
+        $submited_records = [];
 
-            $submited_records = [];
+        $this->logger->info(sprintf('Indexing database %s...', $databox->get_viewname()));
 
-            $this->logger->info(sprintf('Indexing database %s...', $databox->get_viewname()));
+        $fetcher = $this->createFetcherForDatabox($databox);    // no delegate, scan the whole records
 
-            $fetcher = $this->createFetcherForDatabox($databox);    // no delegate, scan the whole records
+        // post fetch : flag records as "indexing"
+        $fetcher->setPostFetch(function(array $records) use ($databox, $fetcher) {
+            RecordQueuer::didStartIndexingRecords($records, $databox);
+            // do not restart the fetcher since it has no clause on jetons
+        });
 
-            // post fetch : flag records as "indexing"
-            $fetcher->setPostFetch(function(array $records) use ($databox, $fetcher) {
-                RecordQueuer::didStartIndexingRecords($records, $databox);
-                // do not restart the fetcher since it has no clause on jetons
-            });
+        // bulk flush : flag records as "indexed"
+        $bulk->onFlush(function($operation_identifiers) use ($databox, &$submited_records) {
+            $this->onBulkFlush($databox, $operation_identifiers, $submited_records);
+        });
 
-            // bulk flush : flag records as "indexed"
-            $bulk->onFlush(function($operation_identifiers) use ($databox, &$submited_records) {
-                $this->onBulkFlush($databox, $operation_identifiers, $submited_records);
-            });
+        // Perform indexing
+        $this->indexFromFetcher($bulk, $fetcher, $submited_records);
 
-            // Perform indexing
-            $this->indexFromFetcher($bulk, $fetcher, $submited_records);
-
-            $this->logger->info(sprintf('Finished indexing %s', $databox->get_viewname()));
-        }
+        $this->logger->info(sprintf('Finished indexing %s', $databox->get_viewname()));
     }
 
     /**
@@ -129,13 +127,11 @@ class RecordIndexer
      * called by task "indexer"
      *
      * @param BulkOperation $bulk
-     * @param databox[] $databoxes
+     * @param databox $databox
      */
-    public function indexScheduled(BulkOperation $bulk, array $databoxes)
+    public function indexScheduled(BulkOperation $bulk, databox $databox)
     {
-        foreach ($databoxes as $databox) {
-            $this->indexScheduledInDatabox($bulk, $databox);
-        }
+        $this->indexScheduledInDatabox($bulk, $databox);
     }
 
     private function indexScheduledInDatabox(BulkOperation $bulk, databox $databox)
@@ -258,9 +254,10 @@ class RecordIndexer
 
     private function indexFromFetcher(BulkOperation $bulk, Fetcher $fetcher, array &$submited_records)
     {
-        /** @var RecordInterface $record */
         while ($record = $fetcher->fetch()) {
             $op_identifier = $this->getUniqueOperationId($record['id']);
+printf("indexing record %s with opid=%s\n", $record['id'], $op_identifier);
+// die;
 
             $params = array();
             $params['id'] = $record['id'];
@@ -269,7 +266,6 @@ class RecordIndexer
             $params['body'] = $record;
 
             $submited_records[$op_identifier] = $record;
-
             $bulk->index($params, $op_identifier);
         }
     }

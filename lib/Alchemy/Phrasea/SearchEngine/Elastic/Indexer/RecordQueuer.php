@@ -35,10 +35,10 @@ class RecordQueuer
         $connection = $collection->get_connection();
 
         // Set TO_INDEX flag on all records from this collection
-        $sql = "UPDATE record SET jeton = (jeton | :token) WHERE coll_id = :coll_id";
+        $sql = "UPDATE record SET jeton = (jeton | :flag) WHERE coll_id = :coll_id";
 
         $stmt = $connection->prepare($sql);
-        $stmt->bindValue(':token', Flag::TO_INDEX, PDO::PARAM_INT);
+        $stmt->bindValue(':flag', Flag::TO_INDEX, PDO::PARAM_INT);
         $stmt->bindValue(':coll_id', $collection->get_coll_id(), PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -53,9 +53,8 @@ class RecordQueuer
     public static function didStartIndexingRecords(array $records, databox $databox)
     {
         $connection = $databox->get_connection();
-        $sql = "UPDATE record SET jeton = (jeton | :flag) WHERE record_id IN (:record_ids)";
 
-        self::executeFlagQuery($connection, $sql, Flag::INDEXING, $records);
+        self::executeFlagQuery($connection, Flag::TO_INDEX, Flag::INDEXING, $records);
     }
 
     /**
@@ -68,17 +67,21 @@ class RecordQueuer
     public static function didFinishIndexingRecords(array $records, databox $databox)
     {
         $connection = $databox->get_connection();
-        $sql = "UPDATE record SET jeton = (jeton & ~ :flag) WHERE record_id IN (:record_ids)";
-        self::executeFlagQuery($connection, $sql, Flag::TO_INDEX | Flag::INDEXING, $records);
+
+        self::executeFlagQuery($connection, Flag::INDEXING, 0, $records);
     }
 
-    private static function executeFlagQuery(Connection $connection, $sql, $flag, array $records)
+    private static function executeFlagQuery(Connection $connection, $flag_and, $flag_or, array $records)
     {
+        $sql = "UPDATE record SET jeton = ((jeton & ~:flag_and) | :flag_or) WHERE record_id IN (:record_ids)";
+
         return $connection->executeQuery($sql, array(
-            ':flag'       => $flag,
+            ':flag_and'   => $flag_and,
+            ':flag_or'    => $flag_or,
             ':record_ids' => self::arrayPluck($records, 'record_id')
         ), array(
-            ':flag'       => PDO::PARAM_INT,
+            ':flag_and'   => PDO::PARAM_INT,
+            ':flag_or'    => PDO::PARAM_INT,
             ':record_ids' => Connection::PARAM_INT_ARRAY
         ));
     }

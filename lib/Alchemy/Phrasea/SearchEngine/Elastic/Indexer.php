@@ -17,13 +17,14 @@ use Alchemy\Phrasea\SearchEngine\Elastic\Indexer\RecordIndexer;
 use Alchemy\Phrasea\SearchEngine\Elastic\Indexer\TermIndexer;
 use Alchemy\Phrasea\SearchEngine\Elastic\Indexer\RecordQueuer;
 use appbox;
-use Closure;
+use databox;
 use Elasticsearch\Client;
 use Psr\Log\LoggerInterface;
 use igorw;
 use Psr\Log\NullLogger;
 use Symfony\Component\Stopwatch\Stopwatch;
 use SplObjectStorage;
+
 
 class Indexer
 {
@@ -43,6 +44,7 @@ class Indexer
 
     private $indexQueue;        // contains RecordInterface(s)
     private $deleteQueue;
+    private $queues;            // 2 queues (index, delete) per databox
 
     public function __construct(Client $client, ElasticsearchOptions $options, TermIndexer $termIndexer, RecordIndexer $recordIndexer, appbox $appbox, LoggerInterface $logger = null)
     {
@@ -53,8 +55,15 @@ class Indexer
         $this->appbox   = $appbox;
         $this->logger = $logger ?: new NullLogger();
 
-        $this->indexQueue = new SplObjectStorage();
-        $this->deleteQueue = new SplObjectStorage();
+        $this->queues = [];
+    }
+
+    /**
+     * @return Client
+     */
+    public function getClient()
+    {
+        return $this->client;
     }
 
     public function createIndex($withMapping = true)
@@ -110,9 +119,15 @@ class Indexer
             $databoxes = $this->appbox->get_databoxes();
         }
 
-        $this->apply(function(BulkOperation $bulk) use ($what, $databoxes) {
+        /** @var databox $databox */
+        foreach ($databoxes as $databox) {
+            $bulk = new BulkOperation($this->client, $this->logger);
+            $bulk->setDefaultIndex($this->options->getIndexName());
+            $bulk->setAutoFlushLimit(1000);
+
+            // Flush just in case, it's a noop when already done
             if ($what & self::THESAURUS) {
-                $this->termIndexer->populateIndex($bulk, $databoxes);
+                $this->termIndexer->populateIndex($bulk, $databox);
 
                 // Record indexing depends on indexed terms so we need to make
                 // everything ready to search
@@ -123,7 +138,7 @@ class Indexer
             }
 
             if ($what & self::RECORDS) {
-                $this->recordIndexer->populateIndex($bulk, $databoxes);
+                $this->recordIndexer->populateIndex($bulk, $databox);
 
                 // Final flush
                 $bulk->flush();
@@ -132,9 +147,10 @@ class Indexer
             // Optimize index
             $params = array('index' => $this->options->getIndexName());
             $this->client->indices()->optimize($params);
-        });
+        };
 
         $event = $stopwatch->stop('populate');
+
         printf("Indexation finished in %s min (Mem. %s Mo)", ($event->getDuration()/1000/60), bcdiv($event->getMemory(), 1048576, 2));
     }
 
@@ -162,14 +178,32 @@ class Indexer
         RecordQueuer::queueRecordsFromCollection($collection);
     }
 
+    /**
+     * @param $databox_id
+     * @return SplObjectStorage[]
+     */
+    private function getQueuesForDatabox($databox_id)
+    {
+        if(!array_key_exists($databox_id, $this->queues)) {
+            $this->queues[$databox_id] = [
+                'index' => new SplObjectStorage(),
+                'delete' => new SplObjectStorage()
+            ];
+        }
+
+        return $this->queues[$databox_id];
+    }
+
     public function indexRecord(RecordInterface $record)
     {
-        $this->indexQueue->attach($record);
+        $q = $this->getQueuesForDatabox($record->getBaseId());
+        $q['index']->attach($record);
     }
 
     public function deleteRecord(RecordInterface $record)
     {
-        $this->deleteQueue->attach($record);
+        $q = $this->getQueuesForDatabox($record->getBaseId());
+        $q['delete']->attach($record);
     }
 
     /**
@@ -178,41 +212,43 @@ class Indexer
      */
     public function indexScheduledRecords(array $databoxes)
     {
-        $this->apply(function(BulkOperation $bulk) use($databoxes) {
-            $this->recordIndexer->indexScheduled($bulk, $databoxes);
-        });
+        /** @var databox $databox */
+        foreach ($databoxes as $databox) {
+            $bulk = new BulkOperation($this->client, $this->logger);
+            $bulk->setDefaultIndex($this->options->getIndexName());
+            $bulk->setAutoFlushLimit(1000);
+
+            $this->recordIndexer->indexScheduled($bulk, $databox);
+
+            $bulk->flush();
+        };
     }
 
     public function flushQueue()
     {
-        // Do not reindex records modified then deleted in the request
-        $this->indexQueue->removeAll($this->deleteQueue);
+        /**
+         * @var int $databox_id
+         * @var SplObjectStorage $q
+         */
+        foreach($this->queues as $databox_id => $q) {
+            $q['index']->removeAll($q['delete']);
 
-        // Skip if nothing to do
-        if (count($this->indexQueue) === 0 && count($this->deleteQueue) === 0) {
-            return;
-        }
+            // Skip if nothing to do
+            if (count($q['index']) === 0 && count($q['delete']) === 0) {
+                continue;
+            }
 
-        $this->apply(function(BulkOperation $bulk) {
-            $this->recordIndexer->index($bulk, $this->indexQueue);
-            $this->recordIndexer->delete($bulk, $this->deleteQueue);
+            $bulk = new BulkOperation($this->client, $this->logger);
+            $bulk->setDefaultIndex($this->options->getIndexName());
+            $bulk->setAutoFlushLimit(1000);
+
+            $this->recordIndexer->index($bulk, $q['index']);
+            $this->recordIndexer->delete($bulk, $q['delete']);
+
             $bulk->flush();
-        });
 
-        $this->indexQueue = new SplObjectStorage();
-        $this->deleteQueue = new SplObjectStorage();
-    }
-
-    private function apply(Closure $work)
-    {
-        // Prepare the bulk operation
-        $bulk = new BulkOperation($this->client, $this->logger);
-        $bulk->setDefaultIndex($this->options->getIndexName());
-        $bulk->setAutoFlushLimit(1000);
-        // Do the work
-        $work($bulk);
-        // Flush just in case, it's a noop when already done
-        $bulk->flush();
+            unset($this->queues[$databox_id]);
+        }
     }
 
     /**

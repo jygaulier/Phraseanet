@@ -38,34 +38,31 @@ class TermIndexer
         $this->locales = $locales;
     }
 
-    public function populateIndex(BulkOperation $bulk, array $databoxes)
+    public function populateIndex(BulkOperation $bulk, databox $databox)
     {
-        foreach ($databoxes as $databox) {
-            /** @var databox $databox */
-            $databoxId = $databox->get_sbas_id();
+        $databoxId = $databox->get_sbas_id();
 
-            $visitor = new TermVisitor(function ($term) use ($bulk, $databoxId) {
-                // Path and id are prefixed with a databox identifier to not
-                // collide with other databoxes terms
+        $visitor = new TermVisitor(function ($term) use ($bulk, $databoxId) {
+            // Path and id are prefixed with a databox identifier to not
+            // collide with other databoxes terms
 
-                // Term structure
-                $id = sprintf('%s_%s', $databoxId, $term['id']);
-                unset($term['id']);
-                $term['path'] = sprintf('/%s%s', $databoxId, $term['path']);
-                $term['databox_id'] = $databoxId;
+            // Term structure
+            $id = sprintf('%s_%s', $databoxId, $term['id']);
+            unset($term['id']);
+            $term['path'] = sprintf('/%s%s', $databoxId, $term['path']);
+            $term['databox_id'] = $databoxId;
 
-                // Index request
-                $params = array();
-                $params['id'] = $id;
-                $params['type'] = self::TYPE_NAME;
-                $params['body'] = $term;
+            // Index request
+            $params = array();
+            $params['id'] = $id;
+            $params['type'] = self::TYPE_NAME;
+            $params['body'] = $term;
 
-                $bulk->index($params, null);
-            });
+            $bulk->index($params, null);
+        });
 
-            $document = Helper::thesaurusFromDatabox($databox);
-            $this->navigator->walk($document, $visitor);
-        }
+        $document = Helper::thesaurusFromDatabox($databox);
+        $this->navigator->walk($document, $visitor);
     }
 
     public function getMapping()

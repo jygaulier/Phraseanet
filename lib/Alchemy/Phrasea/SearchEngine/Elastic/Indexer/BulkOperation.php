@@ -102,6 +102,7 @@ class BulkOperation
         $this->logger->debug("ES Bulk query about to be performed\n", ['opCount' => count($this->operationIdentifiers)]);
 
         $response = $this->client->bulk($params);
+print_r($response);
         $this->stack = array();
 
         $callbackData = [];     // key: operationIdentifier passed when command was pushed on this bulk
@@ -112,7 +113,7 @@ class BulkOperation
             foreach($item as $command=>$result) {   // command may be "index" or "delete"
                 if($response['errors'] && $result['status'] >= 400) { // 4xx or 5xx error
                     $err = array_key_exists('error', $result) ? $result['error'] : ($command . " error " . $result['status']);
-                    throw new Exception(sprintf('%d: %s', $key, $err));
+                    $this->logger->error($err, ['result'=>$result]);
                 }
             }
 

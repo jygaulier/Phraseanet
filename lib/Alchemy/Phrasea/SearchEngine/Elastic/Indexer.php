@@ -127,7 +127,7 @@ class Indexer
 
             // Flush just in case, it's a noop when already done
             if ($what & self::THESAURUS) {
-                $this->termIndexer->populateIndex($bulk, [$databox]);
+                $this->termIndexer->populateIndex($bulk, $databox);
 
                 // Record indexing depends on indexed terms so we need to make
                 // everything ready to search
@@ -138,7 +138,7 @@ class Indexer
             }
 
             if ($what & self::RECORDS) {
-                $this->recordIndexer->populateIndex($bulk, [$databox]);
+                $this->recordIndexer->populateIndex($bulk, $databox);
 
                 // Final flush
                 $bulk->flush();
@@ -151,7 +151,7 @@ class Indexer
 
         $event = $stopwatch->stop('populate');
 
-        printf("Indexation finished in %s min (Mem. %s Mo)", ($event->getDuration()/1000/60), bcdiv($event->getMemory(), 1048576, 2));
+        printf("Indexation finished in %s min (Mem. %s Mo)\n", ($event->getDuration()/1000/60), bcdiv($event->getMemory(), 1048576, 2));
     }
 
     public function migrateMappingForDatabox($databox)

@@ -131,11 +131,6 @@ class RecordIndexer
      */
     public function indexScheduled(BulkOperation $bulk, databox $databox)
     {
-        $this->indexScheduledInDatabox($bulk, $databox);
-    }
-
-    private function indexScheduledInDatabox(BulkOperation $bulk, databox $databox)
-    {
         $submited_records = [];
 
         // Make fetcher

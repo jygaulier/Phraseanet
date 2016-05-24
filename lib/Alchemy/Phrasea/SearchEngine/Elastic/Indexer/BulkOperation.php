@@ -29,9 +29,10 @@ class BulkOperation
     private $flushLimit = 1000;
     private $flushCallbacks = [];
 
-    public function __construct(Client $client, LoggerInterface $logger)
+    public function __construct(Client $client, $index, LoggerInterface $logger)
     {
         $this->client = $client;
+        $this->index  = $index;
         $this->logger = $logger;
     }
 

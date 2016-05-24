@@ -68,7 +68,7 @@ final class GlobalStructure implements Structure
      * @param Flag[] $flags
      * @param Tag[] $metadata_tags
      */
-    public function __construct(array $fields = [], array $flags = [], array $metadata_tags = [])
+    private function __construct(array $fields = [], array $flags = [], array $metadata_tags = [])
     {
         Assertion::allIsInstanceOf($fields, Field::class);
         Assertion::allIsInstanceOf($flags, Flag::class);

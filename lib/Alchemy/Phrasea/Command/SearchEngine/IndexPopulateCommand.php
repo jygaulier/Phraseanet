@@ -61,6 +61,8 @@ class IndexPopulateCommand extends Command
 
         $databoxes = $input->getOption('databox_id');
 
-        $this->container['elasticsearch.indexer']->populateIndex($what, $databoxes);
+        /** @var Indexer $indexer */
+        $indexer = $this->container['elasticsearch.indexer'];
+        $indexer->populateIndex($what, $databoxes);
     }
 }

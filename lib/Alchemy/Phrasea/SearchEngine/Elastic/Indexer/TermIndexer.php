@@ -57,7 +57,7 @@ class TermIndexer
             $params['id'] = $id;
             $params['type'] = self::TYPE_NAME;
             $params['body'] = $term;
-print_r($params);
+
             $bulk->index($params, null);
         });
 

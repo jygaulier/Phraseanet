@@ -13,21 +13,13 @@ namespace Alchemy\Phrasea\SearchEngine\Elastic\Thesaurus;
 
 class Term implements TermInterface
 {
-    // So, this is a huuuge regex to match a group of words eventually followed
-    // by another group of words in parenthesis. It also takes care of trimming
-    // spaces.
-    const TERM_REGEX = '/^\s*(\w[^\(\)]*\w|\w)\s*(?:\(\s*([^\(\)]*[^\s\(\)])\s*\))?/u';
-    //                       [_____term______]       (   [_____context_____]    )
-
     private $value;
     private $context;
 
     public function __construct($value, $context = null)
     {
-        $this->value = (string) $value;
-        if ($context) {
-            $this->context = (string) $context;
-        }
+        $this->value   = $value;
+        $this->context = $context;
     }
 
     public function getValue()
@@ -52,12 +44,15 @@ class Term implements TermInterface
 
     public static function parse($string)
     {
-        preg_match(self::TERM_REGEX, $string, $matches);
+        $c = null;
+        if(($p=strpos($t=$string, '(')) !== false) {
+            $t = substr($string, 0, $p);
+            if(($p=strpos($c = substr($string, $p+1), ')')) !== false) {
+                $c = substr($c, 0, $p);
+            }
+        }
 
-        return new self(
-            isset($matches[1]) ? $matches[1] : null,
-            isset($matches[2]) ? $matches[2] : null
-        );
+        return new self(trim($t), $c===null ? null : trim($c));
     }
 
     public static function dump(TermInterface $term)

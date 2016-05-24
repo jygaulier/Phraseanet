@@ -28,10 +28,11 @@ class IndexCreateCommand extends Command
 
     protected function doExecute(InputInterface $input, OutputInterface $output)
     {
+        /** @var Indexer $indexer */
         $indexer = $this->container['elasticsearch.indexer'];
 
         if ($indexer->indexExists()) {
-            $output->writeln('<error>The search index already exists.</error>');
+            $output->writeln('<error>All search indexes already exists.</error>');
         } else {
             $indexer->createIndex();
             $output->writeln('Search index was created');

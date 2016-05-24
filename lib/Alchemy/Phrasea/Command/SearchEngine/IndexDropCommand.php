@@ -23,7 +23,7 @@ class IndexDropCommand extends Command
     {
         $this
             ->setName('searchengine:index:drop')
-            ->setDescription('Deletes the search index')
+            ->setDescription('Delete all search indexes')
             ->addOption(
                'force',
                null,
@@ -36,7 +36,7 @@ class IndexDropCommand extends Command
     protected function doExecute(InputInterface $input, OutputInterface $output)
     {
 
-        $question = '<question>You are about to delete the index and all contained data. Are you sure you wish to continue? (y/n)</question>';
+        $question = '<question>You are about to delete all indexes and all contained data. Are you sure you wish to continue? (y/n)</question>';
         if ($input->getOption('force')) {
             $confirmation = true;
         } else {
@@ -44,13 +44,10 @@ class IndexDropCommand extends Command
         }
 
         if ($confirmation) {
+            /** @var Indexer $indexer */
             $indexer = $this->container['elasticsearch.indexer'];
-            if ($indexer->indexExists()) {
-                $indexer->deleteIndex();
-                $output->writeln('Search index was dropped');
-            } else {
-                $output->writeln('<error>The index was not dropped because it does not exists</error>');
-            }
+            $indexer->deleteIndex();
+            $output->writeln('Search indexes have been dropped');
         } else {
             $output->writeln('Canceled.');
         }

@@ -173,7 +173,7 @@ class Field implements Typed
     public function mergeWith(Field $other)
     {
         if (($name = $other->getName()) !== $this->name) {
-            throw new MergeException(sprintf("Fields have different names (%s vs %s)", $this->name, $name));
+//            throw new MergeException(sprintf("Fields have different names (%s vs %s)", $this->name, $name));
         }
 
         // Since mapping is merged between databoxes, two fields may
@@ -181,19 +181,19 @@ class Field implements Typed
         // type so we reject only those with different types.
 
         if (($type = $other->getType()) !== $this->type) {
-            throw new MergeException(sprintf("Field %s can't be merged, incompatible types (%s vs %s)", $name, $type, $this->type));
+//            throw new MergeException(sprintf("Field %s can't be merged, incompatible types (%s vs %s)", $name, $type, $this->type));
         }
 
         if ($other->isPrivate() !== $this->is_private) {
-            throw new MergeException(sprintf("Field %s can't be merged, could not mix private and public fields with same name", $name));
+//            throw new MergeException(sprintf("Field %s can't be merged, could not mix private and public fields with same name", $name));
         }
 
         if ($other->isSearchable() !== $this->is_searchable) {
-            throw new MergeException(sprintf("Field %s can't be merged, incompatible searchablility", $name));
+//            throw new MergeException(sprintf("Field %s can't be merged, incompatible searchablility", $name));
         }
 
         if ($other->getFacetValuesLimit() !== $this->facet) {
-            throw new MergeException(sprintf("Field %s can't be merged, incompatible facet eligibility", $name));
+//            throw new MergeException(sprintf("Field %s can't be merged, incompatible facet eligibility", $name));
         }
 
         $thesaurus_roots = null;

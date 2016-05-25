@@ -43,6 +43,7 @@ class Indexer
     /** @var LoggerInterface|null */
     private $logger;
 
+    // former "all-databoxes" indexers
     private $recordIndexer;
     private $termIndexer;
 
@@ -51,9 +52,8 @@ class Indexer
 
     private $locales;
 
-    private $indexQueue;        // contains RecordInterface(s)
-    private $deleteQueue;
-    private $queues;            // 2 queues (index, delete) per databox
+    // array of "tools" for each databox (queues, indexer, thesaurus, ...)
+    private $databoxToolbox;
 
     public function __construct(Client $client, ElasticsearchOptions $options, TermIndexer $termIndexer, RecordIndexer $recordIndexer, appbox $appbox,
                                 Structure $structure, RecordHelper $helper, Thesaurus $thesaurus, array $locales, LoggerInterface $logger=null)
@@ -68,7 +68,7 @@ class Indexer
         $this->recordHelper = $helper;
         $this->locales = $locales;
 
-        $this->queues = [];
+        $this->databoxToolbox = [];
     }
 
     /**
@@ -89,15 +89,16 @@ class Indexer
         $termsIndices = [];
         $recordsIndices = [];
         foreach($this->appbox->get_databoxes() as $dbox) {
-            if(!$this->databoxIndexExist($dbox)) {
-                $this->createDataboxIndex($dbox, $withMapping);
+            if(!$this->indexExistForDatabox($dbox)) {
+                $this->createIndexForDatabox($dbox, $withMapping);
                 // todo : check that indexes do exist before adding them to the alias(es)
-                $termsIndices[] = $this->getTermsIndexName($dbox);
-                $recordsIndices[] = $this->getRecordsIndexName($dbox);
+                $termsIndices[] = $this->getTermsIndexNameForDatabox($dbox);
+                $recordsIndices[] = $this->getRecordsIndexNameForDatabox($dbox);
             }
         }
 
         // create the aliases
+        /* too bad, creating an alias on multiple indices is not ok in es 1.7 ...
         $params = [
             'body' => [
                 'actions' => [
@@ -118,8 +119,9 @@ class Indexer
                 ],
             ],
         ];
-        $this->client->indices()->updateAliases($params);
+file_put_contents("/tmp/phraseanet-log.txt", sprintf("%s (%d) creating aliases \"%s\"\n", __FILE__, __LINE__, var_export($params, true)), FILE_APPEND);
 
+        $this->client->indices()->updateAliases($params);
         $params = [
             'body' => [
                 'actions' => [
@@ -136,11 +138,65 @@ class Indexer
                 ],
             ],
         ];
+file_put_contents("/tmp/phraseanet-log.txt", sprintf("%s (%d) creating aliases \"%s\"\n", __FILE__, __LINE__, var_export($params, true)), FILE_APPEND);
+        $this->client->indices()->updateAliases($params);
+        */
+
+        /* ... so we need to loop for now */
+        $actions = [];
+        foreach($termsIndices as $index) {
+            $actions[] = [
+                'add' => [
+                    'index' => $index,
+                    'alias' => $this->options->getIndexName() . '.t',
+                ]
+            ];
+        }
+        foreach($recordsIndices as $index) {
+            $actions[] = [
+                'add' => [
+                    'index' => $index,
+                    'alias' => $this->options->getIndexName() . '.r',
+                ]
+            ];
+        }
+        $params = [
+            'body' => [
+                'actions' => $actions
+            ]
+        ];
+file_put_contents("/tmp/phraseanet-log.txt", sprintf("%s (%d) creating aliases \"%s\"\n", __FILE__, __LINE__, var_export($params, true)), FILE_APPEND);
+        $this->client->indices()->updateAliases($params);
+
+        $params = [
+            'body' => [
+                'actions' => [
+                    // one alias for all
+                    [
+                        'add' => [
+                            'index' => [
+                                $this->options->getIndexName() . '.t',
+                            ],
+                            'alias' => $this->options->getIndexName(),
+                        ]
+                    ],
+                    [
+                        'add' => [
+                            'index' => [
+                                $this->options->getIndexName() . '.r',
+                            ],
+                            'alias' => $this->options->getIndexName(),
+                        ]
+                    ],
+                ],
+            ],
+        ];
+file_put_contents("/tmp/phraseanet-log.txt", sprintf("%s (%d) creating aliases \"%s\"\n", __FILE__, __LINE__, var_export($params, true)), FILE_APPEND);
         $this->client->indices()->updateAliases($params);
 
     }
 
-    private function createDataboxIndex(databox $dbox, $withMapping)
+    private function createIndexForDatabox(databox $dbox, $withMapping)
     {
         $common_params = [
             'body' => [
@@ -153,36 +209,69 @@ class Indexer
         ];
 
         $params = $common_params;
-        $params['index'] = $this->getTermsIndexName($dbox);
-var_dump($params);
+        $params['index'] = $this->getTermsIndexNameForDatabox($dbox);
         if ($withMapping) {
             $params['body']['mappings'][TermIndexer::TYPE_NAME] = $this->termIndexer->getMapping();
         }
+file_put_contents("/tmp/phraseanet-log.txt", sprintf("%s (%d) creating index \"%s\"\n", __FILE__, __LINE__, $params['index']), FILE_APPEND);
         $this->client->indices()->create($params);
 
         $params = $common_params;
-        $params['index'] = $this->getRecordsIndexName($dbox);
-var_dump($params);
+        $params['index'] = $this->getRecordsIndexNameForDatabox($dbox);
         if ($withMapping) {
-            $params['body']['mappings'][RecordIndexer::TYPE_NAME] = $this->recordIndexer->getMapping();
+            $params['body']['mappings'][RecordIndexer::TYPE_NAME] = $this->getRecordIndexerForDatabox($dbox)->getMapping();
         }
+
+file_put_contents("/tmp/phraseanet-log.txt", sprintf("%s (%d) creating index \"%s\"\n", __FILE__, __LINE__, $params['index']), FILE_APPEND);
         $this->client->indices()->create($params);
     }
 
-    private function getDataboxMapping(databox $dbox)
+    private function getStructureForDatabox(databox $dbox)
     {
-        // dont use the all-databoxes structure, but one for this databox
-        $structure = GlobalStructure::createFromDataboxes([$dbox]);
-        $th = new ThesaurusForDatabox($this->client, $this->options, $this->logger);
-        $ri = new RecordIndexerForDatabox(
-            $structure,
-            $this->recordHelper,
-            $th,
-            $this->locales,
-            $this->logger
-        );
+        $toolbox = $this->getToolboxForDatabox($dbox->get_sbas_id());
+        if(!array_key_exists('structure', $toolbox)) {
+            $toolbox['structure'] = GlobalStructure::createFromDataboxes([$dbox]);
+        }
 
-        return $ri->getMapping();
+        return $toolbox['structure'];
+    }
+
+    /**
+     * @param databox $dbox
+     * @return Thesaurus
+     */
+    private function getThesaurusForDatabox(databox $dbox)
+    {
+        $toolbox = $this->getToolboxForDatabox($dbox->get_sbas_id());
+        if(!array_key_exists('thesaurus', $toolbox)) {
+            // don't use the all-databoxes thesaurus, but one for this databox (simply change the index....)
+            $options = clone $this->options;
+            $options->setIndexName($this->getTermsIndexNameForDatabox($dbox));
+            $toolbox['thesaurus'] = new Thesaurus($this->client, $options, $this->logger);
+            unset($options);
+        }
+
+        return $toolbox['thesaurus'];
+    }
+
+    /**
+     * @param databox $dbox
+     * @return RecordIndexerForDatabox
+     */
+    private function getRecordIndexerForDatabox(databox $dbox)
+    {
+        $toolbox = $this->getToolboxForDatabox($dbox->get_sbas_id());
+        if(!array_key_exists('recordIndexer', $toolbox)) {
+            $toolbox['recordIndexer'] = new RecordIndexerForDatabox(
+                $this->getStructureForDatabox($dbox), // don't use the all-databoxes structure, but one for this databox
+                $this->recordHelper,
+                $this->getThesaurusForDatabox($dbox), // don't use the all-databoxes thesaurus, but one for this databox
+                $this->locales,
+                $this->logger
+            );
+        }
+
+        return $toolbox['recordIndexer'];
     }
 
     public function updateMapping()
@@ -203,30 +292,75 @@ var_dump($params);
     public function deleteIndex()
     {
         // delete former common index just in case
+        //
+        // !!!
+        //     in fact even if the common "index" has become an ALIAS to all dbox/indexes,
+        //     deleting it as an "index" deletes (cascade) all aliases and indexes
+        //     so there should be nothing more to do.
+        // !!!
         $this->deleteESIndex($this->options->getIndexName());
 
+        // but since the creation or cleanup might have failed before
+        // leaving indexes without alias, we clean anyway
+
         // delete aliases
+        foreach($this->appbox->get_databoxes() as $dbox) {
+            $this->deleteESAlias($this->getTermsIndexNameForDatabox($dbox), $this->options->getIndexName() . '.t');
+            $this->deleteESAlias($this->getTermsIndexNameForDatabox($dbox), $this->options->getIndexName());
+            $this->deleteESAlias($this->getRecordsIndexNameForDatabox($dbox), $this->options->getIndexName() . '.r');
+            $this->deleteESAlias($this->getRecordsIndexNameForDatabox($dbox), $this->options->getIndexName());
+        }
 
         // delete indexes
         foreach($this->appbox->get_databoxes() as $dbox) {
-            $this->deleteDataboxIndex($dbox);
+            $this->deleteESIndex($this->getTermsIndexNameForDatabox($dbox));
+            $this->deleteESIndex($this->getRecordsIndexNameForDatabox($dbox));
         }
+
     }
 
-    private function deleteDataboxIndex(databox $dbox)
+    private function deleteESAlias($indexName, $aliasName)
     {
-        $this->deleteESIndex($this->getTermsIndexName($dbox));
-        $this->deleteESIndex($this->getRecordsIndexName($dbox));
+file_put_contents("/tmp/phraseanet-log.txt", sprintf("%s (%d) should delete alias \"%s\" for index \"%s\"\n", __FILE__, __LINE__, $aliasName, $indexName), FILE_APPEND);
+        $params = [
+            'index' => $indexName,
+            'name' => $aliasName,
+        ];
+        try {
+            $this->client->indices()->deleteAlias($params);
+file_put_contents("/tmp/phraseanet-log.txt", sprintf("%s (%d) alias \"%s\" for index \"%s\" deleted\n", __FILE__, __LINE__, $aliasName, $indexName), FILE_APPEND);
+        }
+        catch(\Exception $e) {
+            // no-op
+file_put_contents("/tmp/phraseanet-log.txt", sprintf("%s (%d) alias \"%s\" for index \"%s\" failed to delete\n", __FILE__, __LINE__, $aliasName, $indexName), FILE_APPEND);
+        }
     }
 
     private function deleteESIndex($indexname)
     {
+file_put_contents("/tmp/phraseanet-log.txt", sprintf("%s (%d) should delete index \"%s\"\n", __FILE__, __LINE__, $indexname), FILE_APPEND);
+        $indexExist = false;
+        // !!! ...->exists(...) throws if index does not exists !!!
         try {
-            $this->client->indices()->delete(['index' => $indexname]);
-            $this->logger->info(sprintf('ES index "%s" deleted', $indexname));
+            $indexExist = $this->client->indices()->exists(['index' => $indexname]);
         }
         catch(\Exception $e) {
-            // no-op
+            // no-op : index is supposed not to exist
+        }
+
+        if($indexExist) {
+file_put_contents("/tmp/phraseanet-log.txt", sprintf("%s (%d) deleting index \"%s\"\n", __FILE__, __LINE__, $indexname), FILE_APPEND);
+            try {
+                $this->client->indices()->delete(['index' => $indexname]);
+                $this->logger->info(sprintf('ES index "%s" deleted', $indexname));
+file_put_contents("/tmp/phraseanet-log.txt", sprintf("%s (%d) index \"%s\" deleted\n", __FILE__, __LINE__, $indexname), FILE_APPEND);
+            } catch (\Exception $e) {
+                // no-op
+file_put_contents("/tmp/phraseanet-log.txt", sprintf("%s (%d) failed to delete index \"%s\"\n", __FILE__, __LINE__, $indexname), FILE_APPEND);
+            }
+        }
+        else {
+file_put_contents("/tmp/phraseanet-log.txt", sprintf("%s (%d) index \"%s\" does not exists\n", __FILE__, __LINE__, $indexname), FILE_APPEND);
         }
     }
 
@@ -238,7 +372,7 @@ var_dump($params);
     public function indexExists()
     {
         foreach($this->appbox->get_databoxes() as $dbox) {
-            if(!$this->databoxIndexExist($dbox)) {
+            if(!$this->indexExistForDatabox($dbox)) {
                 return false;
             }
         }
@@ -246,18 +380,18 @@ var_dump($params);
         return true;
     }
 
-    private function databoxIndexExist(databox $dbox)
+    private function indexExistForDatabox(databox $dbox)
     {
-        return $this->client->indices()->exists(['index' => $this->getTermsIndexName($dbox)])
-            && $this->client->indices()->exists(['index' => $this->getRecordsIndexName($dbox)]);
+        return $this->client->indices()->exists(['index' => $this->getTermsIndexNameForDatabox($dbox)])
+            && $this->client->indices()->exists(['index' => $this->getRecordsIndexNameForDatabox($dbox)]);
     }
 
-    private function getTermsIndexName(databox $dbox)
+    private function getTermsIndexNameForDatabox(databox $dbox)
     {
         return $dbox->get_dbname() . '.t';
     }
 
-    private function getRecordsIndexName(databox $dbox)
+    private function getRecordsIndexNameForDatabox(databox $dbox)
     {
         return $dbox->get_dbname() . '.r';
     }
@@ -279,7 +413,7 @@ var_dump($params);
             // Record indexing depends on indexed terms so we need to make
             // everything ready to search
             if ($what & self::THESAURUS) {
-                $terms_index = $this->getTermsIndexName($databox);
+                $terms_index = $this->getTermsIndexNameForDatabox($databox);
                 $terms_bulk = new BulkOperation($this->client, $terms_index, $this->logger);
                 $terms_bulk->setAutoFlushLimit(1000);
 
@@ -290,12 +424,10 @@ var_dump($params);
                 unset($terms_bulk);
 
                 $this->client->indices()->refresh();
-                $this->client->indices()->clearCache();
-                $this->client->indices()->flushSynced();
             }
 
             if ($what & self::RECORDS) {
-                $records_index = $this->getRecordsIndexName($databox);
+                $records_index = $this->getRecordsIndexNameForDatabox($databox);
                 $records_bulk = new BulkOperation($this->client, $records_index, $this->logger);
                 $records_bulk->setAutoFlushLimit(1000);
 
@@ -340,31 +472,39 @@ var_dump($params);
         RecordQueuer::queueRecordsFromCollection($collection);
     }
 
+    private function &getToolboxForDatabox($databox_id)
+    {
+        if(!array_key_exists($databox_id, $this->databoxToolbox)) {
+            $this->databoxToolbox[$databox_id] = [];
+        }
+        return $this->databoxToolbox[$databox_id];
+    }
     /**
      * @param $databox_id
      * @return SplObjectStorage[]
      */
-    private function getQueuesForDatabox($databox_id)
+    private function &getQueuesForDatabox($databox_id)
     {
-        if(!array_key_exists($databox_id, $this->queues)) {
-            $this->queues[$databox_id] = [
+        $toolbox = $this->getToolboxForDatabox($databox_id);
+        if(!array_key_exists('queues', $toolbox)) {
+            $toolbox['queues'] = [
                 'index' => new SplObjectStorage(),
                 'delete' => new SplObjectStorage()
             ];
         }
 
-        return $this->queues[$databox_id];
+        return $toolbox['queues'];
     }
 
     public function indexRecord(RecordInterface $record)
     {
-        $q = $this->getQueuesForDatabox($record->getBaseId());
+        $q = $this->getQueuesForDatabox($record->getDataboxId());
         $q['index']->attach($record);
     }
 
     public function deleteRecord(RecordInterface $record)
     {
-        $q = $this->getQueuesForDatabox($record->getBaseId());
+        $q = $this->getQueuesForDatabox($record->getDataboxId());
         $q['delete']->attach($record);
     }
 
@@ -376,7 +516,7 @@ var_dump($params);
     {
         /** @var databox $databox */
         foreach ($databoxes as $databox) {
-            $records_index = $this->getRecordsIndexName($databox);
+            $records_index = $this->getRecordsIndexNameForDatabox($databox);
             $records_bulk = new BulkOperation($this->client, $records_index, $this->logger);
             $records_bulk->setAutoFlushLimit(1000);
 
@@ -394,15 +534,16 @@ var_dump($params);
          * @var int $databox_id
          * @var SplObjectStorage $q
          */
-        foreach($this->queues as $databox_id => $q) {
+        foreach($this->databoxToolbox as $databox_id => $toolbox) {
+            $q = $this->getQueuesForDatabox($databox_id);
             // it's useless to index records that are to be deleted, remove em from the index q.
             $q['index']->removeAll($q['delete']);
 
             // Skip if nothing to do
-            if (count($q['index']) === 0 && count($q['delete']) === 0) {
+            if (empty($q['index']) && empty($q['delete'])) {
                 continue;
             }
-            $records_index = $this->getRecordsIndexName($this->appbox->get_databox($databox_id));
+            $records_index = $this->getRecordsIndexNameForDatabox($this->appbox->get_databox($databox_id));
             $bulk = new BulkOperation($this->client, $records_index, $this->logger);
             $bulk->setAutoFlushLimit(1000);
 
@@ -411,7 +552,7 @@ var_dump($params);
 
             $bulk->flush();
 
-            unset($this->queues[$databox_id]);
+            $q['index'] = $q['delete'] = [];
         }
     }
 

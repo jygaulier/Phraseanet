@@ -36,6 +36,11 @@ class BulkOperation
         $this->logger = $logger;
     }
 
+    public function __destruct()
+    {
+        $this->flush();
+    }
+
     public function setDefaultIndex($index)
     {
         $this->index = (string) $index;
@@ -103,13 +108,13 @@ class BulkOperation
         $this->logger->debug("ES Bulk query about to be performed\n", ['opCount' => count($this->operationIdentifiers)]);
 
         $response = $this->client->bulk($params);
-print_r($response);
+
         $this->stack = array();
 
         $callbackData = [];     // key: operationIdentifier passed when command was pushed on this bulk
                                 // value: json result from es for the command
         // nb: results (items) are returned IN THE SAME ORDER as commands were pushed in the stack
-        // so the items[X] match the operationIdentifiers[X]
+        // so the items[i] match the operationIdentifiers[i]
         foreach ($response['items'] as $key => $item) {
             foreach($item as $command=>$result) {   // command may be "index" or "delete"
                 if($response['errors'] && $result['status'] >= 400) { // 4xx or 5xx error

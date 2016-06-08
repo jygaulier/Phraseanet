@@ -18,29 +18,85 @@ use Alchemy\Phrasea\SearchEngine\Elastic\Thesaurus\Navigator;
 use Alchemy\Phrasea\SearchEngine\Elastic\Thesaurus\TermVisitor;
 use databox;
 use DOMDocument;
+use Elasticsearch\Client;
+use Psr\Log\LoggerInterface;
+
 
 class TermIndexer
 {
     const TYPE_NAME = 'term';
 
-    /**
-     * @var \appbox
-     */
-    private $appbox;
+    /** @var Client */
+    private $client;
+
+    /** @var  databox */
+    private $databox;
 
     private $navigator;
     private $locales;
 
-    public function __construct(\appbox $appbox, array $locales)
+    /** @var LoggerInterface */
+    private $logger;
+
+
+    public function __construct(Client $client, databox $databox, array $locales, LoggerInterface $logger)
     {
-        $this->appbox = $appbox;
-        $this->navigator = new Navigator();
+        $this->client = $client;
+        $this->databox = $databox;
         $this->locales = $locales;
+        $this->logger = $logger;
+        $this->navigator = new Navigator();
     }
 
-    public function populateIndex(BulkOperation $bulk, databox $databox)
+    public function getIndexName()
     {
-        $databoxId = $databox->get_sbas_id();
+        return $this->databox->get_dbname() . '.t';
+    }
+
+    public function indexExists()
+    {
+        return $this->client->indices()->exists(
+            [
+                'index' => $this->getIndexName()
+            ]
+        );
+    }
+
+    public function createIndex($settings, $withMapping)
+    {
+        $params = [
+            'index' => $this->getIndexName(),
+            'body' => [
+                'settings' => $settings,
+            ],
+        ];
+        if ($withMapping) {
+            $params['body']['mappings'][self::TYPE_NAME] = $this->getMapping();
+        }
+
+        $this->logger->info(sprintf("Creating index \"%s\"", $params['index']));
+        $this->client->indices()->create($params);
+    }
+
+    public function dropIndex()
+    {
+        $this->logger->info(sprintf("Deleting index \"%s\"", $this->getIndexName()));
+        try {
+            $this->client->indices()->delete(['index' => $this->getIndexName()]);
+        } catch (\Exception $e) {
+            // no-op
+        }
+    }
+
+    public function populateIndex()
+    {
+        $this->logger->info(sprintf("Populating thesaurus of databox \"%s\" (id=%s)...", $this->databox->get_viewname(), $this->databox->get_sbas_id()));
+
+        $databoxId = $this->databox->get_sbas_id();
+
+        $index = $this->getIndexName();
+        $bulk = new BulkOperation($this->client, $index, $this->logger);
+        $bulk->setAutoFlushLimit(1000);
 
         $visitor = new TermVisitor(function ($term) use ($bulk, $databoxId) {
             // Path and id are prefixed with a databox identifier to not
@@ -61,8 +117,11 @@ class TermIndexer
             $bulk->index($params, null);
         });
 
-        $document = Helper::thesaurusFromDatabox($databox);
+        $document = Helper::thesaurusFromDatabox($this->databox);
         $this->navigator->walk($document, $visitor);
+        $bulk->flush(); // force final flush to avoid mess in log messages
+
+        $this->logger->info(sprintf("Finished populating thesaurus of databox \"%s\" (id=%s)", $this->databox->get_viewname(), $this->databox->get_sbas_id()));
     }
 
     public function getMapping()

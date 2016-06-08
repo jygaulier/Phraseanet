@@ -19,6 +19,7 @@ use Alchemy\Phrasea\Command\SearchEngine\Debug\QueryParseCommand;
 use Alchemy\Phrasea\Command\SearchEngine\Debug\QuerySampleCommand;
 use Alchemy\Phrasea\Command\SearchEngine\IndexCreateCommand;
 use Alchemy\Phrasea\Command\SearchEngine\IndexDropCommand;
+use Alchemy\Phrasea\Command\SearchEngine\IndexListCommand;
 use Alchemy\Phrasea\Command\SearchEngine\MappingUpdateCommand;
 use Alchemy\Phrasea\Command\SearchEngine\IndexPopulateCommand;
 use Alchemy\Phrasea\Command\Thesaurus\FindConceptsCommand;
@@ -124,6 +125,7 @@ $cli->command(new XSendFileMappingGenerator());
 
 $cli->command(new IndexCreateCommand());
 $cli->command(new IndexDropCommand());
+$cli->command(new IndexListCommand());
 $cli->command(new MappingUpdateCommand());
 $cli->command(new IndexPopulateCommand());
 $cli->command(new QueryParseCommand());

@@ -65,8 +65,6 @@ class Fetcher
     {
         // Fetch records rows
         $statement = $this->getExecutedStatement();
-        // printf("Query %d/%d -> %d rows\n", $this->offset, $this->batchSize, $statement->rowCount());
-file_put_contents("/tmp/phraseanet-log.txt", sprintf("%s (%d) %s\n", __FILE__, __LINE__, var_export(null, true)), FILE_APPEND);
         $records = [];
         while ($record = $statement->fetch()) {
             $records[$record['record_id']] = $record;
@@ -76,7 +74,7 @@ file_put_contents("/tmp/phraseanet-log.txt", sprintf("%s (%d) %s\n", __FILE__, _
             $this->onDrain->__invoke();
             return;
         }
-file_put_contents("/tmp/phraseanet-log.txt", sprintf("%s (%d) %s\n", __FILE__, __LINE__, var_export(null, true)), FILE_APPEND);
+
         // Hydrate records
         foreach ($this->hydrators as $hydrator) {
             $hydrator->hydrateRecords($records);
@@ -86,12 +84,11 @@ file_put_contents("/tmp/phraseanet-log.txt", sprintf("%s (%d) %s\n", __FILE__, _
                 throw new Exception('No record hydrator set the "id" key.');
             }
         }
-file_put_contents("/tmp/phraseanet-log.txt", sprintf("%s (%d) %s\n", __FILE__, __LINE__, var_export(null, true)), FILE_APPEND);
+
         if ($this->postFetch) {
             $this->postFetch->__invoke($records);
         }
 
-file_put_contents("/tmp/phraseanet-log.txt", sprintf("%s (%d) %s\n", __FILE__, __LINE__, var_export(null, true)), FILE_APPEND);
         return $records;
     }
 
@@ -145,7 +142,6 @@ file_put_contents("/tmp/phraseanet-log.txt", sprintf("%s (%d) %s\n", __FILE__, _
             // Build parameters list
             $params = $this->delegate->getParameters();
             $types  = $this->delegate->getParametersTypes();
-printf("SQL = \"%s\" :offset = %d, :limit = %d \n", $sql, $this->offset, $this->batchSize);
 
             // Find if query is preparable
             static $nonPreparableTypes = array(

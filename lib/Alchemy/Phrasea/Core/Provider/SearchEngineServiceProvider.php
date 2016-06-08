@@ -20,8 +20,6 @@ use Alchemy\Phrasea\SearchEngine\SearchEngineInterface;
 use Alchemy\Phrasea\SearchEngine\Elastic\ElasticSearchEngine;
 use Alchemy\Phrasea\SearchEngine\Elastic\Indexer;
 use Alchemy\Phrasea\SearchEngine\Elastic\IndexerSubscriber;
-use Alchemy\Phrasea\SearchEngine\Elastic\Indexer\RecordIndexer;
-use Alchemy\Phrasea\SearchEngine\Elastic\Indexer\TermIndexer;
 use Alchemy\Phrasea\SearchEngine\Elastic\RecordHelper;
 use Alchemy\Phrasea\SearchEngine\Elastic\Search\Escaper;
 use Alchemy\Phrasea\SearchEngine\Elastic\Search\FacetsResponse;
@@ -90,30 +88,8 @@ class SearchEngineServiceProvider implements ServiceProviderInterface
             return new Indexer(
                 $app['elasticsearch.client'],
                 $app['elasticsearch.options'],
-                $app['elasticsearch.indexer.term_indexer'],
-                $app['elasticsearch.indexer.record_indexer'],
                 $app['phraseanet.appbox'],
-
-                $app['search_engine.structure'],
                 $app['elasticsearch.record_helper'],
-                $app['thesaurus'],
-                array_keys($app['locales.available']),
-                $logger
-            );
-        });
-
-        $app['elasticsearch.indexer.term_indexer'] = $app->share(function ($app) {
-            return new TermIndexer($app['phraseanet.appbox'], array_keys($app['locales.available']));
-        });
-
-        $app['elasticsearch.indexer.record_indexer'] = $app->share(function ($app) {
-            // TODO Use upcomming monolog factory
-            $logger = new Logger('records_indexer');
-            $logger->pushHandler(new ErrorLogHandler());
-            return new RecordIndexer(
-                $app['search_engine.structure'],
-                $app['elasticsearch.record_helper'],
-                $app['thesaurus'],
                 array_keys($app['locales.available']),
                 $logger
             );

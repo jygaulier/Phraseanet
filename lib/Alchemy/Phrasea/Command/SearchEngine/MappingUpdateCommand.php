@@ -12,8 +12,10 @@
 namespace Alchemy\Phrasea\Command\SearchEngine;
 
 use Alchemy\Phrasea\Command\Command;
+use Alchemy\Phrasea\Command\Helper;
 use Alchemy\Phrasea\SearchEngine\Elastic\Indexer;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class MappingUpdateCommand extends Command
@@ -23,14 +25,25 @@ class MappingUpdateCommand extends Command
         $this
             ->setName('searchengine:mapping:update')
             ->setDescription('Update index mapping')
+            ->addOption(
+                'databox',
+                null,
+                InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY,
+                'databox(es) to update mapping, by id or dbname (default: all databoxes)'
+            )
         ;
     }
 
     protected function doExecute(InputInterface $input, OutputInterface $output)
     {
-        $indexer = $this->container['elasticsearch.indexer'];
+        $matchMethod = Helper::MATCH_ALL_DB_IF_EMPTY | Helper::MATCH_DB_BY_ID | Helper::MATCH_DB_BY_NAME;
+        $databoxes = Helper::getDataboxesByIdOrName($this->container, $input, 'databox', $matchMethod);
 
-        $indexer->updateMapping();
-        $output->writeln('Mapping pushed to index');
+        /** @var Indexer $indexer */
+        $indexer = $this->container['elasticsearch.indexer'];
+        foreach($databoxes as $dbox) {
+            $indexer->updateMappingForDatabox($dbox);
+            $output->writeln(sprintf("Mapping pushed to index for databox \"%s\" (id=%s)", $dbox->get_dbname(), $dbox->get_sbas_id()));
+        }
     }
 }

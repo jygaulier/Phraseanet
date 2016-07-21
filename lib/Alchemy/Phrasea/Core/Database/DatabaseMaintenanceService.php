@@ -85,7 +85,8 @@ class DatabaseMaintenanceService
                 $ref_engine = strtolower($foundTable['Engine']);
 
                 if ($engine != $ref_engine && in_array($engine, ['innodb', 'myisam'])) {
-                    $recommends = $this->alterTableEngine($tableName, $engine, $recommends);
+                    $ret = $this->alterTableEngine($tableName, $engine, $recommends);
+                    $recommends = array_merge($recommends, $ret);
                 }
 
                 $ret = $this->upgradeTable($allTables[$tableName]);
@@ -119,24 +120,29 @@ class DatabaseMaintenanceService
     }
 
     /**
+     * alter the engine
+     *
      * @param $tableName
      * @param $engine
-     * @param $recommends
-     * @return array
+     *
+     * @return array        "recommand" if something fails
      */
-    public function alterTableEngine($tableName, $engine, array & $recommends)
+    public function alterTableEngine($tableName, $engine)
     {
+        $ret = [];
         $sql = 'ALTER TABLE `' . $tableName . '` ENGINE = ' . $engine;
 
         try {
             $this->connection->exec($sql);
         } catch (\Exception $e) {
-            $recommends[] = [
+            $ret = [
                 'message' => $this->app->trans('Erreur lors de la tentative ; errreur : %message%',
                     ['%message%' => $e->getMessage()]),
                 'sql' => $sql
             ];
         }
+
+        return $ret;
     }
 
 

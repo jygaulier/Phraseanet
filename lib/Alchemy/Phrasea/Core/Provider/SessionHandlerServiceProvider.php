@@ -12,22 +12,26 @@
 namespace Alchemy\Phrasea\Core\Provider;
 
 use Alchemy\Phrasea\Core\Configuration\SessionHandlerFactory;
+use Pimple\Container;
+use Pimple\ServiceProviderInterface;
+use Silex\Api\EventListenerProviderInterface;
 use Silex\Application;
-use Silex\ServiceProviderInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
 
-class SessionHandlerServiceProvider implements ServiceProviderInterface
+
+class SessionHandlerServiceProvider implements ServiceProviderInterface, EventListenerProviderInterface
 {
     /**
      * {@inheritdoc}
      */
-    public function register(Application $app)
+    public function register(Container $app)
     {
-        $app['session.storage.handler.factory'] = $app->share(function (Application $app) {
+        $app['session.storage.handler.factory'] = function (Application $app) {
             return new SessionHandlerFactory($app['cache.connection-factory']);
-        });
+        };
     }
 
     public function onKernelResponse(FilterResponseEvent $event)
@@ -42,12 +46,9 @@ class SessionHandlerServiceProvider implements ServiceProviderInterface
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function boot(Application $app)
+    public function subscribe(Container $app, EventDispatcherInterface $dispatcher)
     {
         // Priority should be lower than test session mock listener
-        $app['dispatcher']->addListener(KernelEvents::RESPONSE, array($this, 'onKernelResponse'), -129);
+        $dispatcher->addListener(KernelEvents::RESPONSE, array($this, 'onKernelResponse'), -129);
     }
 }

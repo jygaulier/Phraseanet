@@ -15,23 +15,21 @@ use Alchemy\Phrasea\Application as PhraseaApplication;
 use Alchemy\Phrasea\Controller\SetupController;
 use Alchemy\Phrasea\Helper\DatabaseHelper;
 use Alchemy\Phrasea\Helper\PathHelper;
-use Silex\ControllerCollection;
-use Silex\ControllerProviderInterface;
+use Pimple\Container;
+use Pimple\ServiceProviderInterface;
+use Silex\Api\ControllerProviderInterface;
 use Silex\Application;
-use Silex\ServiceProviderInterface;
+use Silex\ControllerCollection;
 use Symfony\Component\HttpFoundation\Request;
+
 
 class Setup implements ControllerProviderInterface, ServiceProviderInterface
 {
-    public function register(Application $app)
+    public function register(Container $app)
     {
-        $app['controller.setup'] = $app->share(function (PhraseaApplication $application) {
+        $app['controller.setup'] = function (PhraseaApplication $application) {
             return new SetupController($application);
-        });
-    }
-
-    public function boot(Application $app)
-    {
+        };
     }
 
     public function connect(Application $app)

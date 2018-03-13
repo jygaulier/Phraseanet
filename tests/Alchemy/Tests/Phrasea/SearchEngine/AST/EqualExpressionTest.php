@@ -12,7 +12,7 @@ use Alchemy\Phrasea\SearchEngine\Elastic\Structure\Field as StructureField;
  * @group searchengine
  * @group ast
  */
-class EqualExpressionTest extends \PHPUnit_Framework_TestCase
+class EqualExpressionTest extends \PHPUnit\Framework\TestCase
 {
     public function testSerialization()
     {
@@ -61,7 +61,7 @@ class EqualExpressionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Alchemy\Phrasea\SearchEngine\Elastic\Exception\QueryException
+     * @expectedException \Alchemy\Phrasea\SearchEngine\Elastic\Exception\QueryException
      * @expectedExceptionMessageRegExp #"foo"#u
      */
     public function testQueryBuildWithIncompatibleValue()

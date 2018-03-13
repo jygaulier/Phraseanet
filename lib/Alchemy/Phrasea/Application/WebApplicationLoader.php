@@ -10,32 +10,34 @@
 
 namespace Alchemy\Phrasea\Application;
 
-use Alchemy\Phrasea\Application;
+use Alchemy\Phrasea\Application as PhraseanetApplication;
 use Alchemy\Phrasea\Core\Event\Subscriber\BridgeExceptionSubscriber;
 use Alchemy\Phrasea\Core\Event\Subscriber\FirewallSubscriber;
 use Alchemy\Phrasea\Core\Event\Subscriber\JsonRequestSubscriber;
 use Alchemy\Phrasea\Core\Event\Subscriber\PhraseaExceptionHandlerSubscriber;
 use Alchemy\Phrasea\Core\Middleware\SetupMiddlewareProvider;
+use Pimple\ServiceProviderInterface;
+
 
 class WebApplicationLoader extends BaseApplicationLoader
 {
-    protected function doPrePluginServiceRegistration(Application $app)
+    protected function doPrePluginServiceRegistration(PhraseanetApplication $app)
     {
         $app->register(new SetupMiddlewareProvider());
     }
 
-    protected function createExceptionHandler(Application $app)
+    protected function createExceptionHandler(PhraseanetApplication $app)
     {
         return new PhraseaExceptionHandlerSubscriber($app['phraseanet.exception_handler']);
     }
 
-    protected function bindRoutes(Application $app)
+    protected function bindRoutes(PhraseanetApplication $app)
     {
-        $app->before($app['setup.validate-config'], Application::EARLY_EVENT);
+        $app->before($app['setup.validate-config'], PhraseanetApplication::EARLY_EVENT);
         $app->bindRoutes();
     }
 
-    protected function getDispatcherSubscribersFor(Application $app)
+    protected function getDispatcherSubscribersFor(PhraseanetApplication $app)
     {
         $subscribers = [
             new BridgeExceptionSubscriber($app),

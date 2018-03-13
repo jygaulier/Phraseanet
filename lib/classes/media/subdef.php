@@ -19,6 +19,8 @@ use Guzzle\Http\Url;
 use MediaAlchemyst\Alchemyst;
 use MediaVorus\Media\MediaInterface;
 use MediaVorus\MediaVorus;
+use Pimple\Container;
+
 
 class media_subdef extends media_abstract implements cache_cacheableInterface
 {
@@ -126,7 +128,7 @@ class media_subdef extends media_abstract implements cache_cacheableInterface
      * @param bool $substitute
      * @param array|null $data
      */
-    public function __construct(Application $app, RecordReferenceInterface $record, $name, $substitute = false, array $data = null)
+    public function __construct(Container $app, RecordReferenceInterface $record, $name, $substitute = false, array $data = null)
     {
         $this->app = $app;
         $this->name = $name;

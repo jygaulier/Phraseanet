@@ -166,7 +166,7 @@
         </li>
         <li>
         {% if app.getAuthenticator().isAuthenticated() %}
-          <a href="{{ path('logout', { 'redirect' : '..' ~ app['request'].getPathInfo() }) }}" target="_self">
+          <a href="{{ path('logout', { 'redirect' : '..' ~ app['request_stack'].currentRequest.getPathInfo() }) }}" target="_self">
             <span>
               {{ 'phraseanet:: deconnection' | trans }}
             </span>

@@ -11,54 +11,49 @@
 
 namespace Alchemy\Phrasea\Core\Provider;
 
+use Alchemy\Phrasea\Application as PhraseanetApplication;
 use Alchemy\Phrasea\Core\Event\Subscriber\XSendFileSubscriber;
 use Alchemy\Phrasea\Http\H264PseudoStreaming\H264Factory;
 use Alchemy\Phrasea\Http\ServeFileResponseFactory;
 use Alchemy\Phrasea\Http\StaticFile\StaticMode;
 use Alchemy\Phrasea\Http\XSendFile\XSendFileFactory;
+use Pimple\Container;
+use Pimple\ServiceProviderInterface;
+use Silex\Api\EventListenerProviderInterface;
 use Silex\Application;
-use Silex\ServiceProviderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class FileServeServiceProvider implements ServiceProviderInterface
+
+class FileServeServiceProvider implements ServiceProviderInterface, EventListenerProviderInterface
 {
     /**
      * {@inheritDoc}
      */
-    public function register(Application $app)
+    public function register(Container $app)
     {
-        $app['phraseanet.xsendfile-factory'] = $app->share(function ($app) {
+        $app['phraseanet.xsendfile-factory'] = function (PhraseanetApplication $app) {
             return XSendFileFactory::create($app);
-        });
+        };
 
-        $app['phraseanet.h264-factory'] = $app->share(function ($app) {
+        $app['phraseanet.h264-factory'] = function (PhraseanetApplication $app) {
             return H264Factory::create($app);
-        });
+        };
 
-        $app['phraseanet.h264'] = $app->share(function ($app) {
+        $app['phraseanet.h264'] = function (PhraseanetApplication $app) {
             return $app['phraseanet.h264-factory']->createMode(false);
-        });
+        };
 
-        $app['phraseanet.static-file'] = $app->share(function (Application $app) {
+        $app['phraseanet.static-file'] = function (PhraseanetApplication $app) {
             return new StaticMode($app['phraseanet.thumb-symlinker']);
-        });
+        };
 
-        $app['phraseanet.file-serve'] = $app->share(function (Application $app) {
+        $app['phraseanet.file-serve'] = function (PhraseanetApplication $app) {
             return new ServeFileResponseFactory($app['unicode']);
-        });
+        };
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function boot(Application $app)
+    public function subscribe(Container $app, EventDispatcherInterface $dispatcher)
     {
-        $app['dispatcher'] = $app->share(
-            $app->extend('dispatcher', function (EventDispatcherInterface $dispatcher, Application $app) {
-                $dispatcher->addSubscriber(new XSendFileSubscriber($app));
-
-                return $dispatcher;
-            })
-        );
+        $dispatcher->addSubscriber(new XSendFileSubscriber($app));
     }
 }

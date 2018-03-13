@@ -72,7 +72,7 @@ class Notifier implements NotifierInterface
             if (JSON_ERROR_NONE !== json_last_error()) {
                 throw new RuntimeException('Invalid task manager response : invalid JSON.');
             }
-            if (!isset($data['reply']) || !isset($data['request']) || $command !== $data['request']) {
+            if (!isset($data['reply']) || !isset($data['request_stack']) || $command !== $data['request_stack']) {
                 throw new RuntimeException('Invalid task manager response : missing fields.');
             }
 

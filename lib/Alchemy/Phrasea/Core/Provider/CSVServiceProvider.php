@@ -11,20 +11,23 @@
 
 namespace Alchemy\Phrasea\Core\Provider;
 
-use Silex\Application;
-use Silex\ServiceProviderInterface;
 use Goodby\CSV\Export\Standard\Exporter;
 use Goodby\CSV\Export\Standard\ExporterConfig;
-use Goodby\CSV\Import\Standard\Lexer;
 use Goodby\CSV\Import\Standard\Interpreter;
+use Goodby\CSV\Import\Standard\Lexer;
 use Goodby\CSV\Import\Standard\LexerConfig;
+use Pimple\Container;
+use Pimple\ServiceProviderInterface;
+use Silex\Application;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+
 
 class CSVServiceProvider implements ServiceProviderInterface
 {
-    public function register(Application $app)
+    public function register(Container $app)
     {
-        $app['csv.exporter.config'] = $app->share(function () {
+        $app['csv.exporter.config'] = function () {
             $config = new ExporterConfig();
 
             return $config
@@ -34,13 +37,13 @@ class CSVServiceProvider implements ServiceProviderInterface
                 ->setToCharset('UTF-8')
                 ->setFromCharset('UTF-8');
 
-        });
+        };
 
-        $app['csv.exporter'] = $app->share(function ($app) {
+        $app['csv.exporter'] = function ($app) {
             return new Exporter($app['csv.exporter.config']);
-        });
+        };
 
-        $app['csv.lexer.config'] = $app->share(function ($app) {
+        $app['csv.lexer.config'] = function () {
             $lexer = new LexerConfig();
             $lexer->setDelimiter(';')
                 ->setEnclosure('"')
@@ -49,27 +52,24 @@ class CSVServiceProvider implements ServiceProviderInterface
                 ->setFromCharset('UTF-8');
 
             return $lexer;
-        });
+        };
 
-        $app['csv.lexer'] = $app->share(function ($app) {
+        $app['csv.lexer'] = function ($app) {
             return new Lexer($app['csv.lexer.config']);
-        });
+        };
 
-        $app['csv.interpreter'] = $app->share(function ($app) {
+        $app['csv.interpreter'] = function () {
             return new Interpreter();
-        });
+        };
 
         $app['csv.response'] = $app->protect(function ($callback) use ($app) {
             // set headers to fix ie issues
             $response =  new StreamedResponse($callback, 200,  [
                 'Expires'               => 'Mon, 26 Jul 1997 05:00:00 GMT',
                 'Last-Modified'         => gmdate('D, d M Y H:i:s'). ' GMT',
-                'Cache-Control'         => 'no-store, no-cache, must-revalidate',
-                'Cache-Control'         => 'post-check=0, pre-check=0',
+                'Cache-Control'         => 'no-store, no-cache, must-revalidate, max-age=3600',
                 'Pragma'                => 'no-cache',
                 'Content-Type'          => 'text/csv',
-                'Cache-Control'         => 'max-age=3600, must-revalidate',
-                'Content-Disposition'   => 'max-age=3600, must-revalidate',
             ]);
 
             $response->headers->set('Content-Disposition', $response->headers->makeDisposition(
@@ -77,9 +77,5 @@ class CSVServiceProvider implements ServiceProviderInterface
                 'export.csv'
             ));
         });
-    }
-
-    public function boot(Application $app)
-    {
     }
 }

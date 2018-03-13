@@ -16,6 +16,10 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use Silex\Application;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\PasswordType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 
 class PhraseaAuthenticationForm extends AbstractType
 {
@@ -28,7 +32,7 @@ class PhraseaAuthenticationForm extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('login', 'text', [
+        $builder->add('login', TextType::class, [
             'label'       => 'Login',
             'required'    => true,
             'disabled'    => $options['disabled'],
@@ -37,7 +41,7 @@ class PhraseaAuthenticationForm extends AbstractType
             ],
         ]);
 
-        $builder->add('password', 'password', [
+        $builder->add('password', PasswordType::class, [
             'label'       => 'Password',
             'required'    => true,
             'disabled'    => $options['disabled'],
@@ -47,7 +51,7 @@ class PhraseaAuthenticationForm extends AbstractType
         ]);
 
         if ($this->app['phraseanet.configuration']['session']['idle'] < 1) {
-            $builder->add('remember-me', 'checkbox' , [
+            $builder->add('remember-me', CheckboxType::class , [
                 'label'    =>  'Remember me',
                 'mapped'   => false,
                 'required' => false,
@@ -56,7 +60,7 @@ class PhraseaAuthenticationForm extends AbstractType
                 ]
             ]);
         } else {
-            $builder->add('remember-me', 'hidden' , [
+            $builder->add('remember-me', HiddenType::class , [
                 'label'    =>  '',
                 'mapped'   => false,
                 'required' => false

@@ -4,12 +4,17 @@
  * Largely inspired from Symfony Framework Bundle
  */
 
+// ==== THIS MESSAGE TO MARK THIS FILE AS BUGGY ====
+
 namespace Alchemy\Phrasea\Utilities;
 
 use Alchemy\Phrasea\Application;
-use Silex\Translator;
+// use Silex\Translator;
+use Symfony\Component\Translation\Translator;
+
 use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\Translation\MessageSelector;
+use Pimple\Container;
 
 /**
  * Translator that gets the current locale from the Silex application
@@ -23,7 +28,7 @@ class CachedTranslator extends Translator
         'debug'     => false,
     ];
 
-    public function __construct(Application $app, MessageSelector $selector, array $options = [])
+    public function __construct(Container $app, MessageSelector $selector, array $options = [])
     {
         $this->app = $app;
 
@@ -33,7 +38,7 @@ class CachedTranslator extends Translator
 
         $this->options = array_merge($this->options, $options);
 
-        parent::__construct($app, $selector);
+        parent::__construct($app['locale'], $selector, $this->options['cache_dir'], $this->options['debug']);
     }
 
     /**
@@ -52,7 +57,8 @@ class CachedTranslator extends Translator
         }
 
         if (null === $cache_dir) {
-            return parent::loadCatalogue($locale);
+            parent::loadCatalogue($locale);
+            return;
         }
 
         $cache = new ConfigCache($cache_dir.'/catalogue.'.$locale.'.php', $this->options['debug']);

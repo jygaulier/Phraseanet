@@ -15,12 +15,16 @@ use Alchemy\Phrasea\Databox\ClosureDataboxBoundRepositoryFactory;
 use Alchemy\Phrasea\Databox\DataboxBoundRepositoryProvider;
 use Alchemy\Phrasea\Databox\DataboxConnectionProvider;
 use Alchemy\Phrasea\Record\RecordReference;
+use Pimple\Container;
+use Pimple\ServiceProviderInterface;
+use Silex\Api\EventListenerProviderInterface;
 use Silex\Application;
-use Silex\ServiceProviderInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class CaptionServiceProvider implements ServiceProviderInterface
+
+class CaptionServiceProvider implements ServiceProviderInterface, EventListenerProviderInterface
 {
-    public function register(Application $app)
+    public function register(Container $app)
     {
         $app['provider.factory.caption'] = $app->protect(function ($databoxId) use ($app) {
             return function ($recordId, array $data) use ($app, $databoxId) {
@@ -30,14 +34,14 @@ class CaptionServiceProvider implements ServiceProviderInterface
             };
         });
 
-        $app['provider.data_repo.caption'] = $app->share(function (Application $app) {
+        $app['provider.data_repo.caption'] = function (Application $app) {
             return new DataboxBoundRepositoryProvider(new CaptionDataRepositoryFactory(
                 new DataboxConnectionProvider($app['phraseanet.appbox']),
                 $app['cache']
             ));
-        });
+        };
 
-        $app['provider.repo.caption'] = $app->share(function (Application $app) {
+        $app['provider.repo.caption'] = function (Application $app) {
             return new DataboxBoundRepositoryProvider(
                 new ClosureDataboxBoundRepositoryFactory(function ($databoxId) use ($app) {
                     /** @var CaptionDataRepository $dataRepository */
@@ -50,15 +54,15 @@ class CaptionServiceProvider implements ServiceProviderInterface
                     );
                 })
             );
-        });
+        };
 
-        $app['service.caption'] = $app->share(function (Application $app) {
+        $app['service.caption'] = function (Application $app) {
             return new CaptionService($app['provider.repo.caption']);
-        });
+        };
     }
 
-    public function boot(Application $app)
+    public function subscribe(Container $app, EventDispatcherInterface $dispatcher)
     {
-        $app['dispatcher']->addSubscriber(new CaptionCacheInvalider(new LazyLocator($app, 'provider.data_repo.caption')));
+        $dispatcher->addSubscriber(new CaptionCacheInvalider(new LazyLocator($app, 'provider.data_repo.caption')));
     }
 }

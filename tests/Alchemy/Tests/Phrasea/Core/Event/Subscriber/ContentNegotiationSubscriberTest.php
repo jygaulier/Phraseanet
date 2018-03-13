@@ -6,14 +6,14 @@ use Alchemy\Phrasea\Application;
 use Alchemy\Phrasea\Core\Event\Subscriber\ContentNegotiationSubscriber;
 use Symfony\Component\HttpKernel\Client;
 
-class ContentNegotiationSubscriberTest extends \PHPUnit_Framework_TestCase
+class ContentNegotiationSubscriberTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @dataProvider negotiationProvider
      */
     public function testContentNegotiationProvider($negotiationHeader, $expectedContentType)
     {
-        $response = $this->request($negotiationHeader, $expectedContentType);
+        $response = $this->request($negotiationHeader);
         $this->assertArrayHasKey('content-type', $response->headers->all());
         $this->assertEquals($expectedContentType, $response->headers->get('content-type'));
     }

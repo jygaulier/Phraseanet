@@ -13,20 +13,21 @@ namespace Alchemy\Phrasea\Core\MetaProvider;
 use Alchemy\Phrasea\Application as PhraseaApplication;
 use Alchemy\Phrasea\Cache\Manager;
 use Alchemy\Phrasea\Core\Provider\ORMServiceProvider;
-use Dflydev\Silex\Provider\DoctrineOrm\DoctrineOrmServiceProvider;
+use Dflydev\Provider\DoctrineOrm\DoctrineOrmServiceProvider;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Event\ConnectionEventArgs;
 use Doctrine\DBAL\Events;
 use Doctrine\ORM\Configuration;
 use Gedmo\DoctrineExtensions as GedmoExtension;
+use Pimple\Container;
+use Pimple\ServiceProviderInterface;
 use Silex\Application;
 use Silex\Provider\DoctrineServiceProvider;
-use Silex\ServiceProviderInterface;
+
 
 class DatabaseMetaProvider implements ServiceProviderInterface
 {
-
-    public function register(Application $app)
+    public function register(Container $app)
     {
         $app->register(new DoctrineServiceProvider());
         $this->setupDBAL($app);
@@ -35,9 +36,9 @@ class DatabaseMetaProvider implements ServiceProviderInterface
         $app->register(new ORMServiceProvider());
     }
 
-    private function setupDBAL(PhraseaApplication $app)
+    private function setupDBAL(Container $app)
     {
-        $app['dbs.config'] = $app->share($app->extend('dbs.config', function ($configs, $app) {
+        $app['dbs.config'] = $app->extend('dbs.config', function ($configs, $app) {
             if (!isset($app['dbal.config.register.loggers'])) {
                 return $configs;
             }
@@ -49,9 +50,9 @@ class DatabaseMetaProvider implements ServiceProviderInterface
             }
 
             return $configs;
-        }));
+        });
 
-        $app['dbs.event_manager'] = $app->share($app->extend('dbs.event_manager', function ($eventManagers, $app) {
+        $app['dbs.event_manager'] = $app->extend('dbs.event_manager', function ($eventManagers, $app) {
             foreach ($eventManagers->keys() as $name) {
                 /** @var EventManager $eventManager */
                 $eventManager = $eventManagers[$name];
@@ -61,7 +62,7 @@ class DatabaseMetaProvider implements ServiceProviderInterface
             }
 
             return $eventManagers;
-        }));
+        });
     }
 
     /**
@@ -75,7 +76,7 @@ class DatabaseMetaProvider implements ServiceProviderInterface
         }
     }
 
-    private function setupOrms(PhraseaApplication $app)
+    private function setupOrms(Container $app)
     {
         // Override "orm.cache.configurer" service provided for benefiting
         // of "phraseanet.cache-service"
@@ -101,7 +102,7 @@ class DatabaseMetaProvider implements ServiceProviderInterface
         $app['orm.auto_generate_proxies'] = $app['debug'];
         $app['orm.proxies_namespace'] = 'Alchemy\Phrasea\Model\Proxies';
 
-        $app['orm.ems'] = $app->share($app->extend('orm.ems', function (\Pimple $ems, $app) {
+        $app['orm.ems'] = $app->extend('orm.ems', function (Container $ems, $app) {
             GedmoExtension::registerAnnotations();
 
             foreach ($ems->keys() as $key) {
@@ -115,11 +116,6 @@ class DatabaseMetaProvider implements ServiceProviderInterface
             }
 
             return $ems;
-        }));
-    }
-
-    public function boot(Application $app)
-    {
-        // no-op
+        });
     }
 }

@@ -11,20 +11,18 @@
 
 namespace Alchemy\Phrasea\Core\Provider;
 
-use Silex\Application;
-use Silex\ServiceProviderInterface;
+use Alchemy\Phrasea\Application;
 use Alchemy\Phrasea\Setup\Installer;
+use Pimple\Container;
+use Pimple\ServiceProviderInterface;
+
 
 class InstallerServiceProvider implements ServiceProviderInterface
 {
-    public function register(Application $app)
+    public function register(Container $app)
     {
-        $app['phraseanet.installer'] = $app->share(function (Application $app) {
+        $app['phraseanet.installer'] = function (Application $app) {
             return new Installer($app);
-        });
-    }
-
-    public function boot(Application $app)
-    {
+        };
     }
 }

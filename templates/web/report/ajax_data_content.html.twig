@@ -38,10 +38,10 @@
                           dataType: 'json',
                           data : ({
                             rid : riid,
-                            sbasid : '{{ app['request'].get('sbasid') }}',
-                            collection : '{{ app['request'].get('collection') }}',
-                            dmin : '{{ app['request'].get('dmin') }}',
-                            dmax : '{{ app['request'].get('dmax') }}',
+                            sbasid : '{{ app['request_stack'].currentRequest.get('sbasid') }}',
+                            collection : '{{ app['request_stack'].currentRequest.get('collection') }}',
+                            dmin : '{{ app['request_stack'].currentRequest.get('dmin') }}',
+                            dmax : '{{ app['request_stack'].currentRequest.get('dmax') }}',
                             from : 'TOOL'
                         })
                     },

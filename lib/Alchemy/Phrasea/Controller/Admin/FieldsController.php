@@ -14,10 +14,12 @@ use Alchemy\Phrasea\Controller\Controller;
 use Alchemy\Phrasea\Metadata\TagProvider;
 use Alchemy\Phrasea\Vocabulary\ControlProvider\ControlProviderInterface;
 use Assert\Assertion;
+use Pimple\Container;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+
 
 class FieldsController extends Controller
 {
@@ -383,7 +385,7 @@ class FieldsController extends Controller
     }
 
     /**
-     * @return ControlProviderInterface[]|\Pimple
+     * @return ControlProviderInterface[]|Container
      */
     private function getVocabularies()
     {

@@ -12,19 +12,17 @@
 namespace Alchemy\Phrasea\Core\Provider;
 
 use Alchemy\Phrasea\ACL\BasketACL;
+use Pimple\Container;
+use Pimple\ServiceProviderInterface;
 use Silex\Application;
-use Silex\ServiceProviderInterface;
+
 
 class ACLServiceProvider implements ServiceProviderInterface
 {
-    public function register(Application $app)
+    public function register(Container $app)
     {
-        $app['acl.basket'] = $app->share(function ($app) {
+        $app['acl.basket'] = function () {
             return new BasketACL();
-        });
-    }
-
-    public function boot(Application $app)
-    {
+        };
     }
 }

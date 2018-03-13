@@ -12,17 +12,19 @@
 namespace Alchemy\Phrasea\ControllerProvider;
 
 use Alchemy\Phrasea\Controller\MinifierController;
-use Silex\ControllerCollection;
-use Silex\ControllerProviderInterface;
+use Pimple\Container;
+use Pimple\ServiceProviderInterface;
+use Silex\Api\ControllerProviderInterface;
 use Silex\Application;
-use Silex\ServiceProviderInterface;
+use Silex\ControllerCollection;
 use Symfony\Component\Filesystem\Filesystem;
+
 
 class Minifier implements ControllerProviderInterface, ServiceProviderInterface
 {
-    public function register(Application $app)
+    public function register(Container $app)
     {
-        $app['controller.minifier'] = $app->share(function (Application $app) {
+        $app['controller.minifier'] = function (Application $app) {
             $cachePath = $app['cache.path'] . '/minify';
             /** @var Filesystem $fs */
             $fs = $app['filesystem'];
@@ -30,11 +32,7 @@ class Minifier implements ControllerProviderInterface, ServiceProviderInterface
             $fs->mkdir($cachePath);
 
             return new MinifierController($cachePath, $app['debug']);
-        });
-    }
-
-    public function boot(Application $app)
-    {
+        };
     }
 
     public function connect(Application $app)

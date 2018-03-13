@@ -467,11 +467,7 @@ class record_adapterTest extends \PhraseanetAuthenticatedTestCase
      */
     public function testSet_binary_status()
     {
-        $status = '';
-
-        while (strlen($status) < 32) {
-            $status .= '1';
-        }
+        $status = '0' . str_repeat('1', 31);
 
         $record_1 = $this->getRecord1();
         $record_1->setStatus($status);

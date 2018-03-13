@@ -10,6 +10,7 @@
 namespace Alchemy\Phrasea\Application\Helper;
 
 use Alchemy\Phrasea\Collection\CollectionService;
+use Pimple\Container;
 
 trait ApplicationBoxAware
 {
@@ -40,7 +41,7 @@ trait ApplicationBoxAware
             return $this->applicationBox;
         }
 
-        if (null === $this->applicationBox && $this instanceof \Pimple && $this->offsetExists('phraseanet.appbox')) {
+        if (null === $this->applicationBox && $this instanceof Container && $this->offsetExists('phraseanet.appbox')) {
             $this->applicationBox = function () {
                 return $this['phraseanet.appbox'];
             };

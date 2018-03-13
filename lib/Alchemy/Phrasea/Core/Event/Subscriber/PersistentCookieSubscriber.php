@@ -11,16 +11,18 @@
 
 namespace Alchemy\Phrasea\Core\Event\Subscriber;
 
-use Silex\Application;
-use Symfony\Component\HttpKernel\KernelEvents;
+use Alchemy\Phrasea\Application;
+use Pimple\Container;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
+use Symfony\Component\HttpKernel\KernelEvents;
 
 class PersistentCookieSubscriber implements EventSubscriberInterface
 {
+    /** @var Application */
     private $app;
 
-    public function __construct(Application $app)
+    public function __construct(Container $app)
     {
         $this->app = $app;
     }

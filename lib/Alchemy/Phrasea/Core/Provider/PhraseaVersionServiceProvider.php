@@ -12,19 +12,16 @@
 namespace Alchemy\Phrasea\Core\Provider;
 
 use Alchemy\Phrasea\Core\Version;
-use Silex\Application as SilexApplication;
-use Silex\ServiceProviderInterface;
+use Pimple\Container;
+use Pimple\ServiceProviderInterface;
+
 
 class PhraseaVersionServiceProvider implements ServiceProviderInterface
 {
-    public function register(SilexApplication $app)
+    public function register(Container $app)
     {
-        $app['phraseanet.version'] = $app->share(function (SilexApplication $app) {
+        $app['phraseanet.version'] = function () {
             return new Version();
-        });
-    }
-
-    public function boot(SilexApplication $app)
-    {
+        };
     }
 }

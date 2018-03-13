@@ -27,6 +27,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Debug\ErrorHandler;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
+
 /**
  * Phraseanet Command Line Application
  *
@@ -48,11 +49,11 @@ class CLI extends Application
 
         $this['session.test'] = true;
 
-        $this['console'] = $this->share(function () use ($name, $version) {
+        $this['console'] = function () use ($name, $version) {
             return new Console\Application($name, $version);
-        });
+        };
 
-        $this['dispatcher'] = $this->share(
+        $this['dispatcher'] =
             $this->extend('dispatcher', function (EventDispatcher $dispatcher, Application $app) {
                 $dispatcher->addListener('phraseanet.notification.sent', function () use ($app) {
                     $app['swiftmailer.spooltransport']->getSpool()->flushQueue($app['swiftmailer.transport']);
@@ -61,7 +62,7 @@ class CLI extends Application
 
                 return $dispatcher;
             })
-        );
+        ;
 
         $this->register(new PluginServiceProvider());
         $this->register(new ComposerSetupServiceProvider());

@@ -6,10 +6,10 @@ use Alchemy\Phrasea\Application;
 use Alchemy\Phrasea\Application\RouteLoader;
 use Prophecy\Argument;
 use Silex\ControllerCollection;
-use Silex\ControllerProviderInterface;
+use Silex\Api\ControllerProviderInterface;
 use Silex\Route;
 
-class RouteLoaderTest extends \PHPUnit_Framework_TestCase
+class RouteLoaderTest extends \PHPUnit\Framework\TestCase
 {
 
     /**

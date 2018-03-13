@@ -551,7 +551,7 @@ class CollectionController extends Controller
 
         }
 
-        if ('json' === $this->app['request']->getRequestFormat()) {
+        if ('json' === $this->app['request_stack']->getCurrentRequest()->getRequestFormat()) {
             return $this->app->json([
                 'success' => $success,
                 'msg'     => $success ? $this->app->trans('Successful update') : $this->app->trans('An error occured'),

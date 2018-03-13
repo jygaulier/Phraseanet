@@ -116,6 +116,7 @@ use Unoconv\UnoconvServiceProvider;
 use XPDF\PdfToText;
 use XPDF\XPDFServiceProvider;
 
+
 class Application extends SilexApplication
 {
     use AclAware;
@@ -253,7 +254,7 @@ class Application extends SilexApplication
         $this->register(new OrderServiceProvider());
         $this->register(new WebhookServiceProvider());
 
-        $this['phraseanet.exception_handler'] = $this->share(function ($app) {
+        $this['phraseanet.exception_handler'] = function ($app) {
             /** @var PhraseaExceptionHandler $handler */
             $handler =  PhraseaExceptionHandler::register($app['debug']);
 
@@ -261,22 +262,22 @@ class Application extends SilexApplication
             $handler->setLogger($app['monolog']);
 
             return $handler;
-        });
+        };
 
         $resolvers = $this['alchemy_embed.resource_resolvers'];
-        $resolvers['datafile'] = $resolvers->share(function () {
+        $resolvers['datafile'] = function () {
             return new DatafilesResolver($this->getApplicationBox());
-        });
+        };
 
-        $resolvers['permalinks_permalink'] = $resolvers->share(function () {
+        $resolvers['permalinks_permalink'] = function () {
             return new PermalinkMediaResolver($this->getApplicationBox());
-        });
+        };
 
-        $resolvers['media_accessor'] = $resolvers->share(function () {
+        $resolvers['media_accessor'] = function () {
             return new MediaAccessorResolver(
                 $this->getApplicationBox(), $this['controller.media_accessor']
             );
-        });
+        };
 
         if (self::ENV_DEV === $this->getEnvironment()) {
             $this->register($p = new WebProfilerServiceProvider(), [
@@ -287,9 +288,9 @@ class Application extends SilexApplication
             $this->mount('/_profiler', $p);
 
             if ($this['phraseanet.configuration-tester']->isInstalled()) {
-                $this['db'] = $this->share(function (self $app) {
+                $this['db'] = function (self $app) {
                     return $app['orm.em']->getConnection();
-                });
+                };
             }
         }
     }
@@ -596,7 +597,7 @@ class Application extends SilexApplication
 
     private function setupXpdf()
     {
-        $this['xpdf.pdftotext'] = $this->share(
+        $this['xpdf.pdftotext'] =
             $this->extend('xpdf.pdftotext', function (PdfToText $pdftotext, Application $app) {
                 if ($app['conf']->get(['registry', 'executables', 'pdf-max-pages'])) {
                     $pdftotext->setPageQuantity($app['conf']->get(['registry', 'executables', 'pdf-max-pages']));
@@ -604,42 +605,45 @@ class Application extends SilexApplication
 
                 return $pdftotext;
             })
-        );
+        ;
     }
 
     private function setupForm()
     {
-        $this['form.type.extensions'] = $this->share($this->extend('form.type.extensions', function ($extensions, Application $app) {
+        $this['form.type.extensions'] = $this->extend('form.type.extensions', function ($extensions, Application $app) {
             $extensions[] = new HelpTypeExtension();
 
             return $extensions;
-        }));
+        });
     }
 
     private function setupRecaptacha()
     {
-        $this['recaptcha.public-key'] = $this->share(function (Application $app) {
+        $this['recaptcha.public-key'] = function (Application $app) {
             if ($app['conf']->get(['registry', 'webservices', 'captcha-enabled'])) {
                 return $app['conf']->get(['registry', 'webservices', 'recaptcha-public-key']);
             }
-        });
-        $this['recaptcha.private-key'] = $this->share(function (Application $app) {
+            return null;
+        };
+
+        $this['recaptcha.private-key'] = function (Application $app) {
             if ($app['conf']->get(['registry', 'webservices', 'captcha-enabled'])) {
                 return $app['conf']->get(['registry', 'webservices', 'recaptcha-private-key']);
             }
-        });
+            return null;
+        };
     }
 
     private function setupGeonames()
     {
-        $this['geonames.server-uri'] = $this->share(function (Application $app) {
+        $this['geonames.server-uri'] = function (Application $app) {
             return $app['conf']->get(['registry', 'webservices', 'geonames-server'], 'http://geonames.alchemyasp.com/');
-        });
+        };
     }
 
     private function setupSwiftMailer()
     {
-        $this['swiftmailer.transport'] = $this->share(function (Application $app) {
+        $this['swiftmailer.transport'] = function (Application $app) {
             if ($app['conf']->get(['registry', 'email', 'smtp-enabled'])) {
                 $transport = new \Swift_Transport_EsmtpTransport(
                     $app['swiftmailer.transport.buffer'],
@@ -680,13 +684,13 @@ class Application extends SilexApplication
             }
 
             return $transport;
-        });
+        };
     }
 
     private function setupMonolog()
     {
         $this['monolog.name'] = 'phraseanet';
-        $this['monolog.handler'] = $this->share(function (Application $app) {
+        $this['monolog.handler'] = function (Application $app) {
             return new RotatingFileHandler(
                 $app['log.path'] . '/app_error.log',
                 10,
@@ -694,12 +698,12 @@ class Application extends SilexApplication
                 $app['monolog.bubble'],
                 $app['monolog.permission']
             );
-        });
+        };
     }
 
     private function setupEventDispatcher()
     {
-        $this['dispatcher'] = $this->share(
+        $this['dispatcher'] =
             $this->extend('dispatcher', function (EventDispatcherInterface $dispatcher, Application $app) {
                 $dispatcher->addSubscriber(new PhraseaInstallSubscriber($app));
                 $dispatcher->addSubscriber(new FeedEntrySubscriber($app));
@@ -713,7 +717,7 @@ class Application extends SilexApplication
 
                 return $dispatcher;
             })
-        );
+        ;
     }
 
     private function setupConstants()

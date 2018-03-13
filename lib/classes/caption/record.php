@@ -12,6 +12,8 @@ use Alchemy\Phrasea\Application;
 use Alchemy\Phrasea\Databox\Caption\CachedCaptionDataRepository;
 use Alchemy\Phrasea\Model\RecordReferenceInterface;
 use Alchemy\Phrasea\Model\Serializer\CaptionSerializer;
+use Pimple\Container;
+
 
 class caption_record implements cache_cacheableInterface
 {
@@ -31,11 +33,11 @@ class caption_record implements cache_cacheableInterface
     protected $app;
 
     /**
-     * @param Application $app
+     * @param Container $app
      * @param RecordReferenceInterface $record
      * @param array[]|null $fieldsData
      */
-    public function __construct(Application $app, RecordReferenceInterface $record, array $fieldsData = null)
+    public function __construct(Container $app, RecordReferenceInterface $record, array $fieldsData = null)
     {
         $this->app = $app;
         $this->record = $record;

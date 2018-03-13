@@ -12,19 +12,21 @@
 namespace Alchemy\Phrasea\ControllerProvider;
 
 use Alchemy\Phrasea\Application as PhraseaApplication;
-use Alchemy\Phrasea\Core\LazyLocator;
 use Alchemy\Phrasea\Controller\PermalinkController;
 use Alchemy\Phrasea\Core\Event\Listener\OAuthListener;
+use Alchemy\Phrasea\Core\LazyLocator;
+use Pimple\Container;
+use Pimple\ServiceProviderInterface;
+use Silex\Api\ControllerProviderInterface;
 use Silex\Application;
 use Silex\ControllerCollection;
-use Silex\ControllerProviderInterface;
-use Silex\ServiceProviderInterface;
+
 
 class Permalink implements ControllerProviderInterface, ServiceProviderInterface
 {
-    public function register(Application $app)
+    public function register(Container $app)
     {
-        $app['controller.permalink'] = $app->share(function (PhraseaApplication $app) {
+        $app['controller.permalink'] = function (PhraseaApplication $app) {
             return (new PermalinkController(
                 $app,
                 $app['acl'],
@@ -35,11 +37,7 @@ class Permalink implements ControllerProviderInterface, ServiceProviderInterface
                 ->setDelivererLocator(new LazyLocator($app, 'phraseanet.file-serve'))
                 ->setApplicationBox($app['phraseanet.appbox'])
             ;
-        });
-    }
-
-    public function boot(Application $app)
-    {
+        };
     }
 
     public function connect(Application $app)

@@ -12,24 +12,21 @@ namespace Alchemy\Phrasea\ControllerProvider\Prod;
 use Alchemy\Phrasea\Application as PhraseaApplication;
 use Alchemy\Phrasea\Controller\Prod\SubdefsController;
 use Alchemy\Phrasea\ControllerProvider\ControllerProviderTrait;
-use Silex\ControllerProviderInterface;
-use Silex\ServiceProviderInterface;
+use Pimple\Container;
+use Pimple\ServiceProviderInterface;
+use Silex\Api\ControllerProviderInterface;
 use Silex\Application;
+
 
 class Subdefs implements ControllerProviderInterface, ServiceProviderInterface
 {
     use ControllerProviderTrait;
 
-    public function register(Application $app)
+    public function register(Container $app)
     {
-        $app['controller.prod.subdefs'] = $app->share(function (PhraseaApplication $app) {
+        $app['controller.prod.subdefs'] = function (PhraseaApplication $app) {
             return (new SubdefsController($app));
-        });
-    }
-
-    public function boot(Application $app)
-    {
-        // no-op
+        };
     }
 
     public function connect(Application $app)

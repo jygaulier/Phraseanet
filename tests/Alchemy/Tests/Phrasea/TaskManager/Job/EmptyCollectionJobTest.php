@@ -8,7 +8,7 @@ use Alchemy\Phrasea\TaskManager\Job\EmptyCollectionJob;
 use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Translation\TranslatorInterface;
 
-class EmptyCollectionJobTest extends \PHPUnit_Framework_TestCase
+class EmptyCollectionJobTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var ObjectProphecy

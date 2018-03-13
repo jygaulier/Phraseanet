@@ -12,19 +12,17 @@
 namespace Alchemy\Phrasea\Core\Provider;
 
 use Alchemy\Phrasea\Cache\ConnectionFactory;
+use Pimple\Container;
+use Pimple\ServiceProviderInterface;
 use Silex\Application;
-use Silex\ServiceProviderInterface;
+
 
 class CacheConnectionServiceProvider implements ServiceProviderInterface
 {
-    public function register(Application $app)
+    public function register(Container $app)
     {
-        $app['cache.connection-factory'] = $app->share(function () {
+        $app['cache.connection-factory'] = function () {
             return new ConnectionFactory();
-        });
-    }
-
-    public function boot(Application $app)
-    {
+        };
     }
 }

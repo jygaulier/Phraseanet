@@ -11,26 +11,27 @@
 
 namespace Alchemy\Phrasea\Core\Provider;
 
+use Alchemy\Phrasea\Application;
+use Alchemy\Phrasea\Core\Configuration\RegistrationManager;
 use Alchemy\Phrasea\Form\Constraint\NewLogin;
 use Alchemy\Phrasea\Model\Entities\User;
-use Alchemy\Phrasea\Core\Configuration\RegistrationManager;
-use Silex\Application;
-use Silex\ServiceProviderInterface;
+use Pimple\Container;
+use Pimple\ServiceProviderInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class RegistrationServiceProvider implements ServiceProviderInterface
 {
-    public function register(Application $app)
+    public function register(Container $app)
     {
-        $app['registration.fields'] = $app->share(function (Application $app) {
+        $app['registration.fields'] = function (Application $app) {
             return $app['conf']->get('registration-fields', []);
-        });
+        };
 
-        $app['registration.manager'] = $app->share(function (Application $app) {
+        $app['registration.manager'] = function (Application $app) {
             return new RegistrationManager($app['phraseanet.appbox'], $app['repo.registrations'], $app['locale']);
-        });
+        };
 
-        $app['registration.optional-fields'] = $app->share(function (Application $app) {
+        $app['registration.optional-fields'] = function (Application $app) {
             return [
                 'login'=> [
                     'label'       => 'admin::compte-utilisateur identifiant',
@@ -122,10 +123,6 @@ class RegistrationServiceProvider implements ServiceProviderInterface
                     ]
                 ],
             ];
-        });
-    }
-
-    public function boot(Application $app)
-    {
+        };
     }
 }

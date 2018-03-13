@@ -2,16 +2,17 @@
 
 namespace Alchemy\Phrasea\Webhook\Processor;
 
-use Alchemy\Phrasea\Application;
+use Alchemy\Phrasea\Application as PhraseanetApplication;
+
 
 class FeedEntryProcessorFactory implements ProcessorFactory
 {
     /**
-     * @var Application
+     * @var PhraseanetApplication
      */
     private $app;
 
-    public function __construct(Application $application)
+    public function __construct(PhraseanetApplication $application)
     {
         $this->app = $application;
     }

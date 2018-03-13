@@ -11,41 +11,42 @@
 
 namespace Alchemy\Phrasea\Core\Provider;
 
+use Alchemy\Phrasea\Application;
 use Alchemy\Phrasea\Core\LazyLocator;
+use Alchemy\Phrasea\Exception\InvalidArgumentException;
 use Alchemy\Phrasea\SearchEngine\Elastic\DataboxFetcherFactory;
+use Alchemy\Phrasea\SearchEngine\Elastic\ElasticSearchEngine;
 use Alchemy\Phrasea\SearchEngine\Elastic\ElasticsearchOptions;
 use Alchemy\Phrasea\SearchEngine\Elastic\Index;
-use Alchemy\Phrasea\SearchEngine\Elastic\IndexLocator;
-use Alchemy\Phrasea\SearchEngine\Elastic\Search\QueryVisitor;
-use Alchemy\Phrasea\SearchEngine\SearchEngineLogger;
-use Alchemy\Phrasea\Exception\InvalidArgumentException;
-use Alchemy\Phrasea\SearchEngine\SearchEngineInterface;
-use Alchemy\Phrasea\SearchEngine\Elastic\ElasticSearchEngine;
 use Alchemy\Phrasea\SearchEngine\Elastic\Indexer;
-use Alchemy\Phrasea\SearchEngine\Elastic\IndexerSubscriber;
 use Alchemy\Phrasea\SearchEngine\Elastic\Indexer\RecordIndexer;
 use Alchemy\Phrasea\SearchEngine\Elastic\Indexer\TermIndexer;
+use Alchemy\Phrasea\SearchEngine\Elastic\IndexerSubscriber;
+use Alchemy\Phrasea\SearchEngine\Elastic\IndexLocator;
 use Alchemy\Phrasea\SearchEngine\Elastic\RecordHelper;
 use Alchemy\Phrasea\SearchEngine\Elastic\Search\Escaper;
 use Alchemy\Phrasea\SearchEngine\Elastic\Search\FacetsResponse;
-use Alchemy\Phrasea\SearchEngine\Elastic\Search\QueryContextFactory;
 use Alchemy\Phrasea\SearchEngine\Elastic\Search\QueryCompiler;
+use Alchemy\Phrasea\SearchEngine\Elastic\Search\QueryContextFactory;
+use Alchemy\Phrasea\SearchEngine\Elastic\Search\QueryVisitor;
 use Alchemy\Phrasea\SearchEngine\Elastic\Structure\GlobalStructure;
 use Alchemy\Phrasea\SearchEngine\Elastic\Thesaurus;
+use Alchemy\Phrasea\SearchEngine\SearchEngineInterface;
+use Alchemy\Phrasea\SearchEngine\SearchEngineLogger;
 use Elasticsearch\ClientBuilder;
 use Hoa\Compiler;
 use Hoa\File;
 use Monolog\Handler\ErrorLogHandler;
 use Monolog\Handler\RotatingFileHandler;
 use Monolog\Logger;
-use Silex\Application;
-use Silex\ServiceProviderInterface;
+use Pimple\Container;
+use Pimple\ServiceProviderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 class SearchEngineServiceProvider implements ServiceProviderInterface
 {
-    public function register(Application $app)
+    public function register(Container $app)
     {
         $this->registerElasticSearchClient($app);
         $this->registerQueryParser($app);
@@ -53,25 +54,21 @@ class SearchEngineServiceProvider implements ServiceProviderInterface
         $this->registerSearchEngine($app);
     }
 
-    public function boot(Application $app)
-    {
-    }
-
     /**
-     * @param Application $app
+     * @param Container $app
      * @return Application
      */
-    private function registerSearchEngine(Application $app)
+    private function registerSearchEngine(Container $app)
     {
-        $app['phraseanet.SE'] = function ($app) {
+        $app['phraseanet.SE'] = $app->factory(function ($app) {
             return $app['search_engine'];
-        };
-
-        $app['phraseanet.SE.logger'] = $app->share(function (Application $app) {
-            return new SearchEngineLogger($app);
         });
 
-        $app['search_engine'] = $app->share(function ($app) {
+        $app['phraseanet.SE.logger'] = function (Application $app) {
+            return new SearchEngineLogger($app);
+        };
+
+        $app['search_engine'] = function (Application$app) {
             $type = $app['conf']->get(['main', 'search-engine', 'type']);
             if ($type !== SearchEngineInterface::TYPE_ELASTICSEARCH) {
                 throw new InvalidArgumentException(sprintf('Invalid search engine type "%s".', $type));
@@ -88,13 +85,13 @@ class SearchEngineServiceProvider implements ServiceProviderInterface
                 $app['elasticsearch.facets_response.factory'],
                 $options
             );
-        });
+        };
 
-        $app['search_engine.structure'] = $app->share(function (\Alchemy\Phrasea\Application $app) {
+        $app['search_engine.structure'] = function (Application $app) {
             $databoxes = $app->getDataboxes();
 
             return GlobalStructure::createFromDataboxes($databoxes);
-        });
+        };
 
         $app['elasticsearch.facets_response.factory'] = $app->protect(function (array $response) use ($app) {
             return new FacetsResponse(new Escaper(), $response, $app['search_engine.structure']);
@@ -107,26 +104,26 @@ class SearchEngineServiceProvider implements ServiceProviderInterface
      * @param Application $app
      * @return Application
      */
-    private function registerIndexer(Application $app)
+    private function registerIndexer(Container $app)
     {
         /* Indexer related services */
-        $app['elasticsearch.index'] = $app->share(function ($app) {
+        $app['elasticsearch.index'] = function ($app) {
             return new Index($app['elasticsearch.options'], $app['elasticsearch.index.locator']);
-        });
+        };
 
-        $app['elasticsearch.index.record'] = $app->share(function ($app) {
+        $app['elasticsearch.index.record'] = function ($app) {
             return new Indexer\RecordIndex($app['search_engine.structure'], array_keys($app['locales.available']));
-        });
+        };
 
-        $app['elasticsearch.index.term'] = $app->share(function ($app) {
+        $app['elasticsearch.index.term'] = function ($app) {
             return new Indexer\TermIndex(array_keys($app['locales.available']));
-        });
+        };
 
-        $app['elasticsearch.index.locator'] = $app->share(function ($app) {
+        $app['elasticsearch.index.locator'] = function ($app) {
             return new IndexLocator($app, 'elasticsearch.index.record', 'elasticsearch.index.term');
-        });
+        };
 
-        $app['elasticsearch.indexer'] = $app->share(function ($app) {
+        $app['elasticsearch.indexer'] = function ($app) {
             return new Indexer(
                 $app['elasticsearch.client'],
                 $app['elasticsearch.index'],
@@ -134,16 +131,16 @@ class SearchEngineServiceProvider implements ServiceProviderInterface
                 $app['elasticsearch.indexer.record_indexer'],
                 $app['monolog']
             );
-        });
+        };
 
-        $app['elasticsearch.indexer.term_indexer'] = $app->share(function ($app) {
+        $app['elasticsearch.indexer.term_indexer'] = function ($app) {
             return new TermIndexer(
                 $app['phraseanet.appbox'],
                 $app['monolog']
             );
-        });
+        };
 
-        $app['elasticsearch.indexer.databox_fetcher_factory'] = $app->share(function ($app) {
+        $app['elasticsearch.indexer.databox_fetcher_factory'] = function ($app) {
             return new DataboxFetcherFactory(
                 $app['elasticsearch.record_helper'],
                 $app['elasticsearch.options'],
@@ -151,9 +148,9 @@ class SearchEngineServiceProvider implements ServiceProviderInterface
                 'search_engine.structure',
                 'thesaurus'
             );
-        });
+        };
 
-        $app['elasticsearch.indexer.record_indexer'] = $app->share(function ($app) {
+        $app['elasticsearch.indexer.record_indexer'] = function ($app) {
             // TODO Use upcoming monolog factory
             $logger = new Logger('indexer');
             $logger->pushHandler(new ErrorLogHandler());
@@ -164,33 +161,32 @@ class SearchEngineServiceProvider implements ServiceProviderInterface
                 $app['dispatcher'],
                 $app['monolog']
             );
-        });
+        };
 
-        $app['elasticsearch.record_helper'] = $app->share(function ($app) {
+        $app['elasticsearch.record_helper'] = function ($app) {
             return new RecordHelper($app['phraseanet.appbox']);
-        });
+        };
 
-        $app['dispatcher'] = $app
-            ->share($app->extend('dispatcher', function (EventDispatcherInterface $dispatcher, $app) {
-                $subscriber = new IndexerSubscriber(new LazyLocator($app, 'elasticsearch.indexer'));
+        $app['dispatcher'] = $app->extend('dispatcher', function (EventDispatcherInterface $dispatcher, $app) {
+            $subscriber = new IndexerSubscriber(new LazyLocator($app, 'elasticsearch.indexer'));
 
-                $dispatcher->addSubscriber($subscriber);
+            $dispatcher->addSubscriber($subscriber);
 
-                $listener = array($subscriber, 'flushQueue');
+            $listener = array($subscriber, 'flushQueue');
 
-                // Add synchronous flush when used in CLI.
-                if (isset($app['console'])) {
-                    foreach (array_keys($subscriber->getSubscribedEvents()) as $eventName) {
-                        $dispatcher->addListener($eventName, $listener, -10);
-                    }
-
-                    return $dispatcher;
+            // Add synchronous flush when used in CLI.
+            if (isset($app['console'])) {
+                foreach (array_keys($subscriber->getSubscribedEvents()) as $eventName) {
+                    $dispatcher->addListener($eventName, $listener, -10);
                 }
 
-                $dispatcher->addListener(KernelEvents::TERMINATE, $listener);
-
                 return $dispatcher;
-            }));
+            }
+
+            $dispatcher->addListener(KernelEvents::TERMINATE, $listener);
+
+            return $dispatcher;
+        });
 
         return $app;
     }
@@ -199,10 +195,10 @@ class SearchEngineServiceProvider implements ServiceProviderInterface
      * @param Application $app
      * @return Application
      */
-    private function registerElasticSearchClient(Application $app)
+    private function registerElasticSearchClient(Container $app)
     {
         /* Low-level elasticsearch services */
-        $app['elasticsearch.client'] = $app->share(function ($app) {
+        $app['elasticsearch.client'] = function ($app) {
             /** @var ElasticsearchOptions $options */
             $options = $app['elasticsearch.options'];
             $clientParams = ['hosts' => [sprintf('%s:%s', $options->getHost(), $options->getPort())]];
@@ -225,9 +221,9 @@ class SearchEngineServiceProvider implements ServiceProviderInterface
             }
 
             return $clientBuilder->build();
-        });
+        };
 
-        $app['elasticsearch.options'] = $app->share(function ($app) {
+        $app['elasticsearch.options'] = function ($app) {
             $options = ElasticsearchOptions::fromArray($app['conf']->get(['main', 'search-engine', 'options'], []));
 
             if (empty($options->getIndexName())) {
@@ -238,7 +234,7 @@ class SearchEngineServiceProvider implements ServiceProviderInterface
             }
 
             return $options;
-        });
+        };
 
         return $app;
     }
@@ -246,10 +242,10 @@ class SearchEngineServiceProvider implements ServiceProviderInterface
     /**
      * @param Application $app
      */
-    private function registerQueryParser(Application $app)
+    private function registerQueryParser(Container $app)
     {
         /* Querying helper services */
-        $app['thesaurus'] = $app->share(function ($app) {
+        $app['thesaurus'] = function ($app) {
             $logger = new Logger('thesaurus');
             $logger->pushHandler(new ErrorLogHandler(
                 ErrorLogHandler::OPERATING_SYSTEM,
@@ -261,40 +257,40 @@ class SearchEngineServiceProvider implements ServiceProviderInterface
                 $app['elasticsearch.options'],
                 $logger
             );
-        });
+        };
 
-        $app['query_context.factory'] = $app->share(function ($app) {
+        $app['query_context.factory'] = function ($app) {
             return new QueryContextFactory(
                 $app['search_engine.structure'],
                 array_keys($app['locales.available']),
                 $app['locale']
             );
-        });
+        };
 
-        $app['query_parser.grammar_path'] = function ($app) {
+        $app['query_parser.grammar_path'] = $app->factory(function ($app) {
             $configPath = ['registry', 'searchengine', 'query-grammar-path'];
             $grammarPath = $app['conf']->get($configPath, 'grammar/query.pp');
             $projectRoot = '../../../../..';
 
             return realpath(implode('/', [__DIR__, $projectRoot, $grammarPath]));
-        };
+        });
 
-        $app['query_parser'] = $app->share(function ($app) {
+        $app['query_parser'] = function ($app) {
             $grammarPath = $app['query_parser.grammar_path'];
 
             return Compiler\Llk\Llk::load(new File\Read($grammarPath));
-        });
+        };
 
         $app['query_visitor.factory'] = $app->protect(function () use ($app) {
             return new QueryVisitor($app['search_engine.structure']);
         });
 
-        $app['query_compiler'] = $app->share(function ($app) {
+        $app['query_compiler'] = function ($app) {
             return new QueryCompiler(
                 $app['query_parser'],
                 $app['query_visitor.factory'],
                 $app['thesaurus']
             );
-        });
+        };
     }
 }

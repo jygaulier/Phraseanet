@@ -11,7 +11,7 @@ use Alchemy\Phrasea\SearchEngine\Elastic\Structure\Field;
  * @group unit
  * @group structure
  */
-class FieldTest extends \PHPUnit_Framework_TestCase
+class FieldTest extends \PHPUnit\Framework\TestCase
 {
     public function testBasicMerge()
     {
@@ -31,7 +31,7 @@ class FieldTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Alchemy\Phrasea\SearchEngine\Elastic\Exception\MergeException
+     * @expectedException \Alchemy\Phrasea\SearchEngine\Elastic\Exception\MergeException
      * @expectedExceptionMessageRegExp #name#u
      */
     public function testConflictingNameMerge()
@@ -42,7 +42,7 @@ class FieldTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Alchemy\Phrasea\SearchEngine\Elastic\Exception\MergeException
+     * @expectedException \Alchemy\Phrasea\SearchEngine\Elastic\Exception\MergeException
      * @expectedExceptionMessageRegExp #type#u
      */
     public function testConflictingTypeMerge()
@@ -53,7 +53,7 @@ class FieldTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Alchemy\Phrasea\SearchEngine\Elastic\Exception\MergeException
+     * @expectedException \Alchemy\Phrasea\SearchEngine\Elastic\Exception\MergeException
      * @expectedExceptionMessageRegExp #search#u
      */
     public function testMixedSearchabilityMerge()
@@ -64,7 +64,7 @@ class FieldTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Alchemy\Phrasea\SearchEngine\Elastic\Exception\MergeException
+     * @expectedException \Alchemy\Phrasea\SearchEngine\Elastic\Exception\MergeException
      * @expectedExceptionMessageRegExp #private#u
      */
     public function testMixedPrivateAndPublicMerge()
@@ -75,7 +75,7 @@ class FieldTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Alchemy\Phrasea\SearchEngine\Elastic\Exception\MergeException
+     * @expectedException \Alchemy\Phrasea\SearchEngine\Elastic\Exception\MergeException
      * @expectedExceptionMessageRegExp #facet#u
      */
     public function testMixedFacetEligibilityMerge()

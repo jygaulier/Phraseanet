@@ -9,6 +9,7 @@ use Monolog\Processor\WebProcessor;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+
 abstract class BaseApplicationLoader
 {
     /**
@@ -23,22 +24,25 @@ abstract class BaseApplicationLoader
         $this->doPrePluginServiceRegistration($app);
         $app->loadPlugins();
 
-        $app['exception_handler'] = $app->share(function (Application $app) {
+        $app['exception_handler'] = function (Application $app) {
             return $this->createExceptionHandler($app);
-        });
+        };
 
-        $app['monolog'] = $app->share($app->extend('monolog', function (Logger $monolog) {
+        /*
+        $app['monolog'] = $app->extend('monolog', function (Logger $monolog) {
             $monolog->pushProcessor(new WebProcessor());
 
             return $monolog;
-        }));
+        });
+        */
+        $app['monolog']->pushProcessor(new WebProcessor());
 
         $this->bindRoutes($app);
 
         $subscribers = $this->getDispatcherSubscribersFor($app);
 
         if ($subscribers) {
-            $app['dispatcher'] = $app->share(
+            $app['dispatcher'] =
                 $app->extend(
                     'dispatcher',
                     function (EventDispatcherInterface $dispatcher) use ($subscribers) {
@@ -49,7 +53,7 @@ abstract class BaseApplicationLoader
                         return $dispatcher;
                     }
                 )
-            );
+            ;
         }
 
         return $app;

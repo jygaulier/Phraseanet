@@ -17,7 +17,7 @@ use Alchemy\Phrasea\Controller\Controller;
 use Alchemy\Phrasea\Model\Entities\User;
 use Symfony\Component\HttpFoundation\Response;
 
-final class ControllerTest extends \PHPUnit_Framework_TestCase
+final class ControllerTest extends \PHPUnit\Framework\TestCase
 {
     /** @var ACLProvider|\PHPUnit_Framework_MockObject_MockObject */
     private $aclProvider;

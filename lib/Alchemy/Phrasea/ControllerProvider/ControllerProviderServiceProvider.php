@@ -3,12 +3,13 @@
 namespace Alchemy\Phrasea\ControllerProvider;
 
 use Alchemy\EmbedProvider\EmbedServiceProvider;
+use Pimple\Container;
+use Pimple\ServiceProviderInterface;
 use Silex\Application;
-use Silex\ServiceProviderInterface;
+
 
 class ControllerProviderServiceProvider implements ServiceProviderInterface
 {
-
     private $controllerProviders = [];
 
     /**
@@ -17,25 +18,13 @@ class ControllerProviderServiceProvider implements ServiceProviderInterface
      * This method should only be used to configure services and parameters.
      * It should not get services.
      */
-    public function register(Application $app)
+    public function register(Container $app)
     {
         $this->loadProviders();
 
         foreach ($this->controllerProviders as $class => $values) {
             $app->register(new $class, $values);
         }
-    }
-
-    /**
-     * Bootstraps the application.
-     *
-     * This method is called after all services are registered
-     * and should be used for "dynamic" configuration (whenever
-     * a service must be requested).
-     */
-    public function boot(Application $app)
-    {
-        // Nothing to do here
     }
 
     public function loadProviders()

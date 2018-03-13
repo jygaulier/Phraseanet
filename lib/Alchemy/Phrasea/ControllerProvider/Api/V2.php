@@ -13,15 +13,16 @@ use Alchemy\Phrasea\Application as PhraseaApplication;
 use Alchemy\Phrasea\Controller\Api\BasketController;
 use Alchemy\Phrasea\Controller\Api\LazaretController;
 use Alchemy\Phrasea\Controller\Api\SearchController;
-use Alchemy\Phrasea\Core\LazyLocator;
 use Alchemy\Phrasea\ControllerProvider\ControllerProviderTrait;
-use Alchemy\Phrasea\Core\Configuration\PropertyAccess;
 use Alchemy\Phrasea\Core\Event\Listener\OAuthListener;
+use Alchemy\Phrasea\Core\LazyLocator;
 use Alchemy\Phrasea\Order\Controller\ApiOrderController;
+use Pimple\Container;
+use Pimple\ServiceProviderInterface;
+use Silex\Api\ControllerProviderInterface;
 use Silex\Application;
 use Silex\Controller;
-use Silex\ControllerProviderInterface;
-use Silex\ServiceProviderInterface;
+
 
 class V2 extends Api implements ControllerProviderInterface, ServiceProviderInterface
 {
@@ -29,29 +30,30 @@ class V2 extends Api implements ControllerProviderInterface, ServiceProviderInte
 
     const VERSION = '2.0.0';
 
-    public function register(Application $app)
+    public function register(Container $app)
     {
-        $app['controller.api.v2.baskets'] = $app->share(
+        $app['controller.api.v2.baskets'] =
             function (PhraseaApplication $app) {
                 return (new BasketController($app))
                     ->setDataboxLoggerLocator($app['phraseanet.logger'])
                     ->setDispatcher($app['dispatcher'])
                     ->setJsonBodyHelper($app['json.body_helper']);
             }
-        );
-        $app['controller.api.v2.lazaret'] = $app->share(
+        ;
+
+        $app['controller.api.v2.lazaret'] =
             function (PhraseaApplication $app) {
                 return (new LazaretController($app));
             }
-        );
+        ;
 
-        $app['controller.api.v2.search'] = $app->share(
+        $app['controller.api.v2.search'] =
             function (PhraseaApplication $app) {
                 return new SearchController($app);
             }
-        );
+        ;
 
-        $app['controller.api.v2.orders'] = $app->share(
+        $app['controller.api.v2.orders'] =
             function (PhraseaApplication $app) {
                 $controller = new ApiOrderController(
                     $app,
@@ -69,12 +71,7 @@ class V2 extends Api implements ControllerProviderInterface, ServiceProviderInte
 
                 return $controller;
             }
-        );
-    }
-
-    public function boot(Application $app)
-    {
-        // Intentionally left empty
+        ;
     }
 
     public function connect(Application $app)

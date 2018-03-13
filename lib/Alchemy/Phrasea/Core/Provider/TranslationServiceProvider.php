@@ -3,20 +3,22 @@
 namespace Alchemy\Phrasea\Core\Provider;
 
 use Alchemy\Phrasea\Utilities\CachedTranslator;
+use JMS\TranslationBundle\Translation\Loader\Symfony\XliffLoader;
+use Pimple\Container;
+use Pimple\ServiceProviderInterface;
 use Silex\Application;
-use Silex\ServiceProviderInterface;
+use Symfony\Component\Translation\Loader\ArrayLoader;
 use Symfony\Component\Translation\Loader\PoFileLoader;
 use Symfony\Component\Translation\MessageSelector;
-use Symfony\Component\Translation\Loader\ArrayLoader;
-use JMS\TranslationBundle\Translation\Loader\Symfony\XliffLoader;
+
 
 class TranslationServiceProvider implements ServiceProviderInterface
 {
-    public function register(Application $app)
+    public function register(Container $app)
     {
         $app['translator.cache-options'] = [];
 
-        $app['translator'] = $app->share(function ($app) {
+        $app['translator'] = function ($app) {
             $app['translator.cache-options'] = array_replace(
                 [
                     'debug' => $app['debug'],
@@ -55,17 +57,13 @@ class TranslationServiceProvider implements ServiceProviderInterface
             }
 
             return $translator;
-        });
+        };
 
-        $app['translator.message_selector'] = $app->share(function () {
+        $app['translator.message_selector'] = function () {
             return new MessageSelector();
-        });
+        };
 
         $app['translator.domains'] = [];
         $app['locale_fallbacks'] = ['en'];
-    }
-
-    public function boot(Application $app)
-    {
     }
 }

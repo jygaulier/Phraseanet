@@ -62,6 +62,7 @@ class Edit extends \Alchemy\Phrasea\Helper\Helper
             if ($this->app->getAuthenticatedUser()->getId() === (int) $usr_id) {
                 continue;
             }
+            /** @var User $user */
             $user = $this->app['repo.users']->find($usr_id);
             $this->delete_user($user);
         }
@@ -512,7 +513,7 @@ class Edit extends \Alchemy\Phrasea\Helper\Helper
 
             // todo : wtf check if parm contains good types (a checkbox should be a bool, not a "0" or "1"
             //        as required by ACL::update_rights_to_bas(...)
-            $parm = $this->unserializedRequestData($this->app['request'], $rights, 'values');
+            $parm = $this->unserializedRequestData($this->app['request_stack']->getCurrentRequest(), $rights, 'values');
 
             foreach ($parm as $p => $v) {
                 // p is like {bid}_{right} => right-value
@@ -560,7 +561,7 @@ class Edit extends \Alchemy\Phrasea\Helper\Helper
 
             // todo : wtf check if parm contains good types (a checkbox should be a bool, not a "0" or "1"
             //        as required by ACL::update_rights_to_sbas(...)
-            $parm = $this->unserializedRequestData($this->app['request'], $rights, 'values');
+            $parm = $this->unserializedRequestData($this->app['request_stack']->getCurrentRequest(), $rights, 'values');
 
             foreach ($parm as $p => $v) {
                 if (trim($v) == '')
@@ -622,6 +623,7 @@ class Edit extends \Alchemy\Phrasea\Helper\Helper
 
         $users = $this->users;
 
+        /** @var User $user */
         $user = $this->app['repo.users']->find(array_pop($users));
 
         if ($user->isTemplate() || $user->isSpecial()) {
@@ -697,6 +699,7 @@ class Edit extends \Alchemy\Phrasea\Helper\Helper
 
     public function apply_template()
     {
+        /** @var User $template */
         $template = $this->app['repo.users']->find($this->request->get('template'));
 
         if (null === $template) {
@@ -709,6 +712,7 @@ class Edit extends \Alchemy\Phrasea\Helper\Helper
         $base_ids = array_keys($this->app->getAclForUser($this->app->getAuthenticatedUser())->get_granted_base([\ACL::CANADMIN]));
 
         foreach ($this->users as $usr_id) {
+            /** @var User $user */
             $user = $this->app['repo.users']->find($usr_id);
             
             $this->app->getAclForUser($user)->apply_model($template, $base_ids);
@@ -724,6 +728,7 @@ class Edit extends \Alchemy\Phrasea\Helper\Helper
         $this->base_id = (int) $this->request->get('base_id');
 
         foreach ($this->users as $usr_id) {
+            /** @var User $user */
             $user = $this->app['repo.users']->find($usr_id);
             if ($this->request->get('quota'))
                 $this->app->getAclForUser($user)->set_quotas_on_base($this->base_id, $this->request->get('droits'), $this->request->get('restes'));
@@ -745,6 +750,7 @@ class Edit extends \Alchemy\Phrasea\Helper\Helper
 
         if ($vand_and && $vand_or && $vxor_and && $vxor_or) {
             foreach ($this->users as $usr_id) {
+                /** @var User $user */
                 $user = $this->app['repo.users']->find($usr_id);
 
                 $this->app->getAclForUser($user)->set_masks_on_base($this->base_id, $vand_and, $vand_or, $vxor_and, $vxor_or);
@@ -767,6 +773,7 @@ class Edit extends \Alchemy\Phrasea\Helper\Helper
         $base_ids = array_keys($this->app->getAclForUser($this->app->getAuthenticatedUser())->get_granted_base([\ACL::CANADMIN]));
 
         foreach ($this->users as $usr_id) {
+            /** @var User $user */
             $user = $this->app['repo.users']->find($usr_id);
 
             if ($this->base_id > 0) {
@@ -786,6 +793,7 @@ class Edit extends \Alchemy\Phrasea\Helper\Helper
         $base_ids = array_keys($this->app->getAclForUser($this->app->getAuthenticatedUser())->get_granted_base([\ACL::CANADMIN]));
 
         foreach ($this->users as $usr_id) {
+            /** @var User $user */
             $user = $this->app['repo.users']->find($usr_id);
             $ACL = $this->app->getAclForUser($user);
 

@@ -11,17 +11,19 @@
 
 namespace Alchemy\Phrasea\Core\Event\Subscriber;
 
+use Pimple\Container;
 use Silex\Application;
-use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpKernel\Event\GetResponseEvent;
+use Symfony\Component\HttpKernel\KernelEvents;
+
 
 class XSendFileSubscriber implements EventSubscriberInterface
 {
     private $app;
 
-    public function __construct(Application $app)
+    public function __construct(Container $app)
     {
         $this->app = $app;
     }

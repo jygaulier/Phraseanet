@@ -2,14 +2,16 @@
 
 namespace Alchemy\Phrasea\Webhook\Processor;
 
-use Alchemy\Phrasea\Application;
+use Alchemy\Phrasea\Application as PhraseanetApplication;
+use Alchemy\Phrasea\Model\Entities\FeedEntry;
 use Alchemy\Phrasea\Model\Entities\WebhookEvent;
 use Alchemy\Phrasea\Model\Repositories\FeedEntryRepository;
+
 
 class FeedEntryProcessor implements ProcessorInterface
 {
     /**
-     * @var Application
+     * @var PhraseanetApplication
      */
     private $application;
 
@@ -23,7 +25,7 @@ class FeedEntryProcessor implements ProcessorInterface
      */
     private $userQuery;
 
-    public function __construct(Application $application, FeedEntryRepository $entryRepository, \User_Query $userQuery)
+    public function __construct(PhraseanetApplication $application, FeedEntryRepository $entryRepository, \User_Query $userQuery)
     {
         $this->application = $application;
         $this->entryRepository = $entryRepository;
@@ -38,6 +40,7 @@ class FeedEntryProcessor implements ProcessorInterface
             return null;
         }
 
+        /** @var FeedEntry $entry */
         $entry = $this->entryRepository->find($data->entry_id);
 
         if (null === $entry) {
@@ -54,8 +57,8 @@ class FeedEntryProcessor implements ProcessorInterface
             ->include_templates(false)
             ->email_not_null(true);
 
-        if ($feed->getCollection($this->app)) {
-            $query->on_base_ids([$feed->getCollection($this->app)->get_base_id()]);
+        if ($feed->getCollection($this->application)) {
+            $query->on_base_ids([$feed->getCollection($this->application)->get_base_id()]);
         }
 
         $start = 0;

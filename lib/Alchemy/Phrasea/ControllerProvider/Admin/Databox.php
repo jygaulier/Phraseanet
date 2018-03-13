@@ -17,25 +17,23 @@ use Alchemy\Phrasea\Core\LazyLocator;
 use Alchemy\Phrasea\ControllerProvider\ControllerProviderTrait;
 use Alchemy\Phrasea\Security\Firewall;
 use Silex\Application;
-use Silex\ControllerProviderInterface;
-use Silex\ServiceProviderInterface;
+use Silex\Api\ControllerProviderInterface;
+use Pimple\ServiceProviderInterface;
+use Pimple\Container;
 use Symfony\Component\HttpFoundation\Request;
+
 
 class Databox implements ControllerProviderInterface, ServiceProviderInterface
 {
     use ControllerProviderTrait;
 
-    public function register(Application $app)
+    public function register(Container $app)
     {
-        $app['controller.admin.databox'] = $app->share(function (PhraseaApplication $app) {
+        $app['controller.admin.databox'] = function (PhraseaApplication $app) {
             return (new DataboxController($app))
                 ->setUserQueryFactory(new LazyLocator($app, 'phraseanet.user-query'))
             ;
-        });
-    }
-
-    public function boot(Application $app)
-    {
+        };
     }
 
     public function connect(Application $app)

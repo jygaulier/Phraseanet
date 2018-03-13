@@ -4,18 +4,19 @@ namespace Alchemy\Phrasea\Twig;
 
 use Alchemy\Phrasea\Application;
 use Alchemy\Phrasea\Collection\CollectionHelper;
+use Alchemy\Phrasea\Http\StaticFile\StaticMode;
 use Alchemy\Phrasea\Model\Entities\ElasticsearchRecord;
 use Alchemy\Phrasea\Model\Entities\User;
 use Alchemy\Phrasea\Model\RecordInterface;
-use Alchemy\Phrasea\Http\StaticFile\StaticMode;
 use Alchemy\Phrasea\SearchEngine\Elastic\Structure\Flag;
+use Pimple\Container;
 
 class PhraseanetExtension extends \Twig_Extension
 {
     /** @var Application */
     private $app;
 
-    public function __construct(Application $app)
+    public function __construct(Container $app)
     {
         $this->app = $app;
     }

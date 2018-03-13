@@ -6,7 +6,7 @@ use Alchemy\EmbedProvider\EmbedServiceProvider;
 use Alchemy\Phrasea\Application;
 use Alchemy\Phrasea\ControllerProvider as Providers;
 use Assert\Assertion;
-use Silex\ControllerProviderInterface;
+use Silex\Api\ControllerProviderInterface;
 
 class RouteLoader
 {

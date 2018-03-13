@@ -37,7 +37,7 @@ class module_console_systemTemplateGenerator extends Command
         $n_ok = $n_error = 0;
 
         // Twig fails if there's no request
-        $this->container['request'] = new Request();
+        $this->container['request_stack'] = new Request();
         // Twig must be initialized in order to access loader
         $this->container['twig'];
 

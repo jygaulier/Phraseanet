@@ -13,36 +13,37 @@ namespace Alchemy\Phrasea\Metadata;
 
 use PHPExiftool\Driver\TagProvider as ExiftoolTagProvider;
 
+
 class TagProvider extends ExiftoolTagProvider
 {
     public function __construct()
     {
         parent::__construct();
 
-        $this['Phraseanet'] = $this->share(function () {
+        $this['Phraseanet'] = function () {
             return [
-                'PdfText'       => new \Alchemy\Phrasea\Metadata\Tag\PdfText(),
-                'TfArchivedate' => new \Alchemy\Phrasea\Metadata\Tag\TfArchivedate(),
-                'TfAtime'       => new \Alchemy\Phrasea\Metadata\Tag\TfAtime(),
-                'TfBasename'    => new \Alchemy\Phrasea\Metadata\Tag\TfBasename(),
-                'TfBits'        => new \Alchemy\Phrasea\Metadata\Tag\TfBits(),
-                'TfChannels'    => new \Alchemy\Phrasea\Metadata\Tag\TfChannels(),
-                'TfCtime'       => new \Alchemy\Phrasea\Metadata\Tag\TfCtime(),
-                'TfDirname'     => new \Alchemy\Phrasea\Metadata\Tag\TfDirname(),
-                'TfDuration'    => new \Alchemy\Phrasea\Metadata\Tag\TfDuration(),
-                'TfEditdate'    => new \Alchemy\Phrasea\Metadata\Tag\TfEditdate(),
-                'TfExtension'   => new \Alchemy\Phrasea\Metadata\Tag\TfExtension(),
-                'TfFilename'    => new \Alchemy\Phrasea\Metadata\Tag\TfFilename(),
-                'TfFilepath'    => new \Alchemy\Phrasea\Metadata\Tag\TfFilepath(),
-                'TfHeight'      => new \Alchemy\Phrasea\Metadata\Tag\TfHeight(),
-                'TfMimetype'    => new \Alchemy\Phrasea\Metadata\Tag\TfMimetype(),
-                'TfMtime'       => new \Alchemy\Phrasea\Metadata\Tag\TfMtime(),
-                'TfQuarantine'  => new \Alchemy\Phrasea\Metadata\Tag\TfQuarantine(),
-                'TfRecordid'    => new \Alchemy\Phrasea\Metadata\Tag\TfRecordid(),
-                'TfSize'        => new \Alchemy\Phrasea\Metadata\Tag\TfSize(),
-                'TfWidth'       => new \Alchemy\Phrasea\Metadata\Tag\TfWidth(),
+                'PdfText'       => new Tag\PdfText(),
+                'TfArchivedate' => new Tag\TfArchivedate(),
+                'TfAtime'       => new Tag\TfAtime(),
+                'TfBasename'    => new Tag\TfBasename(),
+                'TfBits'        => new Tag\TfBits(),
+                'TfChannels'    => new Tag\TfChannels(),
+                'TfCtime'       => new Tag\TfCtime(),
+                'TfDirname'     => new Tag\TfDirname(),
+                'TfDuration'    => new Tag\TfDuration(),
+                'TfEditdate'    => new Tag\TfEditdate(),
+                'TfExtension'   => new Tag\TfExtension(),
+                'TfFilename'    => new Tag\TfFilename(),
+                'TfFilepath'    => new Tag\TfFilepath(),
+                'TfHeight'      => new Tag\TfHeight(),
+                'TfMimetype'    => new Tag\TfMimetype(),
+                'TfMtime'       => new Tag\TfMtime(),
+                'TfQuarantine'  => new Tag\TfQuarantine(),
+                'TfRecordid'    => new Tag\TfRecordid(),
+                'TfSize'        => new Tag\TfSize(),
+                'TfWidth'       => new Tag\TfWidth(),
             ];
-        });
+        };
     }
 
     public function getAll()

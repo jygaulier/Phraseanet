@@ -6,7 +6,7 @@ use Alchemy\Phrasea\Media\Type;
 use MediaAlchemyst\Specification;
 use Symfony\Component\Translation\TranslatorInterface;
 
-class databox_subdefTest extends \PHPUnit_Framework_TestCase
+class databox_subdefTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var TranslatorInterface

@@ -11,29 +11,28 @@
 
 namespace Alchemy\Phrasea\ControllerProvider\Admin;
 
+use Alchemy\Phrasea\Application as PhraseaApplication;
 use Alchemy\Phrasea\Controller\Admin\UserController;
-use Alchemy\Phrasea\Core\LazyLocator;
 use Alchemy\Phrasea\ControllerProvider\ControllerProviderTrait;
+use Alchemy\Phrasea\Core\LazyLocator;
+use Pimple\Container;
+use Pimple\ServiceProviderInterface;
+use Silex\Api\ControllerProviderInterface;
 use Silex\Application;
-use Silex\ControllerProviderInterface;
-use Silex\ServiceProviderInterface;
+
 
 class Users implements ControllerProviderInterface, ServiceProviderInterface
 {
     use ControllerProviderTrait;
 
-    public function register(Application $app)
+    public function register(Container $app)
     {
-        $app['controller.admin.users'] = $app->share(function () use ($app) {
+        $app['controller.admin.users'] = function (PhraseaApplication $app) {
             return (new UserController($app))
                 ->setDelivererLocator(new LazyLocator($app, 'notification.deliverer'))
                 ->setUserQueryFactory(new LazyLocator($app, 'phraseanet.user-query'))
             ;
-        });
-    }
-
-    public function boot(Application $app)
-    {
+        };
     }
 
     public function connect(Application $app)

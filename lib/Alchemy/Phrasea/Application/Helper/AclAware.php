@@ -11,6 +11,7 @@ namespace Alchemy\Phrasea\Application\Helper;
 
 use Alchemy\Phrasea\Authentication\ACLProvider;
 use Alchemy\Phrasea\Model\Entities\User;
+use Pimple\Container;
 
 trait AclAware
 {
@@ -46,7 +47,7 @@ trait AclAware
 
         $locator = $this->aclProvider;
 
-        if (null === $locator && $this instanceof \Pimple && $this->offsetExists('acl')) {
+        if (null === $locator && $this instanceof Container && $this->offsetExists('acl')) {
             $locator = function () {
                 return $this['acl'];
             };

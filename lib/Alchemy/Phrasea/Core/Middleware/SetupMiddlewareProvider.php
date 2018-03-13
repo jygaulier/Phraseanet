@@ -2,10 +2,14 @@
 
 namespace Alchemy\Phrasea\Core\Middleware;
 
+use Alchemy\Phrasea\Application as PhraseanetApplication;
 use Assert\Assertion;
+use Pimple\Container;
+use Pimple\ServiceProviderInterface;
 use Silex\Application;
-use Silex\ServiceProviderInterface;
 use Symfony\Component\HttpFoundation\Request;
+// use Alchemy\PhraseanetServiceProviderInterface;
+
 
 class SetupMiddlewareProvider implements ServiceProviderInterface
 {
@@ -14,40 +18,31 @@ class SetupMiddlewareProvider implements ServiceProviderInterface
      *
      * This method should only be used to configure services and parameters.
      * It should not get services.
-     * @param Application $app
+     * @param Container $app
      */
-    public function register(Application $app)
+    public function register(Container $app)
     {
-        Assertion::isInstanceOf($app, \Alchemy\Phrasea\Application::class);
+        Assertion::isInstanceOf($app, PhraseanetApplication::class);
 
+        /** @var PhraseanetApplication $app */
         $app['setup.validate-config'] = $app->protect(function (Request $request) use ($app) {
             if (0 === strpos($request->getPathInfo(), '/setup')) {
                 if (!$app['phraseanet.configuration-tester']->isInstalled()) {
                     if (!$app['phraseanet.configuration-tester']->isBlank()) {
-                        if ('setup_upgrade_instructions' !== $app['request']->attributes->get('_route')) {
+                        if ('setup_upgrade_instructions' !== $app['request_stack']->getCurrentRequest()->attributes->get('_route')) {
                             return $app->redirectPath('setup_upgrade_instructions');
                         }
                     }
-                } elseif (!$app['phraseanet.configuration-tester']->isBlank()) {
+                }
+                elseif (!$app['phraseanet.configuration-tester']->isBlank()) {
                     return $app->redirectPath('homepage');
                 }
-            } else {
+            }
+            else {
                 if (false === strpos($request->getPathInfo(), '/include/minify')) {
                     $app['firewall']->requireSetup();
                 }
             }
         });
-    }
-
-    /**
-     * Bootstraps the application.
-     *
-     * This method is called after all services are registered
-     * and should be used for "dynamic" configuration (whenever
-     * a service must be requested).
-     */
-    public function boot(Application $app)
-    {
-        // no-op
     }
 }

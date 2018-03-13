@@ -3,18 +3,19 @@
 namespace Alchemy\Phrasea\Webhook\Processor;
 
 use Alchemy\Phrasea\Application;
+use Pimple\Container;
 
 class UserRegistrationProcessorFactory implements ProcessorFactory
 {
     /**
-     * @var Application
+     * @var Container
      */
     private $app;
 
     /**
-     * @param Application $application
+     * @param Container $application
      */
-    public function __construct(Application $application)
+    public function __construct(Container $application)
     {
         $this->app = $application;
     }

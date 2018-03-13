@@ -67,7 +67,8 @@ $cli = new CLI("
  This program comes with ABSOLUTELY NO WARRANTY.
  This is free software, and you are welcome to redistribute it
  under certain conditions; type `about:license' for details.\n\n"
-    . ' KONSOLE KOMMANDER', $version->getName() . ' ' . $version->getNumber());
+    . ' KONSOLE KOMMANDER', $version->getName() . ' ' . $version->getNumber()
+);
 
 if (!$cli['phraseanet.configuration-tester']->isInstalled()) {
     throw new \RuntimeException('Phraseanet is not installed, use setup command instead');

@@ -149,6 +149,7 @@ class SetupController extends Controller
             $this->app['db.options.from_info']($abInfo),
             $this->app['dbs.options']
         );
+
         $this->app['orm.ems.options'] = array_merge(
             $this->app['orm.em.options.from_info']($dbInfo),
             $this->app['orm.em.options.from_info']($abInfo),

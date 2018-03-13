@@ -11,16 +11,21 @@
 
 namespace Alchemy\Phrasea\Core\Provider;
 
-use Alchemy\Phrasea\Core\LazyLocator;
+use Alchemy\Phrasea\Application as PhraseanetApplication;
 use Alchemy\Phrasea\Core\Event\Subscriber\OrderSubscriber;
+use Alchemy\Phrasea\Core\LazyLocator;
 use Alchemy\Phrasea\Model\Entities\Order;
 use Alchemy\Phrasea\Order\ValidationNotifier\MailNotifier;
 use Alchemy\Phrasea\Order\ValidationNotifier\WebhookNotifier;
 use Alchemy\Phrasea\Order\ValidationNotifierRegistry;
+use Pimple\Container;
+use Pimple\ServiceProviderInterface;
+use Silex\Api\EventListenerProviderInterface;
 use Silex\Application;
-use Silex\ServiceProviderInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class OrderServiceProvider implements ServiceProviderInterface
+
+class OrderServiceProvider implements ServiceProviderInterface, EventListenerProviderInterface
 {
 
     /**
@@ -29,9 +34,9 @@ class OrderServiceProvider implements ServiceProviderInterface
      * This method should only be used to configure services and parameters.
      * It should not get services.
      */
-    public function register(Application $app)
+    public function register(Container $app)
     {
-        $app['events.order_subscriber'] = $app->share(function (Application $app) {
+        $app['events.order_subscriber'] = function (PhraseanetApplication $app) {
             $notifierRegistry = new ValidationNotifierRegistry();
 
             $notifierRegistry->registerNotifier(Order::NOTIFY_MAIL, new MailNotifier($app));
@@ -40,18 +45,11 @@ class OrderServiceProvider implements ServiceProviderInterface
             ));
 
             return new OrderSubscriber($app, $notifierRegistry);
-        });
+        };
     }
 
-    /**
-     * Bootstraps the application.
-     *
-     * This method is called after all services are registered
-     * and should be used for "dynamic" configuration (whenever
-     * a service must be requested).
-     */
-    public function boot(Application $app)
+    public function subscribe(Container $app, EventDispatcherInterface $dispatcher)
     {
-        $app['dispatcher']->addSubscriber($app['events.order_subscriber']);
+        $dispatcher->addSubscriber($app['events.order_subscriber']);
     }
 }

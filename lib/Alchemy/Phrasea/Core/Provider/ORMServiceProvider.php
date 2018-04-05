@@ -429,8 +429,6 @@ class ORMServiceProvider implements ServiceProviderInterface
             );
         };
 
-
-
         /**
          * Return configuration option for databox databases in DoctrineORMServiceProvider
          */
@@ -467,29 +465,14 @@ class ORMServiceProvider implements ServiceProviderInterface
             return array($key => $app['orm.options']($key));
         };
 
-        /*
-        $app['orm.ems.options'] = function () use ($app) {
-            if (false === $app['phraseanet.configuration']->isSetup()) {
-                return [];
-            }
+        /**
+         * Return configuration option for test database in DoctrineORMServiceProvider
+         */
+        $app['orm.em.test.options'] = function () use ($app) {
+            $key = $app['db.test.hash.key'];
 
-            return array_merge(
-                $app['orm.em.appbox.options'],
-                $app['orm.ems.databox.options'],
-                $app['orm.em.fixture.options'],
-                $app['orm.em.test.options']
-
-            );
+            return array($key => $app['orm.options']($key));
         };
-        */
-        $app['orm.ems.options'] = $app['phraseanet.configuration']->isSetup() ?
-            array_merge(
-                $app['orm.em.appbox.options'],
-                $app['orm.ems.databox.options'],
-                $app['orm.em.fixture.options'],
-                $app['orm.em.test.options']
-            ) : []
-        ;
 
         /**
          * Return configuration option for fixture database in DoctrineORMServiceProvider
@@ -500,30 +483,6 @@ class ORMServiceProvider implements ServiceProviderInterface
             return array($key => $app['orm.options']($key));
         };
 
-        /**
-         * Return configuration option for test database in DoctrineORMServiceProvider
-         */
-        $app['orm.em.test.options'] = function () use ($app) {
-            $key = $app['db.test.hash.key'];
-
-            return array($key => $app['orm.options']($key));
-        };
-
-        /*
-        $app['orm.ems.options'] = function () use ($app) {
-            if (false === $app['phraseanet.configuration']->isSetup()) {
-                return [];
-            }
-
-            return array_merge(
-                $app['orm.em.appbox.options'],
-                $app['orm.ems.databox.options'],
-                $app['orm.em.fixture.options'],
-                $app['orm.em.test.options']
-
-            );
-        };
-        */
         $app['orm.ems.options'] = $app['phraseanet.configuration']->isSetup() ?
             array_merge(
                 $app['orm.em.appbox.options'],
@@ -532,18 +491,6 @@ class ORMServiceProvider implements ServiceProviderInterface
                 $app['orm.em.test.options']
             ) : []
         ;
-
-        $app['orm.options.mappings'] = function (PhraseaApplication $app) {
-            return array(
-                array(
-                    "type" => "annotation",
-                    "alias" => "Phraseanet",
-                    "use_simple_annotation_reader" => false,
-                    "namespace" => 'Alchemy\Phrasea\Model\Entities',
-                    "path" => $app['root.path'] . '/lib/Alchemy/Phrasea/Model/Entities',
-                )
-            );
-        };
 
         // Return orm configuration for a connection given its unique id
         $app['orm.options'] = $app->protect(function ($connection) use ($app) {

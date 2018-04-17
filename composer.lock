@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "5ca9a1479291ec4f91d1ddc173ead1f2",
+    "content-hash": "b3db96635d3a9fa085f1609f9bc04acd",
     "packages": [
         {
             "name": "alchemy-fr/tcpdf-clone",
@@ -959,16 +959,16 @@
         },
         {
             "name": "beberlei/assert",
-            "version": "v2.9.4",
+            "version": "v2.9.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/beberlei/assert.git",
-                "reference": "7c24bedba95c600bba7b6021185a7d7fa2deb961"
+                "reference": "c07fe163d6a3b3e4b1275981ec004397954afa89"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/beberlei/assert/zipball/7c24bedba95c600bba7b6021185a7d7fa2deb961",
-                "reference": "7c24bedba95c600bba7b6021185a7d7fa2deb961",
+                "url": "https://api.github.com/repos/beberlei/assert/zipball/c07fe163d6a3b3e4b1275981ec004397954afa89",
+                "reference": "c07fe163d6a3b3e4b1275981ec004397954afa89",
                 "shasum": ""
             },
             "require": {
@@ -1010,7 +1010,7 @@
                 "assertion",
                 "validation"
             ],
-            "time": "2018-04-09T14:40:28+00:00"
+            "time": "2018-04-16T11:18:27+00:00"
         },
         {
             "name": "behat/transliterator",
@@ -2275,16 +2275,16 @@
         },
         {
             "name": "google/apiclient-services",
-            "version": "v0.54",
+            "version": "v0.55",
             "source": {
                 "type": "git",
                 "url": "https://github.com/google/google-api-php-client-services.git",
-                "reference": "ae39592553eb08e30b2f414e750de4868f7ea086"
+                "reference": "3b7d2e2c5567fa1d10d97ddece715af3ae8c80ec"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/google/google-api-php-client-services/zipball/ae39592553eb08e30b2f414e750de4868f7ea086",
-                "reference": "ae39592553eb08e30b2f414e750de4868f7ea086",
+                "url": "https://api.github.com/repos/google/google-api-php-client-services/zipball/3b7d2e2c5567fa1d10d97ddece715af3ae8c80ec",
+                "reference": "3b7d2e2c5567fa1d10d97ddece715af3ae8c80ec",
                 "shasum": ""
             },
             "require": {
@@ -2308,7 +2308,7 @@
             "keywords": [
                 "google"
             ],
-            "time": "2018-04-07T00:23:23+00:00"
+            "time": "2018-04-15T00:23:16+00:00"
         },
         {
             "name": "google/auth",
@@ -4270,12 +4270,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/alchemy-fr/Media-Alchemyst.git",
-                "reference": "3263825d535f122dfefc3b3018a385378cefd182"
+                "reference": "e9d452ad383591afaf2a126717b198d5708924a6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/alchemy-fr/Media-Alchemyst/zipball/3263825d535f122dfefc3b3018a385378cefd182",
-                "reference": "3263825d535f122dfefc3b3018a385378cefd182",
+                "url": "https://api.github.com/repos/alchemy-fr/Media-Alchemyst/zipball/e9d452ad383591afaf2a126717b198d5708924a6",
+                "reference": "e9d452ad383591afaf2a126717b198d5708924a6",
                 "shasum": ""
             },
             "require": {
@@ -4295,7 +4295,7 @@
                 "symfony/process": "^2.1.1|^3.0"
             },
             "require-dev": {
-                "alchemy/phpexiftool": "^0.4.0|^0.5.0",
+                "alchemy/phpexiftool": "~4.1",
                 "neutron/silex-imagine-provider": "~4.1",
                 "phpunit/phpunit": "^4.1|^5.0",
                 "silex/silex": "~2.0"
@@ -4339,7 +4339,7 @@
                 "source": "https://github.com/alchemy-fr/Media-Alchemyst/tree/4.1.0",
                 "issues": "https://github.com/alchemy-fr/Media-Alchemyst/issues"
             },
-            "time": "2018-04-11T13:54:25+00:00"
+            "time": "2018-04-17T16:56:05+00:00"
         },
         {
             "name": "monolog/monolog",
@@ -5383,16 +5383,16 @@
         },
         {
             "name": "phpseclib/phpseclib",
-            "version": "2.0.10",
+            "version": "2.0.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpseclib/phpseclib.git",
-                "reference": "d305b780829ea4252ed9400b3f5937c2c99b51d4"
+                "reference": "7053f06f91b3de78e143d430e55a8f7889efc08b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/d305b780829ea4252ed9400b3f5937c2c99b51d4",
-                "reference": "d305b780829ea4252ed9400b3f5937c2c99b51d4",
+                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/7053f06f91b3de78e143d430e55a8f7889efc08b",
+                "reference": "7053f06f91b3de78e143d430e55a8f7889efc08b",
                 "shasum": ""
             },
             "require": {
@@ -5471,7 +5471,7 @@
                 "x.509",
                 "x509"
             ],
-            "time": "2018-02-19T04:29:13+00:00"
+            "time": "2018-04-15T16:55:05+00:00"
         },
         {
             "name": "pimple/pimple",
@@ -5847,12 +5847,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "da01eff88c9227020e1ccc19f0b31c9b591fd194"
+                "reference": "bf3a473c42c3640103645f9477fd425749341780"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/da01eff88c9227020e1ccc19f0b31c9b591fd194",
-                "reference": "da01eff88c9227020e1ccc19f0b31c9b591fd194",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/bf3a473c42c3640103645f9477fd425749341780",
+                "reference": "bf3a473c42c3640103645f9477fd425749341780",
                 "shasum": ""
             },
             "conflict": {
@@ -5897,6 +5897,7 @@
                 "illuminate/database": ">=4,<4.0.99|>=4.1,<4.1.29",
                 "illuminate/encryption": ">=4,<=4.0.11|>=4.1,<=4.1.31|>=4.2,<=4.2.22|>=5,<=5.0.35|>=5.1,<=5.1.46|>=5.2,<=5.2.45|>=5.3,<=5.3.31|>=5.4,<=5.4.36|>=5.5,<5.5.40|>=5.6,<5.6.15",
                 "joomla/session": "<1.3.1",
+                "kreait/firebase-php": ">=3.2,<3.8.1",
                 "laravel/framework": ">=4,<4.0.99|>=4.1,<=4.1.31|>=4.2,<=4.2.22|>=5,<=5.0.35|>=5.1,<=5.1.46|>=5.2,<=5.2.45|>=5.3,<=5.3.31|>=5.4,<=5.4.36|>=5.5,<5.5.40|>=5.6,<5.6.15",
                 "laravel/socialite": ">=1,<1.0.99|>=2,<2.0.10",
                 "magento/magento1ce": ">=1.5.0.1,<1.9.3.2",
@@ -5949,7 +5950,7 @@
                 "symfony/web-profiler-bundle": ">=2,<2.3.19|>=2.4,<2.4.9|>=2.5,<2.5.4",
                 "symfony/yaml": ">=2,<2.0.22|>=2.1,<2.1.7",
                 "thelia/backoffice-default-template": ">=2.1,<2.1.2",
-                "thelia/thelia": ">=2.1,<2.1.2|>=2.1.0-beta1,<2.1.3",
+                "thelia/thelia": ">=2.1.0-beta1,<2.1.3|>=2.1,<2.1.2",
                 "titon/framework": ">=0,<9.9.99",
                 "twig/twig": "<1.20",
                 "typo3/cms": ">=6.2,<6.2.30|>=7,<7.6.22|>=8,<8.7.5",
@@ -6001,7 +6002,7 @@
                 }
             ],
             "description": "Prevents installation of composer packages with known security vulnerabilities: no API, simply require it",
-            "time": "2018-04-11T22:11:46+00:00"
+            "time": "2018-04-14T07:19:11+00:00"
         },
         {
             "name": "seld/jsonlint",
@@ -9291,11 +9292,8 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=7.0.0",
+        "php": ">=7.2.0",
         "ext-intl": "*"
     },
-    "platform-dev": [],
-    "platform-overrides": {
-        "php": "7.0.27"
-    }
+    "platform-dev": []
 }

@@ -14,6 +14,7 @@ use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Twig_Environment as TwigEnvironment;
 
 class module_console_systemTemplateGenerator extends Command
 {
@@ -36,17 +37,16 @@ class module_console_systemTemplateGenerator extends Command
 
         $n_ok = $n_error = 0;
 
-        // Twig fails if there's no request
-        $this->container['request_stack'] = new Request();
         // Twig must be initialized in order to access loader
-        $this->container['twig'];
+        /** @var TwigEnvironment $twig */
+        $twig = $this->container['twig'];
 
         foreach ($tplDirs as $tplDir) {
             $this->container['twig.loader.filesystem']->setPaths([$tplDir]);
             $finder = new Finder();
             foreach ($finder->files()->in([$tplDir]) as $file) {
                 try {
-                    $this->container['twig']->loadTemplate(str_replace($tplDir, '', $file->getPathname()));
+                    $twig->load(str_replace($tplDir, '', $file->getPathname()));
                     $output->writeln('' . $file . '');
                     $n_ok ++;
                 } catch (\Exception $e) {

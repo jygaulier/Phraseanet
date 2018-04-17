@@ -502,6 +502,8 @@ class Application extends SilexApplication
 
         $loader->bindRoutes($this);
         $this->bindPluginRoutes('plugin.controller_providers.root');
+
+        $this->flush();
     }
 
     /**

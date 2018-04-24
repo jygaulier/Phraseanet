@@ -20,6 +20,7 @@ class PhraseanetIndexerStopperSubscriberTest extends \PhraseanetTestCase
         $event = $this->getMockBuilder('Alchemy\TaskManager\Event\JobEvent')
             ->disableOriginalConstructor()
             ->getMock();
+
         $subscriber = new PhraseanetIndexerStopperSubscriber($port);
         $subscriber->onStopRequest($event);
 

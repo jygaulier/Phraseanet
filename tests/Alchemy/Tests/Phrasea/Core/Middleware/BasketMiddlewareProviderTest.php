@@ -75,7 +75,8 @@ class BasketMiddlewareProviderTest extends MiddlewareProviderTestCase
         $request = new Request();
         $basket = self::$DI['app']['orm.em']->find('Phraseanet:Basket', 3);
         $request->attributes->set('basket', $basket);
-        $this->setExpectedException('Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException', 'Current user does not have access to the basket');
+        $this->expectException('Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException');
+        $this->expectExceptionMessage('Current user does not have access to the basket');
         call_user_func(self::$DI['app']['middleware.basket.user-access'], $request, self::$DI['app']);
     }
 }

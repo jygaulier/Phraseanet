@@ -55,10 +55,10 @@ class GooglePlusTest extends ProviderTestCase
     {
         $provider = $this->getProvider();
 
-        $guzzle = $this->getMock('Guzzle\Http\ClientInterface');
+        $guzzle = $this->createMock('Guzzle\Http\ClientInterface');
 
-        $requestGet = $this->getMock('Guzzle\Http\Message\RequestInterface');
-        $requestPost = $this->getMock('Guzzle\Http\Message\EntityEnclosingRequestInterface');
+        $requestGet = $this->createMock('Guzzle\Http\Message\RequestInterface');
+        $requestPost = $this->createMock('Guzzle\Http\Message\EntityEnclosingRequestInterface');
 
         $queryString = $this->getMockBuilder('Guzzle\Http\QueryString')
             ->disableOriginalConstructor()
@@ -127,9 +127,9 @@ class GooglePlusTest extends ProviderTestCase
     {
         $provider = $this->getProvider();
 
-        $guzzle = $this->getMock('Guzzle\Http\ClientInterface');
+        $guzzle = $this->createMock('Guzzle\Http\ClientInterface');
 
-        $requestGet = $this->getMock('Guzzle\Http\Message\RequestInterface');
+        $requestGet = $this->createMock('Guzzle\Http\Message\RequestInterface');
 
         $queryString = $this->getMockBuilder('Guzzle\Http\QueryString')
             ->disableOriginalConstructor()
@@ -229,9 +229,9 @@ class GooglePlusTest extends ProviderTestCase
     {
         $provider = $this->getProvider();
 
-        $guzzle = $this->getMock('Guzzle\Http\ClientInterface');
+        $guzzle = $this->createMock('Guzzle\Http\ClientInterface');
 
-        $requestGet = $this->getMock('Guzzle\Http\Message\RequestInterface');
+        $requestGet = $this->createMock('Guzzle\Http\Message\RequestInterface');
 
         $queryString = $this->getMockBuilder('Guzzle\Http\QueryString')
             ->disableOriginalConstructor()

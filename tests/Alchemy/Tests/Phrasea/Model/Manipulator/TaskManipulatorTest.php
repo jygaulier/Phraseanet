@@ -13,7 +13,7 @@ use Doctrine\Common\Persistence\ObjectManager;
  */
 class TaskManipulatorTest extends \PhraseanetTestCase
 {
-    /** @var NotifierInterface|\PHPUnit_Framework_MockObject_MockObject */
+    /** @var NotifierInterface|\PHPUnit\Framework\MockObject\MockObject */
     private $notifier;
 
     /** @var TaskManipulator */
@@ -128,6 +128,7 @@ class TaskManipulatorTest extends \PhraseanetTestCase
         $collection = $this->getMockBuilder('collection')
                 ->disableOriginalConstructor()
                 ->getMock();
+
         $collection->expects($this->once())
                 ->method('get_base_id')
                 ->will($this->returnValue(42));
@@ -170,7 +171,7 @@ class TaskManipulatorTest extends \PhraseanetTestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject
+     * @return \PHPUnit\Framework\MockObject\MockObject
      */
     private function createNotifierMock()
     {

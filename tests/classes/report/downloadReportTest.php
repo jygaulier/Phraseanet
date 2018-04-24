@@ -42,7 +42,7 @@ class report_downloadReportTest extends \report_abstractReportTestCase
 
     public function manyCol($ret)
     {
-        $this->assertInternalType(PHPUnit_Framework_Constraint_IsType::TYPE_ARRAY, $ret);
+        $this->assertInternalType(PHPUnit\Framework\Constraint\IsType::TYPE_ARRAY, $ret);
         foreach ($ret as $result) {
             $this->assertArrayHasKey('val', $result);
             $this->assertArrayHasKey('value', $result);

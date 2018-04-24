@@ -38,6 +38,7 @@ class SessionHandlerServiceProviderTest extends \PHPUnit\Framework\TestCase
         $app['cache.connection-factory'] = $this->getMockBuilder('Alchemy\Phrasea\Cache\ConnectionFactory')
             ->disableOriginalConstructor()
             ->getMock();
+
         if ($method) {
             $app['cache.connection-factory']->expects($this->once())
                 ->method($method)
@@ -144,7 +145,7 @@ class SessionHandlerServiceProviderTest extends \PHPUnit\Framework\TestCase
 
     public function testItSavesSessionAtKernelResponseEvent()
     {
-        $session = $this->getMock(SessionInterface::class);
+        $session = $this->createMock(SessionInterface::class);
         $session
             ->expects($this->once())
             ->method('isStarted')
@@ -177,7 +178,7 @@ class SessionHandlerServiceProviderTest extends \PHPUnit\Framework\TestCase
 
     public function testItAddsFilterResponseAtBoot()
     {
-        $dispatcher = $this->getMock(EventDispatcherInterface::class);
+        $dispatcher = $this->createMock(EventDispatcherInterface::class);
         $dispatcher
             ->expects($this->once())
             ->method('addListener')

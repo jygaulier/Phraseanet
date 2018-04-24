@@ -14,32 +14,35 @@ class RemovePluginTest extends PluginCommandTestCase
     {
         $name = 'test-plugin';
 
-        $input = $this->getMock('Symfony\Component\Console\Input\InputInterface');
+        $input = $this->createMock('Symfony\Component\Console\Input\InputInterface');
         $input->expects($this->once())
               ->method('getArgument')
               ->with($this->equalTo('name'))
               ->will($this->returnValue($name));
 
-        $output = $this->getMock('Symfony\Component\Console\Output\OutputInterface');
+        $output = $this->createMock('Symfony\Component\Console\Output\OutputInterface');
 
         $command = new RemovePlugin();
         $command->setContainer(self::$DI['cli']);
 
-        self::$DI['cli']['plugins.manager'] = $this->getMockBuilder('Alchemy\Phrasea\Plugin\PluginManager')
+        $cli = self::getCLI();
+
+        $cli['plugins.manager'] = $this->getMockBuilder('Alchemy\Phrasea\Plugin\PluginManager')
             ->disableOriginalConstructor()
             ->getMock();
 
-        self::$DI['cli']['plugins.manager']->expects($this->once())
+        $cli['plugins.manager']->expects($this->once())
             ->method('hasPlugin')
             ->with('test-plugin')
             ->will($this->returnValue(true));
 
-        self::$DI['cli']['filesystem'] = $this->createFilesystemMock();
-        self::$DI['cli']['filesystem']->expects($this->at(0))
+        $cli->offsetUnset('filesystem');
+        $cli['filesystem'] = $this->createFilesystemMock();
+        $cli['filesystem']->expects($this->at(0))
             ->method('remove')
             ->with(self::$DI['cli']['root.path'].'/www/plugins/'.$name);
 
-        self::$DI['cli']['filesystem']->expects($this->at(1))
+        $cli['filesystem']->expects($this->at(1))
             ->method('remove')
             ->with(self::$DI['cli']['plugin.path'].'/'.$name);
 

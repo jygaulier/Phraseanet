@@ -14,7 +14,7 @@ class CLITest extends \PhraseanetTestCase
     {
         $app = new CLI('Phrasea');
 
-        $spool = $this->getMock('Swift_Spool');
+        $spool = $this->createMock('Swift_Spool');
         $spool->expects($this->once())
             ->method('flushQueue')
             ->with($this->isInstanceOf('Swift_Transport'));

@@ -47,7 +47,7 @@ class ApiOauth2ErrorsSubscriberTest extends \PhraseanetTestCase
         });
 
         $client = new Client($app);
-        $this->setExpectedException(get_class($exception));
+        $this->expectException(get_class($exception));
         $client->request('GET', '/');
     }
 

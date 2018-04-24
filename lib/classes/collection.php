@@ -131,38 +131,38 @@ class collection implements ThumbnailedElement, cache_cacheableInterface
 
     public static function getWatermark($base_id)
     {
-        if (!isset(self::$_watermarks['base_id'])) {
+        if (!isset(self::$_watermarks[$base_id])) {
 
             if (is_file(__DIR__ . '/../../config/wm/' . $base_id)) {
-                self::$_watermarks['base_id'] = '<img src="/custom/wm/' . $base_id . '" />';
+                self::$_watermarks[$base_id] = '<img src="/custom/wm/' . $base_id . '" />';
             }
         }
 
-        return isset(self::$_watermarks['base_id']) ? self::$_watermarks['base_id'] : '';
+        return isset(self::$_watermarks[$base_id]) ? self::$_watermarks[$base_id] : '';
     }
 
     public static function getPresentation($base_id)
     {
-        if (!isset(self::$_presentations['base_id'])) {
+        if (!isset(self::$_presentations[$base_id])) {
 
             if (is_file(__DIR__ . '/../../config/presentation/' . $base_id)) {
-                self::$_presentations['base_id'] = '<img src="/custom/presentation/' . $base_id . '" />';
+                self::$_presentations[$base_id] = '<img src="/custom/presentation/' . $base_id . '" />';
             }
         }
 
-        return isset(self::$_presentations['base_id']) ? self::$_presentations['base_id'] : '';
+        return isset(self::$_presentations[$base_id]) ? self::$_presentations[$base_id] : '';
     }
 
     public static function getStamp($base_id)
     {
-        if (!isset(self::$_stamps['base_id'])) {
+        if (!isset(self::$_stamps[$base_id])) {
 
             if (is_file(__DIR__ . '/../../config/stamp/' . $base_id)) {
-                self::$_stamps['base_id'] = '<img src="/custom/stamp/' . $base_id . '" />';
+                self::$_stamps[$base_id] = '<img src="/custom/stamp/' . $base_id . '" />';
             }
         }
 
-        return isset(self::$_stamps['base_id']) ? self::$_stamps['base_id'] : '';
+        return isset(self::$_stamps[$base_id]) ? self::$_stamps[$base_id] : '';
     }
 
     public static function purge()

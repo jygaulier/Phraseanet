@@ -56,7 +56,7 @@ class ApiOauthCodeManipulatorTest extends \PhraseanetTestCase
     }
 
     /**
-     * @setExpectedException Alchemy\Phrasea\Exception\InvalidArgumentException
+     * @expectsException Alchemy\Phrasea\Exception\InvalidArgumentException
      */
     public function testSetRedirectUriBadArgumentException()
     {

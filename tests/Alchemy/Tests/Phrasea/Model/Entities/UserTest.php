@@ -41,10 +41,8 @@ class UserTest extends \PhraseanetTestCase
      */
     public function testInvalidSetGender($gender)
     {
-        $this->setExpectedException(
-            'Alchemy\Phrasea\Exception\InvalidArgumentException',
-            'Invalid gender '. (string) $gender . '.'
-        );
+        $this->expectException('Alchemy\Phrasea\Exception\InvalidArgumentException');
+        $this->expectExceptionMessage('Invalid gender '. (string) $gender . '.');
         $this->user->setGender($gender);
     }
 
@@ -61,10 +59,8 @@ class UserTest extends \PhraseanetTestCase
 
     public function testInvalidLocale()
     {
-        $this->setExpectedException(
-            'Alchemy\Phrasea\Exception\InvalidArgumentException',
-            'Invalid locale invalid_local.'
-        );
+        $this->expectException('Alchemy\Phrasea\Exception\InvalidArgumentException');
+        $this->expectExceptionMessage('Invalid locale invalid_local.');
         $this->user->setLocale('invalid_local');
     }
 

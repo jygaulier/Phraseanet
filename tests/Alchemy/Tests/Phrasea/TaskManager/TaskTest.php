@@ -31,7 +31,8 @@ class TaskTest extends TaskTestCase
             ->disableOriginalConstructor()
             ->disableOriginalClone()
             ->getMock();
-        $taskEntity = $this->getMock('Alchemy\Phrasea\Model\Entities\Task');
+
+        $taskEntity = $this->createMock('Alchemy\Phrasea\Model\Entities\Task');
 
         return new Task($taskEntity, 'task number', 42, $this->process);
     }

@@ -12,6 +12,7 @@
 namespace Alchemy\Phrasea\Plugin;
 
 use Alchemy\Phrasea\Application;
+use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 
 interface PluginProviderInterface extends ServiceProviderInterface
@@ -21,9 +22,9 @@ interface PluginProviderInterface extends ServiceProviderInterface
      *
      * This method is called to build it.
      *
-     * @param Application $app
+     * @param Container $app
      *
      * @return PluginProviderInterface
      */
-    public static function create(Application $app);
+    public static function create(Container $app);
 }

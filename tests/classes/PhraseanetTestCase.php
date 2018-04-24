@@ -297,6 +297,14 @@ abstract class PhraseanetTestCase extends WebTestCase
     }
 
     /**
+     * @return CLI
+     */
+    public function getCLI()
+    {
+        return self::$DI['cli'];
+    }
+
+    /**
      * @return databox
      */
     public function getFirstDatabox(Application $app)
@@ -428,6 +436,7 @@ abstract class PhraseanetTestCase extends WebTestCase
             return $notifier;
         });
 
+        $app->offsetUnset('translator');
         $app['translator'] = $this->createTranslatorMock();
 
         $app['phraseanet.SE.subscriber'] = new PhraseanetSeTestSubscriber();
@@ -515,9 +524,10 @@ abstract class PhraseanetTestCase extends WebTestCase
     {
         $app['browser']->setUserAgent($user_agent);
 
-        $app->register(new \Silex\Provider\TwigServiceProvider());
-        $app->register(new \Alchemy\Phrasea\Core\Provider\TwigServiceProvider());
+        //    $app->register(new \Silex\Provider\TwigServiceProvider());
+        //    $app->register(new \Alchemy\Phrasea\Core\Provider\TwigServiceProvider());
 
+        self::$DI->offsetUnset('client');
         self::$DI['client'] = function ($DI) use ($app) {
             return new Client($app, []);
         };
@@ -731,7 +741,8 @@ abstract class PhraseanetTestCase extends WebTestCase
     protected function mockUserNotificationSettings($notificationName, $returnValue = true)
     {
         $app = $this->getApplication();
-        if (false === $app['settings'] instanceof \PHPUnit_Framework_MockObject_MockObject) {
+        if (false === $app['settings'] instanceof \PHPUnit\Framework\MockObject\MockObject) {
+            $app->offsetUnset('settings');
             $app['settings'] = $this->getMockBuilder('Alchemy\Phrasea\Core\Configuration\DisplaySettingService')
                 ->disableOriginalConstructor()
                 ->getMock();
@@ -765,7 +776,7 @@ abstract class PhraseanetTestCase extends WebTestCase
 
     public function createUserMock()
     {
-        return $this->getMock('Alchemy\Phrasea\Model\Entities\User');
+        return $this->createMock('Alchemy\Phrasea\Model\Entities\User');
     }
 
     public function removeUser(Application $app, User $user)
@@ -776,7 +787,7 @@ abstract class PhraseanetTestCase extends WebTestCase
 
     protected function createLoggerMock()
     {
-        return $this->getMock('Psr\Log\LoggerInterface');
+        return $this->createMock('Psr\Log\LoggerInterface');
     }
 
     protected function createMonologMock()
@@ -810,7 +821,7 @@ abstract class PhraseanetTestCase extends WebTestCase
 
     protected function createSearchEngineMock()
     {
-        $mock = $this->getMock(SearchEngineInterface::class);
+        $mock = $this->createMock(SearchEngineInterface::class);
         $mock->expects($this->any())
             ->method('getStatus')
             ->will($this->returnValue([]));

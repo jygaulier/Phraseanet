@@ -19,7 +19,7 @@ class FactoryTest extends \PhraseanetTestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $session = $this->getMock('Symfony\Component\HttpFoundation\Session\SessionInterface');
+        $session = $this->createMock('Symfony\Component\HttpFoundation\Session\SessionInterface');
 
         $factory = new Factory($generator, $session);
 

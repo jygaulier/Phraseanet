@@ -905,11 +905,12 @@ class V1Controller extends Controller
 
     public function addRecordAction(Request $request)
     {
-        if (count($request->files->get('file')) == 0) {
+        $file = $request->files->get('file');
+
+        if (!$file) {
             return $this->getBadRequestAction($request, 'Missing file parameter');
         }
 
-        $file = $request->files->get('file');
         if (!$file instanceof UploadedFile) {
             return $this->getBadRequestAction($request, 'You can upload one file at time');
         }
@@ -1003,10 +1004,11 @@ class V1Controller extends Controller
     {
         $ret = array();
 
-        if (count($request->files->get('file')) == 0) {
+        $file = $request->files->get('file');
+
+        if (!$file) {
             return $this->getBadRequestAction($request, 'Missing file parameter');
         }
-        $file = $request->files->get('file');
         if (!$file instanceof UploadedFile) {
             return $this->getBadRequestAction($request, 'You can upload one file at time');
         }

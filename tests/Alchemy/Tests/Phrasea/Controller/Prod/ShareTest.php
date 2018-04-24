@@ -43,6 +43,7 @@ class ShareTest extends \PhraseanetAuthenticatedWebTestCase
         $app['conf'] = $this->getMockBuilder('Alchemy\Phrasea\Core\Configuration\PropertyAccess')
             ->disableOriginalConstructor()
             ->getMock();
+
         $app['conf']
             ->expects($this->any())
             ->method('get')
@@ -54,6 +55,7 @@ class ShareTest extends \PhraseanetAuthenticatedWebTestCase
 
                 return $_conf->get($param, $default);
             }));
+
         $result = [];
         foreach ($expected as $flags => $v) {
             $stubbedACL = $this->stubACL();

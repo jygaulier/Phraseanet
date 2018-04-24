@@ -202,7 +202,7 @@ class ApplicationTest extends \PhraseanetTestCase
 
     public function testCreateForm()
     {
-        $factory = $this->getMock('Symfony\Component\Form\FormFactoryInterface');
+        $factory = $this->createMock('Symfony\Component\Form\FormFactoryInterface');
 
         $app = new Application(Application::ENV_TEST);
         $app['form.factory'] = $factory;
@@ -211,7 +211,7 @@ class ApplicationTest extends \PhraseanetTestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $type = $this->getMock('Symfony\Component\Form\FormTypeInterface');
+        $type = $this->createMock('Symfony\Component\Form\FormTypeInterface');
         $data = ['some' => 'data'];
         $options = [];
 
@@ -251,9 +251,12 @@ class ApplicationTest extends \PhraseanetTestCase
     public function testAddCaptcha()
     {
         $app = new Application(Application::ENV_TEST);
+
+        $app->offsetUnset('conf');
         $app['conf'] = $this->getMockBuilder('Alchemy\Phrasea\Core\Configuration\PropertyAccess')
             ->disableOriginalConstructor()
             ->getMock();
+
         $app['conf']
             ->expects($this->any())
             ->method('get')
@@ -289,9 +292,12 @@ class ApplicationTest extends \PhraseanetTestCase
     public function testUrlGeneratorContext()
     {
         $app = new Application(Application::ENV_TEST);
+
+        $app->offsetUnset('conf');
         $app['conf'] = $this->getMockBuilder('Alchemy\Phrasea\Core\Configuration\PropertyAccess')
             ->disableOriginalConstructor()
             ->getMock();
+
         $app['conf']->expects($this->once())
             ->method('get')
             ->with('servername')
@@ -312,6 +318,7 @@ class ApplicationTest extends \PhraseanetTestCase
             unlink($app['phraseanet.configuration.config-compiled-path']);
         }
 
+        $app->offsetUnset('configuration.store');
         $app['configuration.store'] = new HostConfiguration(new Configuration(
             $app['phraseanet.configuration.yaml-parser'],
             $app['phraseanet.configuration.compiler'],
@@ -320,6 +327,7 @@ class ApplicationTest extends \PhraseanetTestCase
             $app['debug']
         ));
 
+        $app->offsetUnset('conf');
         $app['conf'] = new PropertyAccess($app['configuration.store']);
 
         $app->get('/', function (Application $app, Request $request) {
@@ -430,9 +438,12 @@ class ApplicationTest extends \PhraseanetTestCase
     private function mockRegistryAndReturnLocale(Application $app, $locale)
     {
         $database =  $app['conf']->get(['main', 'database']);
+
+        $app->offsetUnset('conf');
         $app['conf'] = $this->getMockBuilder('Alchemy\Phrasea\Core\Configuration\PropertyAccess')
             ->disableOriginalConstructor()
-            ->getmock();
+            ->getMock();
+
         $app['conf']->expects($this->any())
             ->method('get')
             ->will($this->returnCallback(function ($param, $default) use ($locale, $database) {

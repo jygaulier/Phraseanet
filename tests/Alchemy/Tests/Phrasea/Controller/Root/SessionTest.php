@@ -96,7 +96,7 @@ class SessionTest extends \PhraseanetAuthenticatedWebTestCase
 
     public function testDeleteSession()
     {
-        $session = $this->getMock('Alchemy\Phrasea\Model\Entities\Session');
+        $session = $this->createMock('Alchemy\Phrasea\Model\Entities\Session');
 
         $session->expects($this->any())
             ->method('getUser')
@@ -123,7 +123,7 @@ class SessionTest extends \PhraseanetAuthenticatedWebTestCase
 
     public function testDeleteSessionUnauthorized()
     {
-        $session = $this->getMock('Alchemy\Phrasea\Model\Entities\Session');
+        $session = $this->createMock('Alchemy\Phrasea\Model\Entities\Session');
 
         $session->expects($this->any())
             ->method('getUser')

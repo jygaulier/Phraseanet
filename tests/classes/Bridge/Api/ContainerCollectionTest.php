@@ -14,7 +14,7 @@ class Bridge_Api_ContainerCollectionTest extends \PhraseanetTestCase
         $collection = new Bridge_Api_ContainerCollection();
         $i = 0;
         while ($i < 5) {
-            $container = $this->getMock("Bridge_Api_ContainerInterface");
+            $container = $this->createMock("Bridge_Api_ContainerInterface");
             $collection->add_element(new $container);
             $i ++;
         }

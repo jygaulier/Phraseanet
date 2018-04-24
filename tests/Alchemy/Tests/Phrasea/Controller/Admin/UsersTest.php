@@ -398,7 +398,7 @@ class UsersTest extends \PhraseanetAuthenticatedWebTestCase
         $baseId = self::$DI['collection']->get_base_id();
         $param = sprintf('%s_%s', $id, $baseId);
 
-        $stmt = $this->getMock('PDOStatement');
+        $stmt = $this->createMock('PDOStatement');
 
         $stmt->expects($this->any())
             ->method('fetchAll')
@@ -409,7 +409,7 @@ class UsersTest extends \PhraseanetAuthenticatedWebTestCase
                 'refuser' => 0,
             ]));
 
-        $pdo = $this->getMock('PDOMock');
+        $pdo = $this->createMock('PDOMock');
 
         $pdo->expects($this->any())
             ->method('prepare')
@@ -433,7 +433,10 @@ class UsersTest extends \PhraseanetAuthenticatedWebTestCase
             'watermark' => [$param],
         ]);
 
-        self::$DI['app']['phraseanet.appbox'] = $appbox;
+        $app = self::getApplication();
+        $app->offsetUnset('phraseanet.appbox');
+        $app['phraseanet.appbox'] = $appbox;
+
         $this->assertTrue(self::$DI['client']->getResponse()->isRedirect());
 
         self::$DI['user_alt1']->setMailNotificationsActivated(false);

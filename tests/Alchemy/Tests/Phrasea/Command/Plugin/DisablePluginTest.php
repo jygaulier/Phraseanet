@@ -15,8 +15,8 @@ class DisablePluginTest extends PluginCommandTestCase
      */
     public function testExecute($initial)
     {
-        $input = $this->getMock('Symfony\Component\Console\Input\InputInterface');
-        $output = $this->getMock('Symfony\Component\Console\Output\OutputInterface');
+        $input = $this->createMock('Symfony\Component\Console\Input\InputInterface');
+        $output = $this->createMock('Symfony\Component\Console\Output\OutputInterface');
         $input->expects($this->once())
               ->method('getArgument')
               ->with($this->equalTo('name'))

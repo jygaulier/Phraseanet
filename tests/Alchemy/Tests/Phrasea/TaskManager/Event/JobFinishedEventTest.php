@@ -12,7 +12,7 @@ class JobFinishedEventTest extends \PhraseanetTestCase
 {
     public function testEvent()
     {
-        $task = $this->getMock('Alchemy\Phrasea\Model\Entities\Task');
+        $task = $this->createMock('Alchemy\Phrasea\Model\Entities\Task');
         $event = new JobFinishedEvent($task);
         $this->assertSame($task, $event->getTask());
     }

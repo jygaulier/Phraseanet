@@ -39,7 +39,9 @@ class SetupTest extends \PhraseanetAuthenticatedWebTestCase
      */
     public function testPostGlobals()
     {
-        $database =  self::$DI['app']['conf']->get(['main', 'database']);
+        $app = self::getApplication();
+
+        $database =  $app['conf']->get(['main', 'database']);
         $registry = $this->getMockBuilder('Alchemy\Phrasea\Core\Configuration\PropertyAccess')
             ->disableOriginalConstructor()
             ->getMock();
@@ -57,7 +59,9 @@ class SetupTest extends \PhraseanetAuthenticatedWebTestCase
             ->method('set')
             ->with('registry',$this->isType('array'));
 
-        self::$DI['app']['conf'] = $registry;
+        $app->offsetUnset('conf');
+        $app['conf'] = $registry;
+
         /** @var Client $client */
         $client = self::$DI['client'];
         $client->request('POST', '/admin/setup/', ['_token'   => 'token']);

@@ -98,7 +98,7 @@ class FactoryTest extends \PhraseanetTestCase
      */
     public function testGetFileAttributeStoryFails()
     {
-        \PHPUnit_Framework_Error_Warning::$enabled = false;
+        \PHPUnit\Framework\Error\Warning::$enabled = false;
 
         Factory::getFileAttribute(self::$DI['app'], AttributeInterface::NAME_STORY, self::$DI['collection']->get_databox()->get_sbas_id() . '_0');
     }

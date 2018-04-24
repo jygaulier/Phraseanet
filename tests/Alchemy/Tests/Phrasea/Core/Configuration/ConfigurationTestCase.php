@@ -208,6 +208,7 @@ abstract class ConfigurationTestCase extends \PhraseanetTestCase
         $compiler = $this->getMockBuilder('Alchemy\Phrasea\Core\Configuration\Compiler')
                          ->disableOriginalConstructor()
                          ->getMock();
+
         $compiler->expects($this->never())
                  ->method('compile');
 
@@ -243,6 +244,7 @@ abstract class ConfigurationTestCase extends \PhraseanetTestCase
         $compiler = $this->getMockBuilder('Alchemy\Phrasea\Core\Configuration\Compiler')
                          ->disableOriginalConstructor()
                          ->getMock();
+
         $compiler->expects($this->once())
                  ->method('compile')
                  ->with(['main' => 'tiptop'])

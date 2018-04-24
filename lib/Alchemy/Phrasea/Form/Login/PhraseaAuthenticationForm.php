@@ -67,7 +67,7 @@ class PhraseaAuthenticationForm extends AbstractType
             ]);
         }
 
-        $builder->add('redirect', 'hidden', [
+        $builder->add('redirect', HiddenType::class, [
             'required' => false,
         ]);
     }

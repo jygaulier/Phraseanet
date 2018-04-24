@@ -15,9 +15,11 @@ class JobDataTest extends \PhraseanetTestCase
         $app = $this->getMockBuilder('Alchemy\Phrasea\Application')
             ->disableOriginalConstructor()
             ->getMock();
+
         $task = $this->getMockBuilder('Alchemy\Phrasea\Model\Entities\Task')
             ->disableOriginalConstructor()
             ->getMock();
+
         $data = new JobData($app, $task);
         $this->assertInstanceOf('Alchemy\TaskManager\Job\JobDataInterface', $data);
         $this->assertSame($app, $data->getApplication());

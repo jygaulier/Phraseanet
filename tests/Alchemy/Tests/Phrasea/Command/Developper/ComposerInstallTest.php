@@ -12,8 +12,8 @@ class ComposerInstallTest extends \PhraseanetTestCase
 {
     public function testRunWithoutProblems()
     {
-        $input = $this->getMock('Symfony\Component\Console\Input\InputInterface');
-        $output = $this->getMock('Symfony\Component\Console\Output\OutputInterface');
+        $input = $this->createMock('Symfony\Component\Console\Input\InputInterface');
+        $output = $this->createMock('Symfony\Component\Console\Output\OutputInterface');
 
         self::$DI['cli']['driver.composer'] = $this->getMockBuilder('Alchemy\Phrasea\Command\Developer\Utils\ComposerDriver')
             ->disableOriginalConstructor()

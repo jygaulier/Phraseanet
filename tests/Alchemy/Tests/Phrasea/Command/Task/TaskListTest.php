@@ -12,18 +12,19 @@ class TaskListTest extends \PhraseanetTestCase
 {
     public function testRunWithoutProblems()
     {
-        $input = $this->getMock('Symfony\Component\Console\Input\InputInterface');
-        $output = $this->getMock('Symfony\Component\Console\Output\OutputInterface');
+        $input = $this->createMock('Symfony\Component\Console\Input\InputInterface');
+        $output = $this->createMock('Symfony\Component\Console\Output\OutputInterface');
         $output->expects($this->any())
             ->method('getFormatter')
-            ->will($this->returnValue($this->getMock('Symfony\Component\Console\Formatter\OutputFormatterInterface')));
+            ->will($this->returnValue($this->createMock('Symfony\Component\Console\Formatter\OutputFormatterInterface')));
 
-        self::$DI['cli']['monolog'] = self::$DI['cli']->share(function () {
+        $cli = self::$DI['cli'];
+        $cli['monolog'] = function () {
             return $this->createMonologMock();
-        });
+        };
 
         $command = new TaskList();
-        $command->setContainer(self::$DI['cli']);
+        $command->setContainer($cli);
 
         $application = new \Symfony\Component\Console\Application();
         $application->add($command);

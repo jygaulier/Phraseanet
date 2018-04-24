@@ -32,8 +32,8 @@ class FailureManagerTest extends \PhraseanetTestCase
             ->will($this->returnValue($ip));
 
         $oldFailures = [
-            $this->getMock(AuthFailure::class),
-            $this->getMock(AuthFailure::class)
+            $this->createMock(AuthFailure::class),
+            $this->createMock(AuthFailure::class)
         ];
 
         $repo->expects($this->once())
@@ -97,7 +97,7 @@ class FailureManagerTest extends \PhraseanetTestCase
         $username = 'romainneutron';
 
         $oldFailures = $this->ArrayIze(function () {
-            return $this->getMock(AuthFailure::class);
+            return $this->createMock(AuthFailure::class);
         }, 8);
 
         $repo->expects($this->once())
@@ -121,7 +121,7 @@ class FailureManagerTest extends \PhraseanetTestCase
         $username = 'romainneutron';
 
         $oldFailures = $this->ArrayIze(function () {
-            return $this->getMock(AuthFailure::class);
+            return $this->createMock(AuthFailure::class);
         }, 10);
 
         $repo->expects($this->once())
@@ -145,7 +145,7 @@ class FailureManagerTest extends \PhraseanetTestCase
         $username = 'romainneutron';
 
         $oldFailures = $this->ArrayIze(function () {
-            $failure = $this->getMock(AuthFailure::class);
+            $failure = $this->createMock(AuthFailure::class);
             $failure->expects($this->once())
                 ->method('setLocked')
                 ->with($this->equalTo(false));
@@ -175,7 +175,7 @@ class FailureManagerTest extends \PhraseanetTestCase
         $username = 'romainneutron';
 
         $oldFailures = $this->ArrayIze(function () {
-            return $this->getMock(AuthFailure::class);
+            return $this->createMock(AuthFailure::class);
         }, 10);
 
         $repo->expects($this->once())
@@ -196,7 +196,7 @@ class FailureManagerTest extends \PhraseanetTestCase
         $username = 'romainneutron';
 
         $oldFailures = $this->ArrayIze(function () {
-            return $this->getMock(AuthFailure::class);
+            return $this->createMock(AuthFailure::class);
         }, 2);
 
         $repo->expects($this->once())
@@ -230,7 +230,7 @@ class FailureManagerTest extends \PhraseanetTestCase
         $username = 'romainneutron';
 
         $oldFailures = $this->ArrayIze(function () {
-            return $this->getMock(AuthFailure::class);
+            return $this->createMock(AuthFailure::class);
         }, 3);
 
         $repo->expects($this->once())
@@ -319,7 +319,7 @@ class FailureManagerTest extends \PhraseanetTestCase
     }
 
     /**
-     * @return AuthFailureRepository|\PHPUnit_Framework_MockObject_MockObject
+     * @return AuthFailureRepository|\PHPUnit\Framework\MockObject\MockObject
      */
     private function createAuthFailureRepositoryMock()
     {

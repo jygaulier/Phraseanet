@@ -17,7 +17,7 @@ abstract class PhraseanetAuthenticatedWebTestCase extends \PhraseanetAuthenticat
     /**
      * @param bool  $bool
      * @param array $stubs List of Closure to call indexed by method names, null to avoid calls
-     * @return PHPUnit_Framework_MockObject_MockObject The stubbedACL
+     * @return PHPUnit\Framework\MockObject\MockObject The stubbedACL
      */
     public function setAdmin($bool, array $stubs = [])
     {
@@ -39,24 +39,24 @@ abstract class PhraseanetAuthenticatedWebTestCase extends \PhraseanetAuthenticat
             return $stubs;
         }
 
-        $returnBool = function (PHPUnit_Framework_MockObject_MockObject $acl, $method, $is_admin) {
+        $returnBool = function (PHPUnit\Framework\MockObject\MockObject $acl, $method, $is_admin) {
             $acl->expects($this->any())
                 ->method($method)
                 ->will($this->returnValue($is_admin));
         };
 
-        $returnSelf = function (PHPUnit_Framework_MockObject_MockObject $acl, $method) {
+        $returnSelf = function (PHPUnit\Framework\MockObject\MockObject $acl, $method) {
             $acl->expects($this->any())
                 ->method($method)
                 ->will($this->returnSelf());
         };
 
-        $stubGrantedBase = function (PHPUnit_Framework_MockObject_MockObject $acl, $method) {
+        $stubGrantedBase = function (PHPUnit\Framework\MockObject\MockObject $acl, $method) {
             $acl->expects($this->any())
                 ->method($method)
                 ->will($this->returnValue([$this->getCollection()]));
         };
-        $stubGrantedSBase = function (PHPUnit_Framework_MockObject_MockObject $acl, $method) {
+        $stubGrantedSBase = function (PHPUnit\Framework\MockObject\MockObject $acl, $method) {
             $acl->expects($this->any())
                 ->method($method)
                 ->will($this->returnValue([$this->getCollection()->get_databox()]));

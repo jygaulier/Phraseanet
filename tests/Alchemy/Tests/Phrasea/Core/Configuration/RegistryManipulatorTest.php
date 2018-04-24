@@ -33,6 +33,7 @@ class RegistryManipulatorTest extends \PhraseanetTestCase
         $conf = $this->getMockBuilder('Alchemy\Phrasea\Core\Configuration\PropertyAccess')
             ->disableOriginalConstructor()
             ->getMock();
+
         $conf->expects($this->once())
             ->method('get')
             ->with('registry')

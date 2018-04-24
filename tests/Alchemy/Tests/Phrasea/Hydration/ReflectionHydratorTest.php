@@ -27,7 +27,7 @@ class ReflectionHydratorTest extends \PHPUnit\Framework\TestCase
 
     public function testItThrowsExceptionOnUnknownProperty()
     {
-        $this->setExpectedException(\ReflectionException::class);
+        $this->expectException(\ReflectionException::class);
 
         $sut = new ReflectionHydrator(ToHydrate::class, ['baz']);
         $sut->extract(new ToHydrate());

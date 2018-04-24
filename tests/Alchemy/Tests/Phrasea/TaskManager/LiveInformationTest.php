@@ -104,6 +104,7 @@ class LiveInformationTest extends \PhraseanetTestCase
         $managerStatus = $this->getMockBuilder('Alchemy\Phrasea\TaskManager\TaskManagerStatus')
             ->disableOriginalConstructor()
             ->getMock();
+
         $managerStatus->expects($this->any())
                 ->method('getStatus')
                 ->will($this->returnValue($status));
@@ -113,6 +114,6 @@ class LiveInformationTest extends \PhraseanetTestCase
 
     private function createNotifierMock()
     {
-        return $this->getMock(NotifierInterface::class);
+        return $this->createMock(NotifierInterface::class);
     }
 }

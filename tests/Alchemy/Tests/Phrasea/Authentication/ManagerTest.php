@@ -20,7 +20,7 @@ class ManagerTest extends \PhraseanetTestCase
 
         $user = $this->createUserMock();
 
-        $session = $this->getMock('Alchemy\Phrasea\Model\Entities\Session');
+        $session = $this->createMock('Alchemy\Phrasea\Model\Entities\Session');
 
         $authenticator->expects($this->once())
             ->method('openAccount')
@@ -41,7 +41,7 @@ class ManagerTest extends \PhraseanetTestCase
 
         $providerName = 'roro-provider';
         $parameters = ['key' => 'value'];
-        $provider = $this->getMock('Alchemy\Phrasea\Authentication\Provider\ProviderInterface');
+        $provider = $this->createMock('Alchemy\Phrasea\Authentication\Provider\ProviderInterface');
 
         $providers->expects($this->once())
             ->method('get')

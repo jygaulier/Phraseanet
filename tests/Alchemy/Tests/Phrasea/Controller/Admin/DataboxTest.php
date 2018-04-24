@@ -135,7 +135,7 @@ class DataboxTest extends \PhraseanetAuthenticatedWebTestCase
     public function testGetCGUHasNoRights()
     {
         $this->setAdmin(true, [
-            'has_right_on_sbas'=> function (\PHPUnit_Framework_MockObject_MockObject $acl) {
+            'has_right_on_sbas'=> function (\PHPUnit\Framework\MockObject\MockObject $acl) {
                 $acl->expects($this->once())
                     ->method('has_right_on_sbas')
                     ->with($this->equalTo(self::$DI['collection']->get_sbas_id()), \ACL::BAS_MODIFY_STRUCT)
@@ -154,7 +154,7 @@ class DataboxTest extends \PhraseanetAuthenticatedWebTestCase
     public function testGetCGU()
     {
         $this->setAdmin(true, [
-            'has_right_on_sbas'=> function (\PHPUnit_Framework_MockObject_MockObject $acl) {
+            'has_right_on_sbas'=> function (\PHPUnit\Framework\MockObject\MockObject $acl) {
                 $acl->expects($this->once())
                     ->method('has_right_on_sbas')
                     ->with($this->equalTo(self::$DI['collection']->get_sbas_id()), \ACL::BAS_MODIFY_STRUCT)
@@ -188,7 +188,7 @@ class DataboxTest extends \PhraseanetAuthenticatedWebTestCase
     public function testUpdateDatabaseCGU()
     {
         $this->setAdmin(true, [
-            'has_right_on_sbas'=> function (\PHPUnit_Framework_MockObject_MockObject $acl) {
+            'has_right_on_sbas'=> function (\PHPUnit\Framework\MockObject\MockObject $acl) {
                 $acl->expects($this->once())
                     ->method('has_right_on_sbas')
                     ->with($this->equalTo(self::$DI['collection']->get_sbas_id()), \ACL::BAS_MODIFY_STRUCT)

@@ -59,7 +59,10 @@ class FilenameTest extends \PhraseanetTestCase
      */
     public function testCheckNoFile()
     {
-        $mock = $this->getMock('\\Alchemy\\Phrasea\\Border\\File', ['getOriginalName'], [self::$DI['app'], $this->media, self::$DI['collection']]);
+        $mock = $this->getMockBuilder('\\Alchemy\\Phrasea\\Border\\File')
+            ->setConstructorArgs([self::$DI['app'], $this->media, self::$DI['collection']])
+            ->setMethods(['getOriginalName'])
+            ->getMock();
 
         $mock
             ->expects($this->once())
@@ -82,7 +85,10 @@ class FilenameTest extends \PhraseanetTestCase
      */
     public function testCheckSensitive()
     {
-        $mock = $this->getMock('\\Alchemy\\Phrasea\\Border\\File', ['getOriginalName'], [self::$DI['app'], $this->media, self::$DI['collection']]);
+        $mock = $this->getMockBuilder('\\Alchemy\\Phrasea\\Border\\File')
+            ->setConstructorArgs([self::$DI['app'], $this->media, self::$DI['collection']])
+            ->setMethods(['getOriginalName'])
+            ->getMock();
 
         $mock
             ->expects($this->any())

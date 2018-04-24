@@ -28,8 +28,10 @@ class CommandTest extends \PhraseanetTestCase
      */
     public function testGetFormattedDuration()
     {
-        $this->assertRegExp('/50 \w+/', $this->object->getFormattedDuration(50));
-        $this->assertRegExp('/1(\.|,)2 \w+/', $this->object->getFormattedDuration(70));
+        $this->assertRegExp('/3(\.|,)6 days/', $this->object->getFormattedDuration(86400 * 3.6));
+        $this->assertRegExp('/2(\.|,)4 hours/', $this->object->getFormattedDuration(3600 * 2.4));
+        $this->assertRegExp('/1(\.|,)2 minutes/', $this->object->getFormattedDuration(60 * 1.2));
+        $this->assertRegExp('/30 seconds/', $this->object->getFormattedDuration(30));
     }
 }
 

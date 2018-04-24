@@ -151,7 +151,7 @@ class report_reportTest extends \report_abstractReportTestCase
     {
 
         foreach ($this->ret as $sbasid => $collections) {
-            $report = $this->getMock('module_report', ['buildReq', 'buildResult'], [], '', FALSE);
+            $report = $this->createMock('module_report', ['buildReq', 'buildResult'], [], '', FALSE);
             $report->setSbas_id($sbasid);
             $this->assertEquals($sbasid, $report->getSbas_id());
 

@@ -128,6 +128,7 @@ class AuthenticationManagerServiceProviderTest extends ServiceProviderTestCase
         $app['repo.auth-failures'] = $this->getMockBuilder(AuthFailureRepository::class)
             ->disableOriginalConstructor()
             ->getMock();
+
         $app['recaptcha'] = $this->createReCaptchaMock();
 
         $this->assertInstanceOf(FailureHandledNativeAuthentication::class, $app['auth.native']);
@@ -174,7 +175,7 @@ class AuthenticationManagerServiceProviderTest extends ServiceProviderTestCase
     }
 
     /**
-     * @return ReCaptcha|\PHPUnit_Framework_MockObject_MockObject
+     * @return ReCaptcha|\PHPUnit\Framework\MockObject\MockObject
      */
     protected function createReCaptchaMock()
     {

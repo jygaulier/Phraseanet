@@ -111,7 +111,7 @@ class PhraseaLocaleSubscriberTest extends \PhraseanetTestCase
         $app = new SilexApp();
         $app['debug'] = true;
         $app->register(new LocaleServiceProvider());
-        $app['configuration.store'] = $this->getMock('Alchemy\Phrasea\Core\Configuration\ConfigurationInterface');
+        $app['configuration.store'] = $this->createMock('Alchemy\Phrasea\Core\Configuration\ConfigurationInterface');
         $app['configuration.store']->expects($this->any())
             ->method('isSetup')
             ->will($this->returnValue(true));

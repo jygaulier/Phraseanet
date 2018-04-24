@@ -15,7 +15,7 @@ class Bridge_Api_ElementCollectionTest extends \PhraseanetTestCase
         $collection = new Bridge_Api_ElementCollection();
         $i = 0;
         while ($i < 5) {
-            $elements[] = $element = $this->getMock("Bridge_Api_ElementInterface");
+            $elements[] = $element = $this->createMock("Bridge_Api_ElementInterface");
             $collection->add_element(new $element);
             $i ++;
         }

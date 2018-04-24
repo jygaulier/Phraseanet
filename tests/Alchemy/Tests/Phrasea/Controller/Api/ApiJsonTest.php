@@ -905,7 +905,7 @@ class ApiJsonTest extends ApiTestCase
             ->will($this->returnValue(new ArrayCollection()));
 
         $app = $this->getApplication();
-        $mock = $this->getMock('Alchemy\Phrasea\SearchEngine\SearchEngineInterface');
+        $mock = $this->createMock('Alchemy\Phrasea\SearchEngine\SearchEngineInterface');
         $app['phraseanet.SE'] = $mock;
 
         $mock
@@ -1515,10 +1515,12 @@ class ApiJsonTest extends ApiTestCase
         $params = $this->getAddRecordParameters();
         $params['status'] = '0b10000';
 
-        self::$DI['client']->request('POST', $route, $this->getParameters($params), $this->getAddRecordFile(), ['HTTP_Accept' => $this->getAcceptMimeType()]);
-        $content = $this->unserialize(self::$DI['client']->getResponse()->getContent());
+        $client = self::getClient();
 
-        $this->evaluateResponse200(self::$DI['client']->getResponse());
+        $client->request('POST', $route, $this->getParameters($params), $this->getAddRecordFile(), ['HTTP_Accept' => $this->getAcceptMimeType()]);
+        $content = $this->unserialize($client->getResponse()->getContent());
+
+        $this->evaluateResponse200($client->getResponse());
         $this->evaluateMeta200($content);
         $datas = $content['response'];
 

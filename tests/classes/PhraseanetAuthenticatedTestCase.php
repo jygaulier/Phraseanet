@@ -4,7 +4,7 @@ use Alchemy\Phrasea\Authentication\ACLProvider;
 
 abstract class PhraseanetAuthenticatedTestCase extends \PhraseanetTestCase
 {
-    /** @var PHPUnit_Framework_MockObject_MockObject */
+    /** @var PHPUnit\Framework\MockObject\MockObject */
     protected $stubbedACL;
 
     public function setUp()
@@ -20,7 +20,7 @@ abstract class PhraseanetAuthenticatedTestCase extends \PhraseanetTestCase
     }
 
     /**
-     * @return PHPUnit_Framework_MockObject_MockObject
+     * @return PHPUnit\Framework\MockObject\MockObject
      */
     protected function stubACL()
     {
@@ -37,6 +37,8 @@ abstract class PhraseanetAuthenticatedTestCase extends \PhraseanetTestCase
             ->will($this->returnValue($stubbedACL));
 
         $app = $this->getApplication();
+
+        $app->offsetUnset('acl');
         $app['acl'] = $aclProvider;
         $app->setAclProvider($aclProvider);
 

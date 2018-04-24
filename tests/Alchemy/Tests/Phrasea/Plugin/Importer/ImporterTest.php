@@ -16,13 +16,13 @@ class ImporterTest extends PluginTestCase
         $source = 'here';
         $target = 'there';
 
-        $strategy = $this->getMock('Alchemy\Phrasea\Plugin\Importer\ImportStrategy');
+        $strategy = $this->createMock('Alchemy\Phrasea\Plugin\Importer\ImportStrategy');
         $strategy->expects($this->once())
             ->method('detect')
             ->with($source)
             ->will($this->returnValue('elephant'));
 
-        $importerInterface = $this->getMock('Alchemy\Phrasea\Plugin\Importer\ImporterInterface');
+        $importerInterface = $this->createMock('Alchemy\Phrasea\Plugin\Importer\ImporterInterface');
         $importerInterface->expects($this->once())
             ->method('import')
             ->with($source, $target);
@@ -39,13 +39,13 @@ class ImporterTest extends PluginTestCase
         $source = 'here';
         $target = 'there';
 
-        $strategy = $this->getMock('Alchemy\Phrasea\Plugin\Importer\ImportStrategy');
+        $strategy = $this->createMock('Alchemy\Phrasea\Plugin\Importer\ImportStrategy');
         $strategy->expects($this->once())
             ->method('detect')
             ->with($source)
             ->will($this->returnValue('elephant'));
 
-        $importerInterface = $this->getMock('Alchemy\Phrasea\Plugin\Importer\ImporterInterface');
+        $importerInterface = $this->createMock('Alchemy\Phrasea\Plugin\Importer\ImporterInterface');
         $importerInterface->expects($this->never())
             ->method('import');
 

@@ -67,6 +67,8 @@ abstract class ApiTestCase extends \PhraseanetWebTestCase
 
             $this->userAccessToken = current($tokens);
         }
+
+        $this->getApplication()->flush();
     }
 
     public function testRouteNotFound()
@@ -294,22 +296,22 @@ abstract class ApiTestCase extends \PhraseanetWebTestCase
         $this->checkPermalink($embed['permalink'], $subdef);
         $this->assertArrayHasKey("height", $embed);
         $this->assertEquals($embed['height'], $subdef->get_height());
-        $this->assertInternalType(\PHPUnit_Framework_Constraint_IsType::TYPE_INT, $embed['height']);
+        $this->assertInternalType(\PHPUnit\Framework\Constraint\IsType::TYPE_INT, $embed['height']);
         $this->assertArrayHasKey("width", $embed);
         $this->assertEquals($embed['width'], $subdef->get_width());
-        $this->assertInternalType(\PHPUnit_Framework_Constraint_IsType::TYPE_INT, $embed['width']);
+        $this->assertInternalType(\PHPUnit\Framework\Constraint\IsType::TYPE_INT, $embed['width']);
         $this->assertArrayHasKey("filesize", $embed);
         $this->assertEquals($embed['filesize'], $subdef->get_size());
-        $this->assertInternalType(\PHPUnit_Framework_Constraint_IsType::TYPE_INT, $embed['filesize']);
+        $this->assertInternalType(\PHPUnit\Framework\Constraint\IsType::TYPE_INT, $embed['filesize']);
         $this->assertArrayHasKey("player_type", $embed);
         $this->assertEquals($embed['player_type'], $subdef->get_type());
-        $this->assertInternalType(\PHPUnit_Framework_Constraint_IsType::TYPE_STRING, $embed['player_type']);
+        $this->assertInternalType(\PHPUnit\Framework\Constraint\IsType::TYPE_STRING, $embed['player_type']);
         $this->assertArrayHasKey("mime_type", $embed);
         $this->assertEquals($embed['mime_type'], $subdef->get_mime());
-        $this->assertInternalType(\PHPUnit_Framework_Constraint_IsType::TYPE_STRING, $embed['mime_type']);
+        $this->assertInternalType(\PHPUnit\Framework\Constraint\IsType::TYPE_STRING, $embed['mime_type']);
         $this->assertArrayHasKey("devices", $embed);
         $this->assertEquals($embed['devices'], $subdef->getDevices());
-        $this->assertInternalType(\PHPUnit_Framework_Constraint_IsType::TYPE_ARRAY, $embed['devices']);
+        $this->assertInternalType(\PHPUnit\Framework\Constraint\IsType::TYPE_ARRAY, $embed['devices']);
     }
 
     protected function checkPermalink($permalink, \media_subdef $subdef)
@@ -324,38 +326,38 @@ abstract class ApiTestCase extends \PhraseanetWebTestCase
         $now = new \Datetime($permalink['created_on']);
         $interval = $now->diff($subdef->get_permalink()->get_created_on());
         $this->assertTrue(abs($interval->format('U')) < 2);
-        $this->assertInternalType(\PHPUnit_Framework_Constraint_IsType::TYPE_STRING, $permalink['created_on']);
+        $this->assertInternalType(\PHPUnit\Framework\Constraint\IsType::TYPE_STRING, $permalink['created_on']);
         $this->assertDateAtom($permalink['created_on']);
         $this->assertArrayHasKey("id", $permalink);
-        $this->assertInternalType(\PHPUnit_Framework_Constraint_IsType::TYPE_INT, $permalink['id']);
+        $this->assertInternalType(\PHPUnit\Framework\Constraint\IsType::TYPE_INT, $permalink['id']);
         $this->assertEquals($subdef->get_permalink()->get_id(), $permalink['id']);
         $this->assertArrayHasKey("is_activated", $permalink);
-        $this->assertInternalType(\PHPUnit_Framework_Constraint_IsType::TYPE_BOOL, $permalink['is_activated']);
+        $this->assertInternalType(\PHPUnit\Framework\Constraint\IsType::TYPE_BOOL, $permalink['is_activated']);
         $this->assertEquals($subdef->get_permalink()->get_is_activated(), $permalink['is_activated']);
         $this->assertArrayHasKey("label", $permalink);
-        $this->assertInternalType(\PHPUnit_Framework_Constraint_IsType::TYPE_STRING, $permalink['label']);
+        $this->assertInternalType(\PHPUnit\Framework\Constraint\IsType::TYPE_STRING, $permalink['label']);
         $this->assertArrayHasKey("updated_on", $permalink);
 
         $expected = $subdef->get_permalink()->get_last_modified();
         $found = \DateTime::createFromFormat(DATE_ATOM, $permalink['updated_on']);
 
         $this->assertLessThanOrEqual(1, $expected->diff($found)->format('U'));
-        $this->assertInternalType(\PHPUnit_Framework_Constraint_IsType::TYPE_STRING, $permalink['updated_on']);
+        $this->assertInternalType(\PHPUnit\Framework\Constraint\IsType::TYPE_STRING, $permalink['updated_on']);
         $this->assertDateAtom($permalink['updated_on']);
         $this->assertArrayHasKey("page_url", $permalink);
-        $this->assertInternalType(\PHPUnit_Framework_Constraint_IsType::TYPE_STRING, $permalink['page_url']);
+        $this->assertInternalType(\PHPUnit\Framework\Constraint\IsType::TYPE_STRING, $permalink['page_url']);
         $this->assertEquals($subdef->get_permalink()->get_page(), $permalink['page_url']);
         $this->checkUrlCode200($permalink['page_url']);
         $this->assertPermalinkHeaders($permalink['page_url'], $subdef);
 
         $this->assertArrayHasKey("url", $permalink);
-        $this->assertInternalType(\PHPUnit_Framework_Constraint_IsType::TYPE_STRING, $permalink['url']);
+        $this->assertInternalType(\PHPUnit\Framework\Constraint\IsType::TYPE_STRING, $permalink['url']);
         $this->assertEquals($subdef->get_permalink()->get_url(), $permalink['url']);
         $this->checkUrlCode200($permalink['url']);
         $this->assertPermalinkHeaders($permalink['url'], $subdef, "url");
 
         $this->assertArrayHasKey("download_url", $permalink);
-        $this->assertInternalType(\PHPUnit_Framework_Constraint_IsType::TYPE_STRING, $permalink['download_url']);
+        $this->assertInternalType(\PHPUnit\Framework\Constraint\IsType::TYPE_STRING, $permalink['download_url']);
         $this->assertEquals($subdef->get_permalink()->get_url() . '&download=1', $permalink['download_url']);
         $this->checkUrlCode200($permalink['download_url']);
         $this->assertPermalinkHeaders($permalink['download_url'], $subdef, "download_url");

@@ -79,22 +79,26 @@ class PropertyTest extends \PhraseanetAuthenticatedWebTestCase
         $acl = $this->getMockBuilder('ACL')
             ->disableOriginalConstructor()
             ->getMock();
+
         $acl->expects($this->any())
             ->method('has_access_to_record')
             ->with($this->isInstanceOf('\record_adapter'))
             ->will($this->returnValue(true));
+
         $acl->expects($this->any())
             ->method('has_right_on_base')
-            ->with($this->isType(\PHPUnit_Framework_Constraint_IsType::TYPE_INT), $this->equalTo(\ACL::CHGSTATUS))
+            ->with($this->isType(\PHPUnit\Framework\Constraint\IsType::TYPE_INT), $this->equalTo(\ACL::CHGSTATUS))
             ->will($this->returnValue(true));
+
         $acl->expects($this->any())
             ->method('has_right_on_sbas')
-            ->with($this->isType(\PHPUnit_Framework_Constraint_IsType::TYPE_INT), $this->equalTo(\ACL::CHGSTATUS))
+            ->with($this->isType(\PHPUnit\Framework\Constraint\IsType::TYPE_INT), $this->equalTo(\ACL::CHGSTATUS))
             ->will($this->returnValue(true));
 
         $aclProvider = $this->getMockBuilder('Alchemy\Phrasea\Authentication\ACLProvider')
             ->disableOriginalConstructor()
             ->getMock();
+
         $aclProvider->expects($this->any())
             ->method('get')
             ->will($this->returnValue($acl));

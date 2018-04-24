@@ -58,6 +58,7 @@ class RegistrationManagerTest extends \PhraseanetTestCase
             ->disableOriginalConstructor()
             ->setMethods(['getRegistrationsSummaryForUser'])
             ->getMock();
+
         $repoMock->expects($this->once())->method('getRegistrationsSummaryForUser')->will($this->returnValue($data));
 
         $service = new RegistrationManager(self::$DI['app']['phraseanet.appbox'], $repoMock, self::$DI['app']['locale']);

@@ -40,7 +40,7 @@ class ExtensionTest extends \PhraseanetTestCase
 
         foreach ($tests as $extension => $result) {
 
-            $spl = $this->getMock('\\Symfony\\Component\\HttpFoundation\\File\\File', ['getExtension'], [__DIR__ . '/../../../../../files/test001.jpg']);
+            $spl = $this->createMock('\\Symfony\\Component\\HttpFoundation\\File\\File', ['getExtension'], [__DIR__ . '/../../../../../files/test001.jpg']);
 
             $spl->expects($this->any())
                 ->method('getExtension')
@@ -50,6 +50,7 @@ class ExtensionTest extends \PhraseanetTestCase
                 ->getMockBuilder('\\MediaVorus\\Media\\Image')
                 ->disableOriginalConstructor()
                 ->getMock();
+
             $media->expects($this->any())
                 ->method('getFile')
                 ->will($this->returnValue($spl));

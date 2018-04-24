@@ -39,7 +39,7 @@ class FirewallSubscriberTest extends \PhraseanetTestCase
         });
 
         $client = new Client($app);
-        $this->setExpectedException('Symfony\Component\HttpKernel\Exception\HttpException');
+        $this->expectException('Symfony\Component\HttpKernel\Exception\HttpException');
         $client->request('GET', '/');
     }
 }

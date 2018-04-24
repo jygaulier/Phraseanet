@@ -84,7 +84,7 @@ class MetadataTest extends \PhraseanetTestCase
      */
     public function testLoadFromStringFail()
     {
-        \PHPUnit_Framework_Error_Notice::$enabled = false;
+        \PHPUnit\Framework\Error\Notice::$enabled = false;
 
         Metadata::loadFromString(self::$DI['app'], 'Hello String');
     }

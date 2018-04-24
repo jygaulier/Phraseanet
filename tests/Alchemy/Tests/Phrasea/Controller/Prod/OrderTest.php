@@ -102,9 +102,10 @@ class OrderTest extends \PhraseanetAuthenticatedWebTestCase
         $this->assertTrue($response->isRedirect(), 'Could not validate some elements. not a redirect');
 
         $url = parse_url($response->headers->get('location'));
-        parse_str($url['query']);
+        $var = [];
+        parse_str($url['query'], $var);
 
-        $this->assertTrue(strpos($url['query'], 'success=1') === 0, 'Validation of elements is not successful');
+        $this->assertTrue(!!$var['success'], 'Validation of elements is not successful');
     }
 
     public function testSendOrderJson()
@@ -161,7 +162,7 @@ class OrderTest extends \PhraseanetAuthenticatedWebTestCase
         $url = parse_url($client->getResponse()->headers->get('location'));
         $var = [];
         parse_str($url['query'], $var);
-        $this->assertTrue( ! ! $var['success']);
+        $this->assertTrue(!!$var['success']);
     }
 
     public function testDenyOrderJson()

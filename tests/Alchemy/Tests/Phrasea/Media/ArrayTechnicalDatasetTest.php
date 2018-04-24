@@ -54,7 +54,7 @@ class ArrayTechnicalDataSetTest extends \PHPUnit\Framework\TestCase
     {
         $data = $this->createTechnicalData('foo', 'bar');
 
-        $this->setExpectedException(AssertionFailedException::class);
+        $this->expectException(AssertionFailedException::class);
 
         $this->sut->offsetSet('bar', $data);
     }

@@ -45,7 +45,7 @@ class DebuggerSubscriberTest extends \PhraseanetTestCase
         $app->boot();
 
         if ($exceptionThrown) {
-            $this->setExpectedException('Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException');
+            $this->expectException('Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException');
         }
 
         $app->handle(new Request([], [], [], [], [], ['REMOTE_ADDR' => $incomingIp]));

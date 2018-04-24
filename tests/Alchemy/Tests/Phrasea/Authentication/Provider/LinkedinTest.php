@@ -35,14 +35,15 @@ class LinkedinTest extends ProviderTestCase
         $request = $this->getRequestMock();
         $this->addQueryParameter($request, ['state' => $state]);
 
-        $mock = $this->getMock('Guzzle\Http\ClientInterface');
+        $mock = $this->createMock('Guzzle\Http\ClientInterface');
 
-        $requestGet = $this->getMock('Guzzle\Http\Message\RequestInterface');
-        $requestPost = $this->getMock('Guzzle\Http\Message\RequestInterface');
+        $requestGet = $this->createMock('Guzzle\Http\Message\RequestInterface');
+        $requestPost = $this->createMock('Guzzle\Http\Message\RequestInterface');
 
         $queryString = $this->getMockBuilder('Guzzle\Http\QueryString')
             ->disableOriginalConstructor()
             ->getMock();
+
         $queryString->expects($this->any())
             ->method('add')
             ->will($this->returnSelf());
@@ -97,10 +98,10 @@ class LinkedinTest extends ProviderTestCase
     {
         $provider = $this->getProvider();
 
-        $guzzle = $this->getMock('Guzzle\Http\ClientInterface');
+        $guzzle = $this->createMock('Guzzle\Http\ClientInterface');
 
-        $requestGet = $this->getMock('Guzzle\Http\Message\RequestInterface');
-        $requestPost = $this->getMock('Guzzle\Http\Message\EntityEnclosingRequestInterface');
+        $requestGet = $this->createMock('Guzzle\Http\Message\RequestInterface');
+        $requestPost = $this->createMock('Guzzle\Http\Message\EntityEnclosingRequestInterface');
 
         $queryString = $this->getMockBuilder('Guzzle\Http\QueryString')
             ->disableOriginalConstructor()
@@ -163,9 +164,9 @@ class LinkedinTest extends ProviderTestCase
     {
         $provider = $this->getProvider();
 
-        $guzzle = $this->getMock('Guzzle\Http\ClientInterface');
+        $guzzle = $this->createMock('Guzzle\Http\ClientInterface');
 
-        $requestGet = $this->getMock('Guzzle\Http\Message\RequestInterface');
+        $requestGet = $this->createMock('Guzzle\Http\Message\RequestInterface');
 
         $queryString = $this->getMockBuilder('Guzzle\Http\QueryString')
             ->disableOriginalConstructor()
@@ -243,9 +244,9 @@ class LinkedinTest extends ProviderTestCase
     {
         $provider = $this->getProvider();
 
-        $guzzle = $this->getMock('Guzzle\Http\ClientInterface');
+        $guzzle = $this->createMock('Guzzle\Http\ClientInterface');
 
-        $requestGet = $this->getMock('Guzzle\Http\Message\RequestInterface');
+        $requestGet = $this->createMock('Guzzle\Http\Message\RequestInterface');
 
         $queryString = $this->getMockBuilder('Guzzle\Http\QueryString')
             ->disableOriginalConstructor()

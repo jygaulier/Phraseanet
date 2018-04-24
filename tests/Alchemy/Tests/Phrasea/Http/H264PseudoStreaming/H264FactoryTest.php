@@ -18,7 +18,7 @@ class H264FactoryTest extends \PhraseanetTestCase
 
     public function testFactoryWithH264Enable()
     {
-        $logger = $this->getMock('Psr\Log\LoggerInterface');
+        $logger = $this->createMock('Psr\Log\LoggerInterface');
 
         $factory = new H264Factory($logger, true, 'nginx', $this->getNginxMapping());
         $this->assertInstanceOf('Alchemy\Phrasea\Http\H264PseudoStreaming\H264Interface', $factory->createMode());
@@ -27,7 +27,7 @@ class H264FactoryTest extends \PhraseanetTestCase
 
     public function testFactoryWithH264Disabled()
     {
-        $logger = $this->getMock('Psr\Log\LoggerInterface');
+        $logger = $this->createMock('Psr\Log\LoggerInterface');
 
         $factory = new H264Factory($logger, false, 'nginx',$this->getNginxMapping());
         $this->assertInstanceOf('Alchemy\Phrasea\Http\H264PseudoStreaming\NullMode', $factory->createMode());
@@ -39,7 +39,7 @@ class H264FactoryTest extends \PhraseanetTestCase
      */
     public function testFactoryWithWrongTypeThrowsAnExceptionIfRequired()
     {
-        $logger = $this->getMock('Psr\Log\LoggerInterface');
+        $logger = $this->createMock('Psr\Log\LoggerInterface');
 
         $factory = new H264Factory($logger, true, 'wrong-type', $this->getNginxMapping());
         $factory->createMode(true);
@@ -47,7 +47,7 @@ class H264FactoryTest extends \PhraseanetTestCase
 
     public function testFactoryWithWrongTypeDoesNotThrowsAnException()
     {
-        $logger = $this->getMock('Psr\Log\LoggerInterface');
+        $logger = $this->createMock('Psr\Log\LoggerInterface');
 
         $logger->expects($this->once())
                ->method('error')
@@ -62,7 +62,7 @@ class H264FactoryTest extends \PhraseanetTestCase
      */
     public function testFactoryType($type, $mapping, $classmode)
     {
-        $logger = $this->getMock('Psr\Log\LoggerInterface');
+        $logger = $this->createMock('Psr\Log\LoggerInterface');
 
         $factory = new H264Factory($logger, true, $type, $mapping);
         $this->assertInstanceOf($classmode, $factory->createMode());

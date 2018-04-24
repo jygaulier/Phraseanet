@@ -15,7 +15,7 @@ class NewLoginValidatorTest extends \PhraseanetTestCase
      */
     public function testValidate($value, $alreadyRegistered)
     {
-        $context = $this->getMock('Symfony\Component\Validator\ExecutionContextInterface');
+        $context = $this->createMock('Symfony\Component\Validator\ExecutionContextInterface');
         $builder = $context
             ->expects($this->exactly($alreadyRegistered ? 1 : 0))
             ->method('addViolation');

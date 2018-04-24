@@ -16,7 +16,7 @@ class FailureHandledNativeAuthenticationTest extends \PhraseanetTestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $auth = $this->getMock('Alchemy\Phrasea\Authentication\Phrasea\PasswordAuthenticationInterface');
+        $auth = $this->createMock('Alchemy\Phrasea\Authentication\Phrasea\PasswordAuthenticationInterface');
 
         $request = $this->getMockBuilder('Symfony\Component\HttpFoundation\Request')
             ->disableOriginalConstructor()
@@ -47,7 +47,7 @@ class FailureHandledNativeAuthenticationTest extends \PhraseanetTestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $auth = $this->getMock('Alchemy\Phrasea\Authentication\Phrasea\PasswordAuthenticationInterface');
+        $auth = $this->createMock('Alchemy\Phrasea\Authentication\Phrasea\PasswordAuthenticationInterface');
 
         $request = $this->getMockBuilder('Symfony\Component\HttpFoundation\Request')
             ->disableOriginalConstructor()

@@ -32,8 +32,8 @@ class ViadeoTest extends ProviderTestCase
     {
         $provider = $this->getProvider();
 
-        $guzzle = $this->getMock('Guzzle\Http\ClientInterface');
-        $requestGet = $this->getMock('Guzzle\Http\Message\RequestInterface');
+        $guzzle = $this->createMock('Guzzle\Http\ClientInterface');
+        $requestGet = $this->createMock('Guzzle\Http\Message\RequestInterface');
 
         $queryString = $this->getMockBuilder('Guzzle\Http\QueryString')
             ->disableOriginalConstructor()
@@ -72,10 +72,10 @@ class ViadeoTest extends ProviderTestCase
     {
         $provider = $this->getProvider();
 
-        $guzzle = $this->getMock('Guzzle\Http\ClientInterface');
+        $guzzle = $this->createMock('Guzzle\Http\ClientInterface');
 
-        $requestGet = $this->getMock('Guzzle\Http\Message\RequestInterface');
-        $requestPost = $this->getMock('Guzzle\Http\Message\EntityEnclosingRequestInterface');
+        $requestGet = $this->createMock('Guzzle\Http\Message\RequestInterface');
+        $requestPost = $this->createMock('Guzzle\Http\Message\EntityEnclosingRequestInterface');
 
         $queryString = $this->getMockBuilder('Guzzle\Http\QueryString')
             ->disableOriginalConstructor()
@@ -139,10 +139,10 @@ class ViadeoTest extends ProviderTestCase
     {
         $provider = $this->getProvider();
 
-        $guzzle = $this->getMock('Guzzle\Http\ClientInterface');
+        $guzzle = $this->createMock('Guzzle\Http\ClientInterface');
 
-        $requestGet1 = $this->getMock('Guzzle\Http\Message\RequestInterface');
-        $requestGet2 = $this->getMock('Guzzle\Http\Message\RequestInterface');
+        $requestGet1 = $this->createMock('Guzzle\Http\Message\RequestInterface');
+        $requestGet2 = $this->createMock('Guzzle\Http\Message\RequestInterface');
 
         $queryString = $this->getMockBuilder('Guzzle\Http\QueryString')
             ->disableOriginalConstructor()
@@ -158,6 +158,7 @@ class ViadeoTest extends ProviderTestCase
         $response1 = $this->getMockBuilder('Guzzle\Http\Message\Response')
             ->disableOriginalConstructor()
             ->getMock();
+
         $response2 = $this->getMockBuilder('Guzzle\Http\Message\Response')
             ->disableOriginalConstructor()
             ->getMock();
@@ -221,9 +222,9 @@ class ViadeoTest extends ProviderTestCase
     {
         $provider = $this->getProvider();
 
-        $guzzle = $this->getMock('Guzzle\Http\ClientInterface');
+        $guzzle = $this->createMock('Guzzle\Http\ClientInterface');
 
-        $requestGet = $this->getMock('Guzzle\Http\Message\RequestInterface');
+        $requestGet = $this->createMock('Guzzle\Http\Message\RequestInterface');
 
         $queryString = $this->getMockBuilder('Guzzle\Http\QueryString')
             ->disableOriginalConstructor()

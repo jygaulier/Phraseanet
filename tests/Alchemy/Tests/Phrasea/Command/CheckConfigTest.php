@@ -12,8 +12,8 @@ class CheckConfigTest extends \PhraseanetTestCase
 {
     public function testRunWithoutProblems()
     {
-        $input = $this->getMock('Symfony\Component\Console\Input\InputInterface');
-        $output = $this->getMock('Symfony\Component\Console\Output\OutputInterface');
+        $input = $this->createMock('Symfony\Component\Console\Input\InputInterface');
+        $output = $this->createMock('Symfony\Component\Console\Output\OutputInterface');
 
         //self::$DI['cli']['phraseanet.SE'] = $this->createSearchEngineMock();
         $command = new CheckConfig('check:config');

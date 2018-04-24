@@ -10,8 +10,8 @@ abstract class JobTestCase extends \PhraseanetTestCase
 {
     public function testGetJobIdReturnsAvalidId()
     {
-        $dispatcher = $this->getMock('Symfony\Component\EventDispatcher\EventDispatcherInterface');
-        $logger = $this->getMock('Psr\Log\LoggerInterface');
+        $dispatcher = $this->createMock('Symfony\Component\EventDispatcher\EventDispatcherInterface');
+        $logger = $this->createMock('Psr\Log\LoggerInterface');
 
         $factory = new Factory($dispatcher, $logger, $this->createTranslatorMock());
         $job = $this->getJob();

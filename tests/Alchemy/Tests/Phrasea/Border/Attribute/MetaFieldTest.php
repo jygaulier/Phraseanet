@@ -35,8 +35,8 @@ class MetaFieldTest extends \PhraseanetTestCase
         }
         $this->object = new MetaField($this->databox_field, $this->value);
 
-        $this->before = \PHPUnit_Framework_Error_Warning::$enabled;
-        $this->beforeNotice = \PHPUnit_Framework_Error_Notice::$enabled;
+        $this->before = \PHPUnit\Framework\Error\Warning::$enabled;
+        $this->beforeNotice = \PHPUnit\Framework\Error\Notice::$enabled;
     }
 
     /**
@@ -44,8 +44,8 @@ class MetaFieldTest extends \PhraseanetTestCase
      */
     public function tearDown()
     {
-        \PHPUnit_Framework_Error_Warning::$enabled = $this->before;
-        \PHPUnit_Framework_Error_Notice::$enabled = $this->beforeNotice;
+        \PHPUnit\Framework\Error\Warning::$enabled = $this->before;
+        \PHPUnit\Framework\Error\Notice::$enabled = $this->beforeNotice;
         $this->object = null;
         parent::tearDown();
     }
@@ -114,8 +114,8 @@ class MetaFieldTest extends \PhraseanetTestCase
      */
     public function testLoadFromStringFailSerialize()
     {
-        \PHPUnit_Framework_Error_Warning::$enabled = false;
-        \PHPUnit_Framework_Error_Notice::$enabled = false;
+        \PHPUnit\Framework\Error\Warning::$enabled = false;
+        \PHPUnit\Framework\Error\Notice::$enabled = false;
         MetaField::loadFromString(self::$DI['app'], serialize(['Elephant', 'sbas_id' => self::$DI['collection']->get_sbas_id(), 'id' => 0]));
     }
 }

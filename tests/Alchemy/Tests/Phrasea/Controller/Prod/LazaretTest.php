@@ -110,20 +110,25 @@ class LazaretTest extends \PhraseanetAuthenticatedWebTestCase
      */
     public function testAddElement()
     {
-        self::$DI['app']['phraseanet.SE'] = $this->createSearchEngineMock();
-        $originalEm = self::$DI['app']['orm.em'];
+        $app = self::getApplication();
+
+        $app['phraseanet.SE'] = $this->createSearchEngineMock();
+        $originalEm = $app['orm.em'];
         $em = $this->createEntityManagerMock();
 
         $lazaretFile = $this->getOneLazaretFile();
 
-        $lazaretFileName = self::$DI['app']['tmp.lazaret.path'].'/'.$lazaretFile->getFilename();
-        $lazaretThumbFileName = self::$DI['app']['tmp.lazaret.path'].'/'.$lazaretFile->getThumbFilename();
+        $lazaretFileName = $app['tmp.lazaret.path'].'/'.$lazaretFile->getFilename();
+        $lazaretThumbFileName = $app['tmp.lazaret.path'].'/'.$lazaretFile->getThumbFilename();
 
         copy(__DIR__ . '/../../../../../files/cestlafete.jpg', $lazaretFileName);
         copy(__DIR__ . '/../../../../../files/cestlafete.jpg', $lazaretThumbFileName);
 
         //mock lazaret Attribute
-        $lazaretAttribute = $this->getMock('Alchemy\Phrasea\Model\Entities\LazaretAttribute', [], [], '', false);
+        // $lazaretAttribute = $this->getMock('Alchemy\Phrasea\Model\Entities\LazaretAttribute', [], [], '', false);
+        $lazaretAttribute = $this->getMockBuilder('Alchemy\Phrasea\Model\Entities\LazaretAttribute')
+            ->enableOriginalConstructor()
+            ->getMock();
 
         //Expect to be called 3 times since we add 5 attribute to lazaretFile
         //and each one is called to verify if it is an attribute to keep
@@ -153,8 +158,8 @@ class LazaretTest extends \PhraseanetAuthenticatedWebTestCase
 
         $id = 1;
 
-        self::$DI['app']['repo.lazaret-files'] = $this->createEntityRepositoryMock();
-        self::$DI['app']['repo.lazaret-files']->expects($this->once())
+        $app['repo.lazaret-files'] = $this->createEntityRepositoryMock();
+        $app['repo.lazaret-files']->expects($this->once())
             ->method('find')
             ->with($this->equalTo($id))
             ->will($this->returnValue($lazaretFile));
@@ -168,14 +173,17 @@ class LazaretTest extends \PhraseanetAuthenticatedWebTestCase
         $em->expects($this->once())
             ->method('flush');
 
-        self::$DI['app']['orm.em'] = $em;
-        self::$DI['client']->request('POST', '/prod/lazaret/' . $id . '/force-add/', [
+        $app->offsetUnset('orm.em');
+        $app['orm.em'] = $em;
+
+        $client = self::getClient();
+        $client->request('POST', '/prod/lazaret/' . $id . '/force-add/', [
             'bas_id'          => $lazaretFile->getBaseId(),
             'keep_attributes' => 1,
             'attributes'      => [1, 2, 3, 4] //Check only the four first attributes
         ]);
 
-        $response = self::$DI['client']->getResponse();
+        $response = $client->getResponse();
 
         $this->assertResponseOk($response);
         $this->assertGoodJsonContent(json_decode($response->getContent()));
@@ -287,19 +295,25 @@ class LazaretTest extends \PhraseanetAuthenticatedWebTestCase
      */
     public function testAcceptElement()
     {
+        $app = self::getApplication();
+
         $em = $this->createEntityManagerMock();
 
-        self::$DI['app']['subdef.substituer'] = $this->getMockBuilder('Alchemy\Phrasea\Media\SubdefSubstituer')
+        $app['subdef.substituer'] = $this->getMockBuilder('Alchemy\Phrasea\Media\SubdefSubstituer')
             ->disableOriginalConstructor()
             ->getMock();
+
         $record = self::$DI['record_2'];
 
         //expect one call to substitute the documents
-        self::$DI['app']['subdef.substituer']->expects($this->once())
+        $app['subdef.substituer']->expects($this->once())
             ->method('substituteDocument')
             ->with($record);
 
-        $databox = $this->getMock('databox', [], [], '', false);
+        // $databox = $this->getMock('databox', [], [], '', false);
+        $databox = $this->getMockBuilder('databox')
+            ->disableOriginalConstructor()
+            ->getMock();
 
         //expect to fetch record
         $databox->expects($this->once())
@@ -307,14 +321,20 @@ class LazaretTest extends \PhraseanetAuthenticatedWebTestCase
             ->with($this->equalTo(self::$DI['record_1']->get_record_id()))
             ->will($this->returnValue($record));
 
-        $collection = $this->getMock('collection', [], [], '', false);
+        // $collection = $this->getMock('collection', [], [], '', false);
+        $collection = $this->getMockBuilder('collection')
+            ->disableOriginalConstructor()
+            ->getMock();
 
         //expect to fetch databox
         $collection->expects($this->once())
             ->method('get_databox')
             ->will($this->returnValue($databox));
 
-        $lazaretFile = $this->getMock('Alchemy\Phrasea\Model\Entities\LazaretFile', [], [], '', false);
+        // $lazaretFile = $this->getMock('Alchemy\Phrasea\Model\Entities\LazaretFile', [], [], '', false);
+        $lazaretFile = $this->getMockBuilder('Alchemy\Phrasea\Model\Entities\LazaretFile')
+            ->disableOriginalConstructor()
+            ->getMock();
 
         //expect to fetch possible records to subtitute
         $lazaretFile->expects($this->once())
@@ -337,8 +357,8 @@ class LazaretTest extends \PhraseanetAuthenticatedWebTestCase
 
         $id = 1;
 
-        self::$DI['app']['repo.lazaret-files'] = $this->createEntityRepositoryMock();
-        self::$DI['app']['repo.lazaret-files']->expects($this->once())
+        $app['repo.lazaret-files'] = $this->createEntityRepositoryMock();
+        $app['repo.lazaret-files']->expects($this->once())
             ->method('find')
             ->with($this->equalTo($id))
             ->will($this->returnValue($lazaretFile));
@@ -353,7 +373,7 @@ class LazaretTest extends \PhraseanetAuthenticatedWebTestCase
             ->method('flush');
 
         $called = false;
-        self::$DI['app']['phraseanet.logger'] = self::$DI['app']->protect(function () use (&$called) {
+        $app['phraseanet.logger'] = self::$DI['app']->protect(function () use (&$called) {
             $called = true;
 
             return $this->getMockBuilder('\Session_Logger')
@@ -361,13 +381,16 @@ class LazaretTest extends \PhraseanetAuthenticatedWebTestCase
                     ->getMock();
         });
 
-        self::$DI['app']['orm.em'] = $em;
-        self::$DI['client']->request('POST', '/prod/lazaret/' . $id . '/accept/', [
+        $app->offsetUnset('orm.em');
+        $app['orm.em'] = $em;
+
+        $client = self::getClient();
+        $client->request('POST', '/prod/lazaret/' . $id . '/accept/', [
             'record_id' => self::$DI['record_1']->get_record_id()
         ]);
         $this->assertTrue($called);
 
-        $response = self::$DI['client']->getResponse();
+        $response = $client->getResponse();
 
         $content = json_decode($response->getContent());
 
@@ -446,7 +469,10 @@ class LazaretTest extends \PhraseanetAuthenticatedWebTestCase
      */
     public function testThumbnailElement()
     {
-        $lazaretFile = $this->getMock('Alchemy\Phrasea\Model\Entities\LazaretFile', [], [], '', false);
+        // $lazaretFile = $this->getMock('Alchemy\Phrasea\Model\Entities\LazaretFile', [], [], '', false);
+        $lazaretFile = $this->getMockBuilder('Alchemy\Phrasea\Model\Entities\LazaretFile')
+            ->enableOriginalConstructor()
+            ->getMock();
 
         copy(__DIR__ . '/../../../../../files/cestlafete.jpg', self::$DI['app']['tmp.lazaret.path'].'/cestlafete.jpg');
 

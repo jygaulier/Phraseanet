@@ -96,7 +96,7 @@ class ProvidersCollectionTest extends \PhraseanetTestCase
 
     private function getProviderMock($id)
     {
-        $provider = $this->getMock('Alchemy\Phrasea\Authentication\Provider\ProviderInterface');
+        $provider = $this->createMock('Alchemy\Phrasea\Authentication\Provider\ProviderInterface');
         $provider->expects($this->any())
             ->method('getId')
             ->will($this->returnValue($id));

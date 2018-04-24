@@ -46,10 +46,13 @@ class DownloadTest extends \PhraseanetAuthenticatedWebTestCase
     public function testDownloadRestricted()
     {
         $triggered = false;
-        self::$DI['app']['dispatcher']->addListener(PhraseaEvents::EXPORT_CREATE, function (Event $event) use (&$triggered) {
+
+        $app = self::getApplication();
+
+        $app['dispatcher']->addListener(PhraseaEvents::EXPORT_CREATE, function (Event $event) use (&$triggered) {
             $triggered = true;
         });
-        self::$DI['app']['authentication']->setUser(self::$DI['user']);
+        $app['authentication']->setUser(self::$DI['user']);
 
         $stubbedACL = $this->getMockBuilder('\ACL')
             ->disableOriginalConstructor()
@@ -73,13 +76,17 @@ class DownloadTest extends \PhraseanetAuthenticatedWebTestCase
         $aclProvider = $this->getMockBuilder('Alchemy\Phrasea\Authentication\ACLProvider')
             ->disableOriginalConstructor()
             ->getMock();
+
         $aclProvider->expects($this->any())
             ->method('get')
             ->will($this->returnValue($stubbedACL));
 
-        self::$DI['app']['acl'] = $aclProvider;
+        $app->offsetUnset('acl');
+        $app['acl'] = $aclProvider;
 
-        self::$DI['client']->request('POST', '/prod/download/', [
+        $client = self::getClient();
+
+        $client->request('POST', '/prod/download/', [
             'lst'               => self::$DI['record_1']->get_serialize_key(),
             'ssttid'            => '',
             'obj'               => ['preview', 'document'],
@@ -87,7 +94,7 @@ class DownloadTest extends \PhraseanetAuthenticatedWebTestCase
             'businessfields'    => '1'
         ]);
 
-        $response = self::$DI['client']->getResponse();
+        $response = $client->getResponse();
         $this->assertTrue($response->isRedirect());
         $this->assertTrue($triggered);
         $this->assertRegExp('#/download/[a-zA-Z0-9]{8,32}/#', $response->headers->get('location'));

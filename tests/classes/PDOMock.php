@@ -9,7 +9,7 @@
  *
  * To get a mocked PDO object use it as follow :
  *
- * $mock = $this->getMock('PDOMock')
+ * $mock = $this->createMock('PDOMock')
  */
 class PDOMock extends \PDO
 {

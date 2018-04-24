@@ -28,6 +28,7 @@ class NotificationDelivererServiceProviderTest extends ServiceProviderTestCase
         self::$DI['app']['conf'] = $this->getMockBuilder('Alchemy\Phrasea\Core\Configuration\PropertyAccess')
             ->disableOriginalConstructor()
             ->getMock();
+
         self::$DI['app']['conf']->expects($this->any())
             ->method('get')
             ->will($this->returnCallback(function ($key) use ($values) {

@@ -20,7 +20,7 @@ abstract class RequirementsTestCase extends \PhraseanetTestCase
     public function testAdd()
     {
         $collection = $this->provideRequirements();
-        $requirement = $this->getMock('Alchemy\Phrasea\Setup\RequirementInterface');
+        $requirement = $this->createMock('Alchemy\Phrasea\Setup\RequirementInterface');
         $collection->add($requirement);
 
         $found = false;
@@ -39,7 +39,7 @@ abstract class RequirementsTestCase extends \PhraseanetTestCase
     {
         $collection = $this->provideRequirements();
 
-        $requirement = $this->getMock('Alchemy\Phrasea\Setup\RequirementInterface');
+        $requirement = $this->createMock('Alchemy\Phrasea\Setup\RequirementInterface');
         $coll = new RequirementCollection();
         $coll->add($requirement);
 

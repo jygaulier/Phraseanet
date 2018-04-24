@@ -18,6 +18,7 @@ class BridgeExceptionSubscriberTest extends \PhraseanetTestCase
         $app['bridge.account'] = $this->getMockBuilder('Bridge_Account')
             ->disableOriginalConstructor()
             ->getMock();
+
         unset($app['exception_handler']);
         $app['dispatcher']->addSubscriber(new BridgeExceptionSubscriber($app));
         $app->get('/', function () {
@@ -36,6 +37,7 @@ class BridgeExceptionSubscriberTest extends \PhraseanetTestCase
         $app['bridge.account'] = $this->getMockBuilder('Bridge_Account')
             ->disableOriginalConstructor()
             ->getMock();
+
         unset($app['exception_handler']);
         $app['dispatcher']->addSubscriber(new BridgeExceptionSubscriber($app));
         $app->get('/', function () {
@@ -43,7 +45,7 @@ class BridgeExceptionSubscriberTest extends \PhraseanetTestCase
         });
 
         $client = new Client($app);
-        $this->setExpectedException('\InvalidArgumentException');
+        $this->expectException('\InvalidArgumentException');
         $client->request('GET', '/');
     }
 }

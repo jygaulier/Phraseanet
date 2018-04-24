@@ -10,9 +10,9 @@ use Psr\Log\LoggerInterface;
 
 class NotifierTest extends \PHPUnit\Framework\TestCase
 {
-    /** @var \ZMQSocket|\PHPUnit_Framework_MockObject_MockObject */
+    /** @var \ZMQSocket|\PHPUnit\Framework\MockObject\MockObject */
     private $socket;
-    /** @var LoggerInterface|\PHPUnit_Framework_MockObject_MockObject */
+    /** @var LoggerInterface|\PHPUnit\Framework\MockObject\MockObject */
     private $logger;
 
     /** @var Notifier */
@@ -21,7 +21,7 @@ class NotifierTest extends \PHPUnit\Framework\TestCase
     protected function setUp()
     {
         $this->socket = $this->createSocketMock();
-        $this->logger = $this->getMock(LoggerInterface::class);
+        $this->logger = $this->createMock(LoggerInterface::class);
 
         $this->sut = new Notifier($this->socket, $this->logger);
     }
@@ -68,7 +68,8 @@ class NotifierTest extends \PHPUnit\Framework\TestCase
             ->method('recv')
             ->will($this->returnValue(false));
 
-        $this->setExpectedException(RuntimeException::class, 'Unable to retrieve information.');
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Unable to retrieve information.');
         $this->sut->notify(Notifier::MESSAGE_CREATE);
     }
 
@@ -79,7 +80,8 @@ class NotifierTest extends \PHPUnit\Framework\TestCase
             ->method('recv')
             ->will($this->returnValue('wrong json'));
 
-        $this->setExpectedException(RuntimeException::class, 'Invalid task manager response : invalid JSON.');
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Invalid task manager response : invalid JSON.');
         $this->sut->notify(Notifier::MESSAGE_CREATE);
     }
 
@@ -95,7 +97,8 @@ class NotifierTest extends \PHPUnit\Framework\TestCase
             ->method('recv')
             ->will($this->returnValue(json_encode(['request' => 'popo', 'reply' => []])));
 
-        $this->setExpectedException(RuntimeException::class, 'Invalid task manager response : missing fields.');
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Invalid task manager response : missing fields.');
         $this->sut->notify(Notifier::MESSAGE_CREATE);
     }
 
@@ -111,7 +114,8 @@ class NotifierTest extends \PHPUnit\Framework\TestCase
             ->method('recv')
             ->will($this->returnValue(json_encode(['request' => TaskManager::MESSAGE_PROCESS_UPDATE])));
 
-        $this->setExpectedException(RuntimeException::class, 'Invalid task manager response : missing fields.');
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Invalid task manager response : missing fields.');
         $this->sut->notify(Notifier::MESSAGE_CREATE);
     }
 

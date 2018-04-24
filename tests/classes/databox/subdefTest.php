@@ -250,10 +250,10 @@ EOF;
     }
 
     /**
-     * @return PHPUnit_Framework_MockObject_MockObject|TranslatorInterface
+     * @return PHPUnit\Framework\MockObject\MockObject|TranslatorInterface
      */
     private function getTranslatorMock()
     {
-        return $this->getMock(TranslatorInterface::class);
+        return $this->createMock(TranslatorInterface::class);
     }
 }

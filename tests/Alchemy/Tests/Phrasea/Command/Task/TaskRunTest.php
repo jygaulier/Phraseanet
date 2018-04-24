@@ -13,8 +13,8 @@ class TaskRunTest extends \PhraseanetTestCase
 {
     public function testRunWithoutProblems()
     {
-        $input = $this->getMock('Symfony\Component\Console\Input\InputInterface');
-        $output = $this->getMock('Symfony\Component\Console\Output\OutputInterface');
+        $input = $this->createMock('Symfony\Component\Console\Input\InputInterface');
+        $output = $this->createMock('Symfony\Component\Console\Output\OutputInterface');
 
         $input->expects($this->any())
                 ->method('getArgument')
@@ -24,11 +24,12 @@ class TaskRunTest extends \PhraseanetTestCase
         $command = new TaskRun();
         $command->setContainer(self::$DI['cli']);
 
-        $job = $this->getMock('Alchemy\Phrasea\TaskManager\Job\JobInterface');
+        $job = $this->createMock('Alchemy\Phrasea\TaskManager\Job\JobInterface');
 
         self::$DI['cli']['task-manager.job-factory'] = $this->getMockBuilder('Alchemy\Phrasea\TaskManager\Job\Factory')
             ->disableOriginalConstructor()
             ->getMock();
+
         self::$DI['cli']['task-manager.job-factory']->expects($this->once())
                 ->method('create')
                 ->will($this->returnValue($job));

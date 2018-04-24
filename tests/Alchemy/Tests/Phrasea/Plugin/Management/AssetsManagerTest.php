@@ -24,6 +24,7 @@ class AssetsManagerTest extends \PhraseanetTestCase
         $manifest = $this->getMockBuilder('Alchemy\Phrasea\Plugin\Schema\Manifest')
             ->disableOriginalConstructor()
             ->getMock();
+
         $manifest->expects($this->any())
             ->method('getName')
             ->will($this->returnValue('plugin-name'));
@@ -48,6 +49,7 @@ class AssetsManagerTest extends \PhraseanetTestCase
         $manifest = $this->getMockBuilder('Alchemy\Phrasea\Plugin\Schema\Manifest')
             ->disableOriginalConstructor()
             ->getMock();
+
         $manifest->expects($this->any())
             ->method('getName')
             ->will($this->returnValue('plugin-name'));

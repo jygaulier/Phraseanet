@@ -14,7 +14,7 @@ class ResponseTest extends \PhraseanetTestCase
 {
     use TranslatorMockTrait;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject */
+    /** @var \PHPUnit\Framework\MockObject\MockObject */
     protected $mock;
     /** @var Response */
     protected $object;
@@ -25,7 +25,7 @@ class ResponseTest extends \PhraseanetTestCase
     public function setUp()
     {
         parent::setUp();
-        $this->mock = $this->getMock(CheckerInterface::class);
+        $this->mock = $this->createMock(CheckerInterface::class);
         $this->object = new Response(true, $this->mock);
     }
 

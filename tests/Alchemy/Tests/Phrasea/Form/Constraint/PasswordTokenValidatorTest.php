@@ -16,7 +16,7 @@ class PasswordTokenValidatorTest extends \PhraseanetTestCase
      */
     public function testValidate($value, $isValid)
     {
-        $context = $this->getMock('Symfony\Component\Validator\ExecutionContextInterface');
+        $context = $this->createMock('Symfony\Component\Validator\ExecutionContextInterface');
         $builder = $context
             ->expects($this->exactly($isValid ? 0 : 1))
             ->method('addViolation');

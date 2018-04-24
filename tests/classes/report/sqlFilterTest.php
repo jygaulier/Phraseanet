@@ -53,11 +53,11 @@ class report_sqlFilterTest extends \report_abstractReportTestCase
 
     public function checkFilter($filter)
     {
-        $this->assertInternalType(PHPUnit_Framework_Constraint_IsType::TYPE_ARRAY, $filter);
+        $this->assertInternalType(PHPUnit\Framework\Constraint\IsType::TYPE_ARRAY, $filter);
         $this->assertArrayHasKey('params', $filter);
         $this->assertArrayHasKey('sql', $filter);
-        $this->assertInternalType(PHPUnit_Framework_Constraint_IsType::TYPE_ARRAY, $filter['params']);
-        $this->assertInternalType(PHPUnit_Framework_Constraint_IsType::TYPE_STRING, $filter['sql']);
+        $this->assertInternalType(PHPUnit\Framework\Constraint\IsType::TYPE_ARRAY, $filter['params']);
+        $this->assertInternalType(PHPUnit\Framework\Constraint\IsType::TYPE_STRING, $filter['sql']);
         foreach ($filter['params'] as $key => $value) {
             $this->assertRegExp('/' . $key . '/', $filter['sql']);
         }
@@ -111,7 +111,7 @@ class report_sqlFilterTest extends \report_abstractReportTestCase
 
         if ($p && $r) {
             $filter = $this->filter->getLimitFilter();
-            $this->assertInternalType(PHPUnit_Framework_Constraint_IsType::TYPE_STRING, $filter);
+            $this->assertInternalType(PHPUnit\Framework\Constraint\IsType::TYPE_STRING, $filter);
         } else {
             $this->assertFalse($this->filter->getLimitFilter());
         }
@@ -121,7 +121,7 @@ class report_sqlFilterTest extends \report_abstractReportTestCase
     {
         if (sizeof($this->report->getOrder()) > 0) {
             $filter = $this->filter->getOrderFilter();
-            $this->assertInternalType(PHPUnit_Framework_Constraint_IsType::TYPE_STRING, $filter);
+            $this->assertInternalType(PHPUnit\Framework\Constraint\IsType::TYPE_STRING, $filter);
         } else {
             $this->assertFalse($this->filter->getOrderFilter());
         }

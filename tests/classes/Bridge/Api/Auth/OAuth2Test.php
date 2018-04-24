@@ -30,7 +30,7 @@ class Bridge_Api_Auth_OAuth2Test extends \PhraseanetTestCase
             , 'auth_endpoint'  => "one_auth_endpoint"
         ];
 
-        $this->mockSettings = $this->getMock("Bridge_AccountSettings", ["get", "set"], [], "", false);
+        $this->mockSettings = $this->createMock("Bridge_AccountSettings", ["get", "set"], [], "", false);
     }
 
     public function testParse_request_token()
@@ -46,7 +46,7 @@ class Bridge_Api_Auth_OAuth2Test extends \PhraseanetTestCase
 
     public function testConnect()
     {
-        $this->setExpectedException("Bridge_Exception_ApiConnectorAccessTokenFailed");
+        $this->expectException("Bridge_Exception_ApiConnectorAccessTokenFailed");
 
         $this->object->connect("123");
     }
@@ -60,7 +60,7 @@ class Bridge_Api_Auth_OAuth2Test extends \PhraseanetTestCase
 
         $this->object->set_settings($this->mockSettings);
 
-        $this->setExpectedException("Bridge_Exception_ApiConnectorAccessTokenFailed");
+        $this->expectException("Bridge_Exception_ApiConnectorAccessTokenFailed");
 
         $this->object->reconnect();
     }
@@ -103,7 +103,7 @@ class Bridge_Api_Auth_OAuth2Test extends \PhraseanetTestCase
 
         $return = $this->object->get_auth_signatures();
 
-        $this->assertInternalType(PHPUnit_Framework_Constraint_IsType::TYPE_ARRAY, $return);
+        $this->assertInternalType(PHPUnit\Framework\Constraint\IsType::TYPE_ARRAY, $return);
         $this->assertArrayHasKey("auth_token", $return);
         $this->assertEquals("123", $return["auth_token"]);
     }

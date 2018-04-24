@@ -67,6 +67,7 @@ class AuthenticatorTest extends \PhraseanetTestCase
         $acl = $this->getMockBuilder('ACL')
             ->disableOriginalConstructor()
             ->getMock();
+
         $acl->expects($this->once())
             ->method('get_granted_sbas')
             ->will($this->returnValue([]));
@@ -74,6 +75,7 @@ class AuthenticatorTest extends \PhraseanetTestCase
         $aclProvider = $this->getMockBuilder('Alchemy\Phrasea\Authentication\ACLProvider')
             ->disableOriginalConstructor()
             ->getMock();
+
         $aclProvider->expects($this->any())
             ->method('get')
             ->will($this->returnValue($acl));
@@ -217,7 +219,8 @@ class AuthenticatorTest extends \PhraseanetTestCase
         $app = $this->getApplication();
 
         $authenticator = new Authenticator($app, $app['browser'], $app['session'], $app['orm.em']);
-        $this->setExpectedException('Alchemy\Phrasea\Exception\RuntimeException', 'No session to close.');
+        $this->expectException('Alchemy\Phrasea\Exception\RuntimeException');
+        $this->expectExceptionMessage('No session to close.');
         $authenticator->closeAccount();
     }
 
@@ -245,6 +248,7 @@ class AuthenticatorTest extends \PhraseanetTestCase
         $userRepository = $this->getMockBuilder('Alchemy\Phrasea\Model\Repositories\UserRepository')
             ->disableOriginalConstructor()
             ->getMock();
+
         $userRepository->expects($this->once())->method('find')->with(
             $this->equalTo(self::$DI['user']->getId())
         )->will($this->returnValue(self::$DI['user']));

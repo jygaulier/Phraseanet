@@ -633,9 +633,18 @@ class AdminCollectionTest extends \PhraseanetAuthenticatedWebTestCase
         $files = [
             'newLogo' => new \Symfony\Component\HttpFoundation\File\UploadedFile($target, 'logo.jpg')
         ];
-        self::$DI['client']->request('POST', '/admin/collection/' . self::$DI['collection']->get_base_id() . '/picture/mini-logo/', [], $files);
-        $this->checkRedirection(self::$DI['client']->getResponse(), '/admin/collection/' . self::$DI['collection']->get_base_id() . '/?success=1');
-        $this->assertEquals(1, count(\collection::getLogo(self::$DI['collection']->get_base_id(), self::$DI['app'])));
+
+        /** @var \collection $collection */
+        $collection = self::$DI['collection'];
+        $base_id = $collection->get_base_id();
+
+        /** @var Client $client */
+        $client = self::$DI['client'];
+        $client->request('POST', '/admin/collection/' . $base_id . '/picture/mini-logo/', [], $files);
+        $this->checkRedirection($client->getResponse(), '/admin/collection/' . $base_id . '/?success=1');
+
+        $logo = \collection::getLogo($base_id, self::$DI['app']);
+        $this->assertRegExp("/\<img\s.*src=\"\/custom\/minilogos\/".$base_id."\".*\>/", $logo);
     }
 
     /**
@@ -647,9 +656,11 @@ class AdminCollectionTest extends \PhraseanetAuthenticatedWebTestCase
 
         $collection = $this->createOneCollection();
 
-        self::$DI['client']->request('POST', '/admin/collection/' . $collection->get_base_id() . '/picture/mini-logo/delete/');
+        /** @var Client $client */
+        $client = self::$DI['client'];
+        $client->request('POST', '/admin/collection/' . $collection->get_base_id() . '/picture/mini-logo/delete/');
 
-        $this->assertTrue(self::$DI['client']->getResponse()->isRedirect());
+        $this->assertTrue($client->getResponse()->isRedirect());
     }
 
     /**
@@ -657,7 +668,7 @@ class AdminCollectionTest extends \PhraseanetAuthenticatedWebTestCase
      */
     public function testDeleteMiniLogo()
     {
-        if (count(\collection::getLogo(self::$DI['collection']->get_base_id(), self::$DI['app'])) === 0) {
+        if (\collection::getLogo(self::$DI['collection']->get_base_id(), self::$DI['app']) == "") {
             $this->markTestSkipped('No logo setted');
         }
 
@@ -680,13 +691,18 @@ class AdminCollectionTest extends \PhraseanetAuthenticatedWebTestCase
         $files = [
             'newWm' => new \Symfony\Component\HttpFoundation\File\UploadedFile($target, 'logo.jpg')
         ];
+
         /** @var \collection $collection */
         $collection = self::$DI['collection'];
+        $base_id = $collection->get_base_id();
+
         /** @var Client $client */
         $client = self::$DI['client'];
-        $client->request('POST', '/admin/collection/' . $collection->get_base_id() . '/picture/watermark/', [], $files);
-        $this->checkRedirection($client->getResponse(), '/admin/collection/' . $collection->get_base_id() . '/?success=1');
-        $this->assertEquals(1, count(\collection::getWatermark($collection->get_base_id())));
+        $client->request('POST', '/admin/collection/' . $base_id . '/picture/watermark/', [], $files);
+        $this->checkRedirection($client->getResponse(), '/admin/collection/' . $base_id . '/?success=1');
+
+        $wm = \collection::getWatermark($base_id);
+        $this->assertRegExp("/\<img\s.*src=\"\/custom\/wm\/".$base_id."\".*\>/", $wm);
     }
 
     /**
@@ -698,9 +714,11 @@ class AdminCollectionTest extends \PhraseanetAuthenticatedWebTestCase
 
         $collection = $this->createOneCollection();
 
-        self::$DI['client']->request('POST', '/admin/collection/' . $collection->get_base_id() . '/picture/watermark/delete/');
+        /** @var Client $client */
+        $client = self::$DI['client'];
+        $client->request('POST', '/admin/collection/' . $collection->get_base_id() . '/picture/watermark/delete/');
 
-        $this->assertTrue(self::$DI['client']->getResponse()->isRedirect());
+        $this->assertTrue($client->getResponse()->isRedirect());
     }
 
     /**
@@ -708,7 +726,7 @@ class AdminCollectionTest extends \PhraseanetAuthenticatedWebTestCase
      */
     public function testDeleteWm()
     {
-        if (count(\collection::getWatermark(self::$DI['collection']->get_base_id())) === 0) {
+        if (\collection::getWatermark(self::$DI['collection']->get_base_id()) == "") {
             $this->markTestSkipped('No watermark setted');
         }
         $this->setAdmin(true);
@@ -731,9 +749,18 @@ class AdminCollectionTest extends \PhraseanetAuthenticatedWebTestCase
         $files = [
             'newStamp' => new \Symfony\Component\HttpFoundation\File\UploadedFile($target, 'logo.jpg')
         ];
-        self::$DI['client']->request('POST', '/admin/collection/' . self::$DI['collection']->get_base_id() . '/picture/stamp-logo/', [], $files);
-        $this->checkRedirection(self::$DI['client']->getResponse(), '/admin/collection/' . self::$DI['collection']->get_base_id() . '/?success=1');
-        $this->assertEquals(1, count(\collection::getStamp(self::$DI['collection']->get_base_id())));
+
+        /** @var \collection $collection */
+        $collection = self::$DI['collection'];
+        $base_id = $collection->get_base_id();
+
+        /** @var Client $client */
+        $client = self::$DI['client'];
+        $client->request('POST', '/admin/collection/' . $base_id . '/picture/stamp-logo/', [], $files);
+        $this->checkRedirection($client->getResponse(), '/admin/collection/' . $base_id . '/?success=1');
+
+        $stamp = \collection::getStamp($base_id);
+        $this->assertRegExp("/\<img\s.*src=\"\/custom\/stamp\/".$base_id."\".*\>/", $stamp);
     }
 
     /**
@@ -755,7 +782,7 @@ class AdminCollectionTest extends \PhraseanetAuthenticatedWebTestCase
      */
     public function testDeleteStamp()
     {
-        if (count(\collection::getStamp(self::$DI['collection']->get_base_id())) === 0) {
+        if (\collection::getStamp(self::$DI['collection']->get_base_id()) == "") {
             $this->markTestSkipped('No stamp setted');
         }
 

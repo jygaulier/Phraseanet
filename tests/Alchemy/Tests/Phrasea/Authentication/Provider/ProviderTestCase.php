@@ -240,16 +240,17 @@ abstract class ProviderTestCase extends \PhraseanetTestCase
     protected function getRequestMock()
     {
         return $this->getMockBuilder('Symfony\Component\HttpFoundation\Request')
+            ->disableOriginalClone()
             ->disableOriginalConstructor()
             ->getMock();
     }
 
     protected function getGuzzleMock($statusCode = 200)
     {
-        $mock = $this->getMock('Guzzle\Http\ClientInterface');
+        $mock = $this->createMock('Guzzle\Http\ClientInterface');
 
-        $requestGet = $this->getMock('Guzzle\Http\Message\RequestInterface');
-        $requestPost = $this->getMock('Guzzle\Http\Message\RequestInterface');
+        $requestGet = $this->createMock('Guzzle\Http\Message\RequestInterface');
+        $requestPost = $this->createMock('Guzzle\Http\Message\RequestInterface');
 
         $queryString = $this->getMockBuilder('Guzzle\Http\QueryString')
             ->disableOriginalConstructor()

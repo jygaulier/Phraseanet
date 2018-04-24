@@ -36,12 +36,12 @@ abstract class MailTestCase extends \PhraseanetTestCase
 
     public function getReceiverMock()
     {
-        return $this->getMock('Alchemy\Phrasea\Notification\ReceiverInterface');
+        return $this->createMock('Alchemy\Phrasea\Notification\ReceiverInterface');
     }
 
     public function getEmitterMock()
     {
-        return $this->getMock('Alchemy\Phrasea\Notification\EmitterInterface');
+        return $this->createMock('Alchemy\Phrasea\Notification\EmitterInterface');
     }
 
     public function getMessage()

@@ -578,7 +578,7 @@ class LoginTest extends \PhraseanetAuthenticatedWebTestCase
         $app = $this->getApplication();
         $this->logout($app);
 
-        $provider = $this->getMock('Alchemy\Phrasea\Authentication\Provider\ProviderInterface');
+        $provider = $this->createMock('Alchemy\Phrasea\Authentication\Provider\ProviderInterface');
 
         $providersCollectionMock = $this->getMockBuilder('Alchemy\Phrasea\Authentication\ProvidersCollection')
             ->disableOriginalConstructor()
@@ -981,11 +981,11 @@ class LoginTest extends \PhraseanetAuthenticatedWebTestCase
         $app['registration.fields'] = [];
         $this->logout($app);
 
-        /** @var ProviderInterface|\PHPUnit_Framework_MockObject_MockObject $provider */
-        $provider = $this->getMock(ProviderInterface::class);
+        /** @var ProviderInterface|\PHPUnit\Framework\MockObject\MockObject $provider */
+        $provider = $this->createMock(ProviderInterface::class);
         $this->addProvider('provider-test', $provider);
 
-        $entity = $this->getMock('Alchemy\Phrasea\Model\Entities\UsrAuthProvider');
+        $entity = $this->createMock('Alchemy\Phrasea\Model\Entities\UsrAuthProvider');
         $entity->expects($this->any())
             ->method('getUser')
             ->will($this->returnValue($this->getUser()));
@@ -1068,7 +1068,7 @@ class LoginTest extends \PhraseanetAuthenticatedWebTestCase
         $app['registration.fields'] = [];
         $this->logout($app);
 
-        $provider = $this->getMock('Alchemy\Phrasea\Authentication\Provider\ProviderInterface');
+        $provider = $this->createMock('Alchemy\Phrasea\Authentication\Provider\ProviderInterface');
         $this->addProvider('provider-test', $provider);
 
         $provider->expects($this->any())
@@ -1143,6 +1143,7 @@ class LoginTest extends \PhraseanetAuthenticatedWebTestCase
         $acl = $this->getMockBuilder('ACL')
             ->disableOriginalConstructor()
             ->getMock();
+
         $acl->expects($this->once())
             ->method('get_granted_base')
             ->will($this->returnValue([]));
@@ -1150,6 +1151,7 @@ class LoginTest extends \PhraseanetAuthenticatedWebTestCase
         $aclProvider = $this->getMockBuilder('Alchemy\Phrasea\Authentication\ACLProvider')
             ->disableOriginalConstructor()
             ->getMock();
+
         $aclProvider->expects($this->any())
             ->method('get')
             ->will($this->returnValue($acl));
@@ -1166,8 +1168,8 @@ class LoginTest extends \PhraseanetAuthenticatedWebTestCase
             "provider-id" => 'provider-test',
         ]);
 
-        /** @var ProviderInterface|\PHPUnit_Framework_MockObject_MockObject $provider */
-        $provider = $this->getMock(ProviderInterface::class);
+        /** @var ProviderInterface|\PHPUnit\Framework\MockObject\MockObject $provider */
+        $provider = $this->createMock(ProviderInterface::class);
         $this->addProvider('provider-test', $provider);
 
         $token = new Token($provider, 42);
@@ -1241,6 +1243,7 @@ class LoginTest extends \PhraseanetAuthenticatedWebTestCase
         $acl = $this->getMockBuilder('ACL')
             ->disableOriginalConstructor()
             ->getMock();
+
         $acl->expects($this->once())
             ->method('get_granted_base')
             ->will($this->returnValue([]));
@@ -1248,6 +1251,7 @@ class LoginTest extends \PhraseanetAuthenticatedWebTestCase
         $aclProvider = $this->getMockBuilder('Alchemy\Phrasea\Authentication\ACLProvider')
             ->disableOriginalConstructor()
             ->getMock();
+
         $aclProvider->expects($this->any())
             ->method('get')
             ->will($this->returnValue($acl));
@@ -1601,7 +1605,7 @@ class LoginTest extends \PhraseanetAuthenticatedWebTestCase
 
     public function testAuthenticateWithProvider()
     {
-        $provider = $this->getMock('Alchemy\Phrasea\Authentication\Provider\ProviderInterface');
+        $provider = $this->createMock('Alchemy\Phrasea\Authentication\Provider\ProviderInterface');
 
         $app = $this->getApplication();
         $providersCollectionMock = $this->getMockBuilder('Alchemy\Phrasea\Authentication\ProvidersCollection')
@@ -1612,6 +1616,7 @@ class LoginTest extends \PhraseanetAuthenticatedWebTestCase
             ->method('get')
             ->with($this->equalTo('provider-test'))
             ->will($this->returnValue($provider));
+
         $app['authentication.providers'] = $providersCollectionMock;
 
         $parameters = ['key1' => 'value1', 'key2' => 'value2'];
@@ -1669,6 +1674,7 @@ class LoginTest extends \PhraseanetAuthenticatedWebTestCase
             ->method('get')
             ->with($this->equalTo('provider-test'))
             ->will($this->throwException(new InvalidArgumentException('Provider not found')));
+
         $app['authentication.providers'] = $providersCollectionMock;
 
         $this->logout($app);
@@ -1677,7 +1683,7 @@ class LoginTest extends \PhraseanetAuthenticatedWebTestCase
         $this->assertEquals(404, $this->getClient()->getResponse()->getStatusCode());
     }
 
-    private function addProvider($name, \PHPUnit_Framework_MockObject_MockObject $provider)
+    private function addProvider($name, \PHPUnit\Framework\MockObject\MockObject $provider)
     {
         $app = $this->getApplication();
 
@@ -1689,6 +1695,7 @@ class LoginTest extends \PhraseanetAuthenticatedWebTestCase
             ->method('get')
             ->with($this->equalTo($name))
             ->will($this->returnValue($provider));
+
         $app['authentication.providers'] = $providersCollectionMock;
 
         $provider->expects($this->any())
@@ -1698,7 +1705,7 @@ class LoginTest extends \PhraseanetAuthenticatedWebTestCase
 
     public function testAuthenticateProviderCallbackWithNotAuthenticatedException()
     {
-        $provider = $this->getMock('Alchemy\Phrasea\Authentication\Provider\ProviderInterface');
+        $provider = $this->createMock('Alchemy\Phrasea\Authentication\Provider\ProviderInterface');
         $this->addProvider('provider-test', $provider);
 
         $provider->expects($this->once())
@@ -1717,14 +1724,14 @@ class LoginTest extends \PhraseanetAuthenticatedWebTestCase
 
     public function testAuthenticateProviderCallbackAlreadyBound()
     {
-        /** @var ProviderInterface|\PHPUnit_Framework_MockObject_MockObject $provider */
-        $provider = $this->getMock('Alchemy\Phrasea\Authentication\Provider\ProviderInterface');
+        /** @var ProviderInterface|\PHPUnit\Framework\MockObject\MockObject $provider */
+        $provider = $this->createMock('Alchemy\Phrasea\Authentication\Provider\ProviderInterface');
         $this->addProvider('provider-test', $provider);
 
         $provider->expects($this->once())
             ->method('onCallback');
 
-        $entity = $this->getMock('Alchemy\Phrasea\Model\Entities\UsrAuthProvider');
+        $entity = $this->createMock('Alchemy\Phrasea\Model\Entities\UsrAuthProvider');
         $entity->expects($this->any())
             ->method('getUser')
             ->will($this->returnValue($this->getUser()));
@@ -1749,8 +1756,8 @@ class LoginTest extends \PhraseanetAuthenticatedWebTestCase
 
     public function testAuthenticateProviderCallbackWithSuggestionBindProviderToUser()
     {
-        /** @var ProviderInterface|\PHPUnit_Framework_MockObject_MockObject $provider */
-        $provider = $this->getMock('Alchemy\Phrasea\Authentication\Provider\ProviderInterface');
+        /** @var ProviderInterface|\PHPUnit\Framework\MockObject\MockObject $provider */
+        $provider = $this->createMock('Alchemy\Phrasea\Authentication\Provider\ProviderInterface');
         $this->addProvider('provider-test', $provider);
 
         $provider->expects($this->once())
@@ -1795,8 +1802,8 @@ class LoginTest extends \PhraseanetAuthenticatedWebTestCase
 
     public function testAuthenticateProviderCallbackWithAccountCreatorEnabled()
     {
-        /** @var ProviderInterface|\PHPUnit_Framework_MockObject_MockObject $provider */
-        $provider = $this->getMock('Alchemy\Phrasea\Authentication\Provider\ProviderInterface');
+        /** @var ProviderInterface|\PHPUnit\Framework\MockObject\MockObject $provider */
+        $provider = $this->createMock('Alchemy\Phrasea\Authentication\Provider\ProviderInterface');
         $this->addProvider('provider-test', $provider);
 
         $provider->expects($this->once())
@@ -1817,6 +1824,7 @@ class LoginTest extends \PhraseanetAuthenticatedWebTestCase
             ->method('find')
             ->with($token)
             ->will($this->returnValue(null));
+
         $app['authentication.suggestion-finder'] = $suggestionFinder;
 
         $identity = $this->getMockBuilder('Alchemy\Phrasea\Authentication\Provider\Token\Identity')
@@ -1843,13 +1851,16 @@ class LoginTest extends \PhraseanetAuthenticatedWebTestCase
         $accountCreatorMock = $this->getMockBuilder('Alchemy\Phrasea\Authentication\AccountCreator')
             ->disableOriginalConstructor()
             ->getMock();
+
         $accountCreatorMock->expects($this->once())
             ->method('create')
             ->with($app, 42, 'supermail@superprovider.com', [])
             ->will($this->returnValue($user));
+
         $accountCreatorMock->expects($this->once())
             ->method('isEnabled')
             ->will($this->returnValue(true));
+
         $app['authentication.providers.account-creator'] = $accountCreatorMock;
 
         $this->logout($app);
@@ -1872,8 +1883,8 @@ class LoginTest extends \PhraseanetAuthenticatedWebTestCase
 
     public function testAuthenticateProviderCallbackWithRegistrationEnabled()
     {
-        /** @var ProviderInterface|\PHPUnit_Framework_MockObject_MockObject $provider */
-        $provider = $this->getMock('Alchemy\Phrasea\Authentication\Provider\ProviderInterface');
+        /** @var ProviderInterface|\PHPUnit\Framework\MockObject\MockObject $provider */
+        $provider = $this->createMock('Alchemy\Phrasea\Authentication\Provider\ProviderInterface');
         $this->addProvider('provider-test', $provider);
 
         $provider->expects($this->once())->method('onCallback');
@@ -1898,6 +1909,7 @@ class LoginTest extends \PhraseanetAuthenticatedWebTestCase
         $accountCreatorMock = $this->getMockBuilder('Alchemy\Phrasea\Authentication\AccountCreator')
             ->disableOriginalConstructor()
             ->getMock();
+
         $accountCreatorMock->expects($this->never())
             ->method('create');
         $accountCreatorMock->expects($this->once())
@@ -1917,8 +1929,8 @@ class LoginTest extends \PhraseanetAuthenticatedWebTestCase
 
     public function testAuthenticateProviderCallbackWithoutRegistrationEnabled()
     {
-        /** @var ProviderInterface|\PHPUnit_Framework_MockObject_MockObject $provider */
-        $provider = $this->getMock('Alchemy\Phrasea\Authentication\Provider\ProviderInterface');
+        /** @var ProviderInterface|\PHPUnit\Framework\MockObject\MockObject $provider */
+        $provider = $this->createMock('Alchemy\Phrasea\Authentication\Provider\ProviderInterface');
         $this->addProvider('provider-test', $provider);
         $provider->expects($this->once())->method('onCallback');
         $token = new Token($provider, 42);
@@ -1941,6 +1953,7 @@ class LoginTest extends \PhraseanetAuthenticatedWebTestCase
         $accountCreatorMock = $this->getMockBuilder('Alchemy\Phrasea\Authentication\AccountCreator')
             ->disableOriginalConstructor()
             ->getMock();
+
         $accountCreatorMock->expects($this->never())
             ->method('create');
         $accountCreatorMock->expects($this->once())
@@ -1999,8 +2012,8 @@ class LoginTest extends \PhraseanetAuthenticatedWebTestCase
         $app = $this->getApplication();
         $this->logout($app);
 
-        /** @var ProviderInterface|\PHPUnit_Framework_MockObject_MockObject $provider */
-        $provider = $this->getMock('Alchemy\Phrasea\Authentication\Provider\ProviderInterface');
+        /** @var ProviderInterface|\PHPUnit\Framework\MockObject\MockObject $provider */
+        $provider = $this->createMock('Alchemy\Phrasea\Authentication\Provider\ProviderInterface');
         $provider->expects($this->any())
             ->method('getId')
             ->will($this->returnValue('test-provider'));

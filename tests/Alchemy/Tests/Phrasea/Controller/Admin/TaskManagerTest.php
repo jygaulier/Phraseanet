@@ -69,6 +69,7 @@ class TaskManagerTest extends \PhraseanetAuthenticatedWebTestCase
         self::$DI['app']['task-manager.status'] = $this->getMockBuilder('Alchemy\Phrasea\TaskManager\TaskManagerStatus')
                 ->disableOriginalConstructor()
                 ->getMock();
+
         self::$DI['app']['task-manager.status']->expects($this->once())
                ->method('start');
         // Prevent actual start of process scheduler
@@ -86,6 +87,7 @@ class TaskManagerTest extends \PhraseanetAuthenticatedWebTestCase
         self::$DI['app']['task-manager.status'] = $this->getMockBuilder('Alchemy\Phrasea\TaskManager\TaskManagerStatus')
                 ->disableOriginalConstructor()
                 ->getMock();
+
         self::$DI['app']['task-manager.status']->expects($this->once())
                ->method('stop');
         self::$DI['client']->request('POST', '/admin/task-manager/scheduler/stop');
@@ -249,8 +251,8 @@ class TaskManagerTest extends \PhraseanetAuthenticatedWebTestCase
 
     public function testPostTaskFacility()
     {
-        $job = $this->getMock('Alchemy\Phrasea\TaskManager\Job\JobInterface');
-        $editor = $this->getMock('Alchemy\Phrasea\TaskManager\Editor\EditorInterface');
+        $job = $this->createMock('Alchemy\Phrasea\TaskManager\Job\JobInterface');
+        $editor = $this->createMock('Alchemy\Phrasea\TaskManager\Editor\EditorInterface');
 
         $job->expects($this->once())
                 ->method('getEditor')
@@ -261,6 +263,7 @@ class TaskManagerTest extends \PhraseanetAuthenticatedWebTestCase
 
         self::$DI['app']['task-manager.job-factory'] = $this->getMockBuilder('Alchemy\Phrasea\TaskManager\Job\Factory')
                 ->disableOriginalConstructor()->getMock();
+
         self::$DI['app']['task-manager.job-factory']->expects($this->once())
                 ->method('create')
                 ->will($this->returnValue($job));
@@ -271,8 +274,8 @@ class TaskManagerTest extends \PhraseanetAuthenticatedWebTestCase
 
     public function testPostTaskXmlFromForm()
     {
-        $job = $this->getMock('Alchemy\Phrasea\TaskManager\Job\JobInterface');
-        $editor = $this->getMock('Alchemy\Phrasea\TaskManager\Editor\EditorInterface');
+        $job = $this->createMock('Alchemy\Phrasea\TaskManager\Job\JobInterface');
+        $editor = $this->createMock('Alchemy\Phrasea\TaskManager\Editor\EditorInterface');
 
         $job->expects($this->once())
                 ->method('getEditor')
@@ -283,6 +286,7 @@ class TaskManagerTest extends \PhraseanetAuthenticatedWebTestCase
 
         self::$DI['app']['task-manager.job-factory'] = $this->getMockBuilder('Alchemy\Phrasea\TaskManager\Job\Factory')
                 ->disableOriginalConstructor()->getMock();
+
         self::$DI['app']['task-manager.job-factory']->expects($this->once())
                 ->method('create')
                 ->will($this->returnValue($job));

@@ -375,9 +375,11 @@ class FeedTest extends \PhraseanetAuthenticatedWebTestCase
         self::$DI['app']['feed.aggregate-link-generator'] = $this->getMockBuilder('Alchemy\Phrasea\Feed\Link\AggregateLinkGenerator')
             ->disableOriginalConstructor()
             ->getMock();
+
         $link = $this->getMockBuilder('Alchemy\Phrasea\Feed\Link\FeedLink')
             ->disableOriginalConstructor()
             ->getMock();
+
         $link->expects($this->once())
             ->method('getURI')
             ->will($this->returnValue('http://aggregated-link/'));
@@ -409,9 +411,11 @@ class FeedTest extends \PhraseanetAuthenticatedWebTestCase
         self::$DI['app']['feed.user-link-generator'] = $this->getMockBuilder('Alchemy\Phrasea\Feed\Link\FeedLinkGenerator')
             ->disableOriginalConstructor()
             ->getMock();
+
         $link = $this->getMockBuilder('Alchemy\Phrasea\Feed\Link\FeedLink')
             ->disableOriginalConstructor()
             ->getMock();
+
         $link->expects($this->once())
             ->method('getURI')
             ->will($this->returnValue('http://user-link/'));

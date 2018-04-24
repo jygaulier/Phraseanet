@@ -116,7 +116,8 @@ class SetupTest extends \PhraseanetWebTestCase
         $authenticator = $this->getMockBuilder('Alchemy\Phrasea\Authentication\Authenticator')
             ->disableOriginalConstructor()
             ->getMock();
-        $session = $this->getMock('Entities\Session');
+
+        $session = $this->createMock('Entities\Session');
 
         $authenticator->expects($this->once())
             ->method('openAccount')

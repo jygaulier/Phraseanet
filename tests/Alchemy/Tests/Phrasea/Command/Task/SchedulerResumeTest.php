@@ -12,21 +12,23 @@ class SchedulerResumeTest extends \PhraseanetTestCase
 {
     public function testRunWithoutProblems()
     {
-        self::$DI['cli']['task-manager.status'] = $this->getMockBuilder('Alchemy\Phrasea\TaskManager\TaskManagerStatus')
+        $cli = self::$DI['cli'];
+        $cli['task-manager.status'] = $this->getMockBuilder('Alchemy\Phrasea\TaskManager\TaskManagerStatus')
             ->disableOriginalConstructor()
             ->getMock();
-        self::$DI['cli']['task-manager.status']->expects($this->once())
+
+        $cli['task-manager.status']->expects($this->once())
             ->method('start');
 
-        self::$DI['cli']['monolog'] = self::$DI['cli']->share(function () {
+        $cli['monolog'] = function () {
             return $this->createMonologMock();
-        });
+        };
 
-        $input = $this->getMock('Symfony\Component\Console\Input\InputInterface');
-        $output = $this->getMock('Symfony\Component\Console\Output\OutputInterface');
+        $input = $this->createMock('Symfony\Component\Console\Input\InputInterface');
+        $output = $this->createMock('Symfony\Component\Console\Output\OutputInterface');
 
         $command = new SchedulerResumeTasks();
-        $command->setContainer(self::$DI['cli']);
+        $command->setContainer($cli);
         $command->execute($input, $output);
     }
 }

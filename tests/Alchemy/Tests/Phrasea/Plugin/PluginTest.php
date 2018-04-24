@@ -13,7 +13,7 @@ class PluginTest extends PluginTestCase
     public function testGetters()
     {
         $manifest = $this->createManifestMock();
-        $error = $this->getMock('Alchemy\Phrasea\Plugin\Exception\PluginValidationException');
+        $error = $this->createMock('Alchemy\Phrasea\Plugin\Exception\PluginValidationException');
 
         $plugin = new Plugin('toto', $manifest, null);
         $this->assertSame('toto', $plugin->getName());
@@ -42,7 +42,7 @@ class PluginTest extends PluginTestCase
     public function testBothNotNull()
     {
         $manifest = $this->createManifestMock();
-        $error = $this->getMock('Alchemy\Phrasea\Plugin\Exception\PluginValidationException');
+        $error = $this->createMock('Alchemy\Phrasea\Plugin\Exception\PluginValidationException');
 
         new Plugin('toto', $manifest, $error);
     }

@@ -13,20 +13,21 @@ class TaskStartTest extends \PhraseanetTestCase
 {
     public function testRunWithoutProblems()
     {
-        $input = $this->getMock('Symfony\Component\Console\Input\InputInterface');
-        $output = $this->getMock('Symfony\Component\Console\Output\OutputInterface');
+        $input = $this->createMock('Symfony\Component\Console\Input\InputInterface');
+        $output = $this->createMock('Symfony\Component\Console\Output\OutputInterface');
 
         $input->expects($this->any())
                 ->method('getArgument')
                 ->with('task_id')
                 ->will($this->returnValue(1));
 
-        self::$DI['cli']['monolog'] = self::$DI['cli']->share(function () {
+        $cli = self::$DI['cli'];
+        $cli['monolog'] = function () {
             return $this->createMonologMock();
-        });
+        };
 
         $command = new TaskStart();
-        $command->setContainer(self::$DI['cli']);
+        $command->setContainer($cli);
         $command->execute($input, $output);
     }
 }

@@ -23,6 +23,7 @@ class OverviewTest extends \PhraseanetAuthenticatedWebTestCase
         $acl = $this->getMockBuilder('ACL')
             ->disableOriginalConstructor()
             ->getMock();
+
         $acl->expects($this->any())
             ->method('has_access_to_subdef')
             ->with($this->isInstanceOf('\record_adapter'), $this->equalTo($subdef))
@@ -31,11 +32,13 @@ class OverviewTest extends \PhraseanetAuthenticatedWebTestCase
         $aclProvider = $this->getMockBuilder('Alchemy\Phrasea\Authentication\ACLProvider')
             ->disableOriginalConstructor()
             ->getMock();
+
         $aclProvider->expects($this->any())
             ->method('get')
             ->will($this->returnValue($acl));
 
         $app = $this->getApplication();
+        $app->offsetUnset('acl');
         $app['acl'] = $aclProvider;
 
         $record1 = $this->getRecord1();
@@ -71,6 +74,7 @@ class OverviewTest extends \PhraseanetAuthenticatedWebTestCase
         $acl = $this->getMockBuilder('ACL')
             ->disableOriginalConstructor()
             ->getMock();
+
         $acl->expects($this->any())
             ->method('has_access_to_subdef')
             ->with($this->isInstanceOf('\record_adapter'), $this->isType('string'))
@@ -79,13 +83,17 @@ class OverviewTest extends \PhraseanetAuthenticatedWebTestCase
         $aclProvider = $this->getMockBuilder('Alchemy\Phrasea\Authentication\ACLProvider')
             ->disableOriginalConstructor()
             ->getMock();
+
         $aclProvider->expects($this->any())
             ->method('get')
             ->will($this->returnValue($acl));
 
-        self::$DI['app']['acl'] = $aclProvider;
+        $app = $this->getApplication();
 
-        $path = self::$DI['app']['url_generator']->generate('datafile', [
+        $app->offsetUnset('acl');
+        $app['acl'] = $aclProvider;
+
+        $path = $app['url_generator']->generate('datafile', [
             'sbas_id' => self::$DI['record_1']->get_sbas_id(),
             'record_id' => self::$DI['record_1']->get_record_id(),
             'subdef' => 'preview',

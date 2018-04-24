@@ -84,6 +84,7 @@ class ConfigurationTesterTest extends AbstractSetupTester
         $probe = $this->getMockBuilder('Alchemy\\Phrasea\\Setup\\Version\\Probe\\ProbeInterface')
             ->disableOriginalConstructor()
             ->getMock();
+
         $probe->expects($this->any())
             ->method('isMigrable')
             ->will($this->returnValue(true));

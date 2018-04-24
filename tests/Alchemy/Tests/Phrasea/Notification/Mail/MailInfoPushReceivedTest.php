@@ -64,7 +64,7 @@ class MailInfoPushReceivedTest extends MailWithLinkTestCase
             $this->getExpiration()
         );
 
-        $basket = $this->getMock('Alchemy\Phrasea\Model\Entities\Basket');
+        $basket = $this->createMock('Alchemy\Phrasea\Model\Entities\Basket');
         $basket->expects($this->any())
             ->method('getName')
             ->will($this->returnValue('Hello basket'));
@@ -97,12 +97,12 @@ class MailInfoPushReceivedTest extends MailWithLinkTestCase
             $this->getExpiration()
         );
 
-        $collection = $this->getMock('Doctrine\Common\Collections\ArrayCollection');
+        $collection = $this->createMock('Doctrine\Common\Collections\ArrayCollection');
         $collection->expects($this->any())
             ->method('count')
             ->will($this->returnValue(5));
 
-        $basket = $this->getMock('Alchemy\Phrasea\Model\Entities\Basket');
+        $basket = $this->createMock('Alchemy\Phrasea\Model\Entities\Basket');
         $basket->expects($this->any())
             ->method('getName')
             ->will($this->returnValue('Hello basket'));

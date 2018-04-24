@@ -29,8 +29,8 @@ class ApiLogManipulatorTest extends \PhraseanetTestCase
      */
     public function testsLogHydration($path, $expected)
     {
-        $emMock  = $this->getMock('\Doctrine\ORM\EntityManager', ['persist', 'flush'], [], '', false);
-        $account = $this->getMock('\Alchemy\Phrasea\Model\Entities\ApiAccount');
+        $emMock  = $this->createMock('\Doctrine\ORM\EntityManager', ['persist', 'flush'], [], '', false);
+        $account = $this->createMock('\Alchemy\Phrasea\Model\Entities\ApiAccount');
         $manipulator = new ApiLogManipulator($emMock, self::$DI['app']['repo.api-logs']);
         $log = $manipulator->create($account, Request::create($path, 'POST'), new Response());
         $this->assertEquals($expected['resource'], $log->getResource());

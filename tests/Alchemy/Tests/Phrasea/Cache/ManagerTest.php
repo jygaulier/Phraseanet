@@ -55,7 +55,7 @@ class ManagerTest extends \PhraseanetTestCase
         $compiler->expects($this->once())
             ->method('compile');
 
-        $cache = $this->getMock('Alchemy\Phrasea\Cache\Cache');
+        $cache = $this->createMock('Alchemy\Phrasea\Cache\Cache');
 
         $name = 'array';
         $values = ['option', 'value'];
@@ -91,7 +91,7 @@ class ManagerTest extends \PhraseanetTestCase
         $compiler->expects($this->never())
             ->method('compile');
 
-        $cache = $this->getMock('Alchemy\Phrasea\Cache\Cache');
+        $cache = $this->createMock('Alchemy\Phrasea\Cache\Cache');
 
         $name = 'array';
         $values = ['option', 'value'];
@@ -126,7 +126,7 @@ class ManagerTest extends \PhraseanetTestCase
         $compiler->expects($this->never())
             ->method('compile');
 
-        $cache = $this->getMock('Alchemy\Phrasea\Cache\Cache');
+        $cache = $this->createMock('Alchemy\Phrasea\Cache\Cache');
 
         $name = 'array';
         $values = ['option', 'value'];
@@ -170,7 +170,7 @@ class ManagerTest extends \PhraseanetTestCase
         $logger->expects($this->once())
             ->method('error');
 
-        $cache = $this->getMock('Alchemy\Phrasea\Cache\Cache');
+        $cache = $this->createMock('Alchemy\Phrasea\Cache\Cache');
 
         $name = 'unknown';
         $values = ['option', 'value'];

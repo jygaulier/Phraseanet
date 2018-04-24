@@ -68,6 +68,6 @@ class FactoryTest extends \PhraseanetTestCase
 
     private function createDispatcherMock()
     {
-        return $this->getMock('Symfony\Component\EventDispatcher\EventDispatcherInterface');
+        return $this->createMock('Symfony\Component\EventDispatcher\EventDispatcherInterface');
     }
 }

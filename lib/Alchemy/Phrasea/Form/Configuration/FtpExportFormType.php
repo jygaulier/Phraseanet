@@ -12,17 +12,19 @@
 namespace Alchemy\Phrasea\Form\Configuration;
 
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\FormBuilderInterface;
+
 
 class FtpExportFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('ftp-enabled', 'checkbox', [
+        $builder->add('ftp-enabled', CheckboxType::class, [
             'label'        => 'Enable FTP export',
             'help_message' => 'Available in multi-export tab',
         ]);
-        $builder->add('ftp-user-access', 'checkbox', [
+        $builder->add('ftp-user-access', CheckboxType::class, [
             'label'        => 'Enable FTP for users',
             'help_message' => 'By default it is available for admins',
         ]);

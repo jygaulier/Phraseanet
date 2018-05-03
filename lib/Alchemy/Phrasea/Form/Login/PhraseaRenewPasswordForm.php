@@ -12,8 +12,11 @@
 namespace Alchemy\Phrasea\Form\Login;
 
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\PasswordType;
+use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints as Assert;
+
 
 /**
  * Form used to renew the password once the user is logged, in its account.
@@ -22,7 +25,7 @@ class PhraseaRenewPasswordForm extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('oldPassword', 'password', [
+        $builder->add('oldPassword', PasswordType::class, [
             'label'         => 'Current password',
             'required'      => true,
             'constraints'   => [
@@ -30,8 +33,8 @@ class PhraseaRenewPasswordForm extends AbstractType
             ]
         ]);
 
-        $builder->add('password', 'repeated', [
-            'type'              => 'password',
+        $builder->add('password', RepeatedType::class, [
+            'type'              => PasswordType::class,
             'required'          => true,
             'invalid_message'   => 'Please provide the same passwords.',
             'first_name'        => 'password',

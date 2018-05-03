@@ -40,15 +40,17 @@ class UsrListsTest extends \PhraseanetAuthenticatedWebTestCase
         $this->assertObjectHasAttribute('owners', $list);
         $this->assertObjectHasAttribute('users', $list);
 
-        if ($owners)
+        if ($owners) {
             $this->assertTrue(count($list->owners) > 0);
+        }
 
         foreach ($list->owners as $owner) {
             $this->checkOwner($owner);
         }
 
-        if ($users)
+        if ($users) {
             $this->assertTrue(count($list->users) > 0);
+        }
 
         foreach ($list->users as $user) {
             $this->checkUser($user);
@@ -95,9 +97,10 @@ class UsrListsTest extends \PhraseanetAuthenticatedWebTestCase
 
         $route = '/prod/lists/list/' . $list_id . '/';
 
-        self::$DI['client']->request('GET', $route, [], [], ["HTTP_CONTENT_TYPE" => "application/json", "HTTP_ACCEPT"       => "application/json"]);
+        $client = self::getClient();
+        $client->request('GET', $route, [], [], ["HTTP_CONTENT_TYPE" => "application/json", "HTTP_ACCEPT"       => "application/json"]);
 
-        $response = self::$DI['client']->getResponse();
+        $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('UTF-8', $response->getCharset());
 

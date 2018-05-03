@@ -3,10 +3,10 @@
 namespace Alchemy\Tests\Phrasea\Controller\Root;
 
 use Alchemy\Phrasea\Application;
-use Symfony\Component\HttpKernel\Client;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\BrowserKit\Cookie as BrowserCookie;
 use Symfony\Component\BrowserKit\CookieJar;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Client;
 
 /**
  * @group functional
@@ -127,6 +127,7 @@ class RootTest extends \PhraseanetAuthenticatedWebTestCase
 
         $token = self::$DI['app']['auth.password-encoder']->encodePassword($string, $nonce);
 
+        $app->offsetUnset('browser');
         $app['browser'] = $browser;
 
         $session = new \Alchemy\Phrasea\Model\Entities\Session();

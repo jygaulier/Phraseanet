@@ -15,6 +15,8 @@ class RootTest extends \PhraseanetAuthenticatedWebTestCase
 
     public function __construct()
     {
+        parent::__construct();
+
         $this->dmax = new \DateTime('now');
         $this->dmin = new \DateTime('-1 month');
     }

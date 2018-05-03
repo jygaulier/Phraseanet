@@ -12,8 +12,11 @@
 namespace Alchemy\Phrasea\Form\Configuration;
 
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Translation\TranslatorInterface;
+
 
 class WebservicesFormType extends AbstractType
 {
@@ -28,23 +31,23 @@ class WebservicesFormType extends AbstractType
     {
         $recaptchaDoc = '<a href="http://www.google.com/recaptcha">http://www.google.com/recaptcha</a>';
 
-        $builder->add('google-charts-enabled', 'checkbox', [
+        $builder->add('google-charts-enabled', CheckboxType::class, [
             'label'        => 'Use Google Chart API',
         ]);
-        $builder->add('geonames-server', 'text', [
+        $builder->add('geonames-server', TextType::class, [
             'label'       => 'Geonames server address',
         ]);
 
         $help = $this->translator->trans('See documentation at %url%', ['%url%' => $recaptchaDoc]);
 
-        $builder->add('captchas-enabled', 'checkbox', [
+        $builder->add('captchas-enabled', CheckboxType::class, [
             'label'        => 'Use recaptcha API',
             'help_message' => $help
         ]);
-        $builder->add('recaptcha-public-key', 'text', [
+        $builder->add('recaptcha-public-key', TextType::class, [
             'label'       => 'Recaptcha public key',
         ]);
-        $builder->add('recaptcha-private-key', 'text', [
+        $builder->add('recaptcha-private-key', TextType::class, [
             'label'       => 'Recaptcha private key',
         ]);
     }

@@ -35,7 +35,7 @@ class ResultTest extends \PhraseanetTestCase
         $this->assertEquals(0, sizeof(get_object_vars($response->response)));
         $this->assertEquals(0, sizeof(get_class_methods($response->response)));
         $this->checkResponseFieldMeta($response, "api_version", '2.0.0', \PHPUnit\Framework\Constraint\IsType::TYPE_STRING);
-        $this->checkResponseFieldMeta($response, "request", "GET my/base/path/my/request/uri", \PHPUnit\Framework\Constraint\IsType::TYPE_STRING);
+        $this->checkResponseFieldMeta($response, "request", "GET /my/base/path/my/request/uri", \PHPUnit\Framework\Constraint\IsType::TYPE_STRING);
 
         $date = new \DateTime();
         $now = $date->format('U');
@@ -74,6 +74,8 @@ class ResultTest extends \PhraseanetTestCase
         Result::setDefaultVersion('1.0.0');
 
         $apiResult = new Result($request);
+        $response = $apiResult->createResponse();
+        $content = $response->getContent();
         $response = (new Parser())->parse($apiResult->createResponse()->getContent());
 
         $this->assertInternalType(\PHPUnit\Framework\Constraint\IsType::TYPE_ARRAY, $response);
@@ -87,7 +89,7 @@ class ResultTest extends \PhraseanetTestCase
         $this->assertEquals('1.0.0', $response["meta"]["api_version"]);
         $this->assertArrayHasKey("request", $response["meta"]);
         $this->assertInternalType(\PHPUnit\Framework\Constraint\IsType::TYPE_STRING, $response["meta"]["request"]);
-        $this->assertEquals("GET my/base/path/my/request/uri", $response["meta"]["request"]);
+        $this->assertEquals("GET /my/base/path/my/request/uri", $response["meta"]["request"]);
         $this->assertArrayHasKey("response_time", $response["meta"]);
         $this->assertInternalType(\PHPUnit\Framework\Constraint\IsType::TYPE_STRING, $response["meta"]["response_time"]);
 

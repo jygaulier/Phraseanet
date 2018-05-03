@@ -4,8 +4,6 @@ namespace Alchemy\Tests\Phrasea\Controller\Prod;
 
 use Alchemy\Phrasea\Application;
 use Alchemy\Phrasea\Controller\Prod\ShareController;
-use Alchemy\Phrasea\ControllerProvider\Prod\Share;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 
 /**
  * @group functional
@@ -40,6 +38,7 @@ class ShareTest extends \PhraseanetAuthenticatedWebTestCase
     {
         $app = $this->getApplication();
         $_conf = $app['conf'];
+        $app->offsetUnset('conf');
         $app['conf'] = $this->getMockBuilder('Alchemy\Phrasea\Core\Configuration\PropertyAccess')
             ->disableOriginalConstructor()
             ->getMock();

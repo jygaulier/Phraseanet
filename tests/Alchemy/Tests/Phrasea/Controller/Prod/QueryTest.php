@@ -15,21 +15,24 @@ class QueryTest extends \PhraseanetAuthenticatedWebTestCase
 {
     public function testQuery()
     {
+        $app = self::getApplication();
+
         $route = '/prod/query/';
 
         $userManipulator = $this->getMockBuilder('Alchemy\Phrasea\Model\Manipulator\UserManipulator')
             ->setConstructorArgs([
-                self::$DI['app']['model.user-manager'],
-                self::$DI['app']['auth.password-encoder'],
-                self::$DI['app']['geonames.connector'],
-                self::$DI['app']['repo.users'],
-                self::$DI['app']['random.low'],
-                self::$DI['app']['dispatcher'],
+                $app['model.user-manager'],
+                $app['auth.password-encoder'],
+                $app['geonames.connector'],
+                $app['repo.users'],
+                $app['random.low'],
+                $app['dispatcher'],
             ])
             ->setMethods(['logQuery'])
             ->getMock();
 
-        self::$DI['app']['manipulator.user'] = $userManipulator;
+        $app->offsetUnset('manipulator.user');
+        $app['manipulator.user'] = $userManipulator;
 
         $userManipulator->expects($this->once())->method('logQuery');
 

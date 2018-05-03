@@ -12,20 +12,23 @@
 namespace Alchemy\Phrasea\Form\Configuration;
 
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\FormBuilderInterface;
+
 
 class SearchEngineFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('min-letters-truncation', 'integer', [
+        $builder->add('min-letters-truncation', IntegerType::class, [
             'label'        => 'Minimum number of letters before truncation',
             'help_message' => 'Used in search engine',
         ]);
         $builder->add('default-query', 'text', [
             'label'        => 'Default query',
         ]);
-        $builder->add('default-query-type', 'choice', [
+        $builder->add('default-query-type', ChoiceType::class, [
             'label'        => 'Default searched type',
             'help_message' => 'Used when opening the application',
             'choices'      => ['0' => 'Documents', '1' => 'Stories'],

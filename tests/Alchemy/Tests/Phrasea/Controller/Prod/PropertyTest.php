@@ -70,10 +70,12 @@ class PropertyTest extends \PhraseanetAuthenticatedWebTestCase
      */
     public function testChangeStatus()
     {
-        $file = new File(self::$DI['app'], self::$DI['app']['mediavorus']->guess(__DIR__ . '/../../../../../files/cestlafete.jpg'), self::$DI['collection']);
-        $record = \record_adapter::createFromFile($file, self::$DI['app']);
-        $record2 = \record_adapter::createFromFile($file, self::$DI['app']);
-        $story = \record_adapter::createStory(self::$DI['app'], self::$DI['collection']);
+        $app = self::getApplication();
+
+        $file = new File($app, $app['mediavorus']->guess(__DIR__ . '/../../../../../files/cestlafete.jpg'), self::$DI['collection']);
+        $record = \record_adapter::createFromFile($file, $app);
+        $record2 = \record_adapter::createFromFile($file, $app);
+        $story = \record_adapter::createStory($app, self::$DI['collection']);
         $story->appendChild($record2);
 
         $acl = $this->getMockBuilder('ACL')
@@ -103,9 +105,11 @@ class PropertyTest extends \PhraseanetAuthenticatedWebTestCase
             ->method('get')
             ->will($this->returnValue($acl));
 
-        self::$DI['app']['acl'] = $aclProvider;
+        $app->offsetUnset('acl');
+        $app['acl'] = $aclProvider;
 
-        self::$DI['client']->request('POST', '/prod/records/property/status/', [
+        $client = self::getClient();
+        $client->request('POST', '/prod/records/property/status/', [
             'apply_to_children' => [$story->getDataboxId() => true],
             'status'                                   => [
                 $record->getDataboxId() => [6     => true, 8     => true, 11    => true]
@@ -114,14 +118,14 @@ class PropertyTest extends \PhraseanetAuthenticatedWebTestCase
                 $record->getId(),$story->getId()
             ])
         ]);
-        $response = self::$DI['client']->getResponse();
+        $response = $client->getResponse();
         $datas = (array) json_decode($response->getContent());
         $this->assertArrayHasKey('success', $datas);
         $this->assertTrue($datas['success']);
         $this->assertArrayHasKey('updated', $datas);
 
-        $record = new \record_adapter(self::$DI['app'], $record->getDataboxId(), $record->getRecordId());
-        $story = new \record_adapter(self::$DI['app'], $story->getDataboxId(), $story->getRecordId());
+        $record = new \record_adapter($app, $record->getDataboxId(), $record->getRecordId());
+        $story = new \record_adapter($app, $story->getDataboxId(), $story->getRecordId());
 
         $recordStatus = strrev($record->getStatus());
         $storyStatus = strrev($story->getStatus());

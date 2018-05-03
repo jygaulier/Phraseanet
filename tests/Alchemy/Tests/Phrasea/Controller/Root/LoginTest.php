@@ -2,21 +2,21 @@
 
 namespace Alchemy\Tests\Phrasea\Controller\Root;
 
+use Alchemy\Phrasea\Authentication\Context;
+use Alchemy\Phrasea\Authentication\Exception\NotAuthenticatedException;
 use Alchemy\Phrasea\Authentication\Provider\ProviderInterface;
+use Alchemy\Phrasea\Authentication\Provider\Token\Token;
+use Alchemy\Phrasea\Authentication\ProvidersCollection;
 use Alchemy\Phrasea\Core\Event\AuthenticationEvent;
 use Alchemy\Phrasea\Core\PhraseaEvents;
-use Alchemy\Phrasea\Authentication\Context;
-use Alchemy\Phrasea\Authentication\Provider\Token\Token;
-use Alchemy\Phrasea\Authentication\Exception\NotAuthenticatedException;
 use Alchemy\Phrasea\Exception\InvalidArgumentException;
-use Alchemy\Phrasea\Authentication\ProvidersCollection;
 use Alchemy\Phrasea\Model\Entities\Registration;
 use Alchemy\Phrasea\Model\Entities\User;
 use Alchemy\Phrasea\Model\Manipulator\TokenManipulator;
 use RandomLib\Factory;
 use Symfony\Component\HttpFoundation\Cookie;
-use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
 /**
  * @group functional
@@ -1156,6 +1156,7 @@ class LoginTest extends \PhraseanetAuthenticatedWebTestCase
             ->method('get')
             ->will($this->returnValue($acl));
 
+        $app->offsetUnset('acl');
         $app['acl'] = $aclProvider;
 
         $parameters = array_merge(['_token' => 'token'], [
@@ -1256,6 +1257,7 @@ class LoginTest extends \PhraseanetAuthenticatedWebTestCase
             ->method('get')
             ->will($this->returnValue($acl));
 
+        $app->offsetUnset('acl');
         $app['acl'] = $aclProvider;
 
         $app['registration.fields'] = $extraParameters;
@@ -2071,6 +2073,8 @@ class LoginTest extends \PhraseanetAuthenticatedWebTestCase
             ->will($this->returnValue($out));
 
         $app = $this->getApplication();
+
+        $app->offsetUnset('orm.em');
         $app['orm.em'] = $this->createEntityManagerMock();
 
         $app['repo.usr-auth-providers'] = $repo;

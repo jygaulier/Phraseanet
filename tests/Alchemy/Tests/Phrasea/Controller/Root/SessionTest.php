@@ -3,7 +3,6 @@
 namespace Alchemy\Tests\Phrasea\Controller\Root;
 
 use Alchemy\Phrasea\Model\Entities\User;
-use Symfony\Component\HttpKernel\Client;
 
 /**
  * @group functional
@@ -96,6 +95,8 @@ class SessionTest extends \PhraseanetAuthenticatedWebTestCase
 
     public function testDeleteSession()
     {
+        $app = self::getApplication();
+
         $session = $this->createMock('Alchemy\Phrasea\Model\Entities\Session');
 
         $session->expects($this->any())
@@ -104,8 +105,9 @@ class SessionTest extends \PhraseanetAuthenticatedWebTestCase
 
         $em = $this->createEntityManagerMock();
 
-        self::$DI['app']['repo.sessions'] = $this->createEntityRepositoryMock();
-        self::$DI['app']['repo.sessions']->expects($this->exactly(2))
+        $app->offsetUnset('repo.sessions');
+        $app['repo.sessions'] = $this->createEntityRepositoryMock();
+        $app['repo.sessions']->expects($this->exactly(2))
             ->method('find')
             ->will($this->returnValue($session));
 
@@ -116,13 +118,16 @@ class SessionTest extends \PhraseanetAuthenticatedWebTestCase
             ->method('flush')
             ->will($this->returnValue(null));
 
-        self::$DI['app']['orm.em'] = $em;
+        $app->offsetUnset('orm.em');
+        $app['orm.em'] = $em;
         $response = $this->XMLHTTPRequest('POST', '/session/delete/1');
         $this->assertTrue($response->isOK());
     }
 
     public function testDeleteSessionUnauthorized()
     {
+        $app = self::getApplication();
+
         $session = $this->createMock('Alchemy\Phrasea\Model\Entities\Session');
 
         $session->expects($this->any())
@@ -131,12 +136,13 @@ class SessionTest extends \PhraseanetAuthenticatedWebTestCase
 
         $em = $this->createEntityManagerMock();
 
-        self::$DI['app']['repo.sessions'] = $this->createEntityRepositoryMock();
-        self::$DI['app']['repo.sessions']->expects($this->exactly(2))
+        $app->offsetUnset('repo.sessions');
+        $app['repo.sessions'] = $this->createEntityRepositoryMock();
+        $app['repo.sessions']->expects($this->exactly(2))
             ->method('find')
             ->will($this->returnValue($session));
 
-        self::$DI['app']['orm.em'] = $em;
+        $app['orm.em'] = $em;
         self::$DI['client']->request('POST', '/session/delete/1');
         $this->assertFalse(self::$DI['client']->getResponse()->isOK());
         $this->assertEquals(self::$DI['client']->getResponse()->getStatusCode(), 403);

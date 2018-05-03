@@ -41,8 +41,7 @@ class UploadTest extends \PhraseanetAuthenticatedWebTestCase
      */
     public function testFlashUploadForm()
     {
-        /** @var Client $client */
-        $client = self::$DI['client'];
+        $client = self::getClient();
 
         $client->request('GET', '/prod/upload/flash-version/');
         $response = $client->getResponse();

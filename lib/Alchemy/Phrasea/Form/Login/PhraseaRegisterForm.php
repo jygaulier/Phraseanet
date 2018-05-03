@@ -12,12 +12,19 @@
 namespace Alchemy\Phrasea\Form\Login;
 
 use Alchemy\Phrasea\Application;
+use Alchemy\Phrasea\Exception\InvalidArgumentException;
 use Alchemy\Phrasea\Form\Constraint\NewEmail;
 use Alchemy\Phrasea\Utilities\StringHelper;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\EmailType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+use Symfony\Component\Form\Extension\Core\Type\PasswordType;
+use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints as Assert;
-use Alchemy\Phrasea\Exception\InvalidArgumentException;
+
 
 class PhraseaRegisterForm extends AbstractType
 {
@@ -33,7 +40,7 @@ class PhraseaRegisterForm extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('email', 'email', [
+        $builder->add('email', EmailType::class, [
             'label'       => 'E-mail',
             'required'    => true,
             'constraints' => [
@@ -43,8 +50,8 @@ class PhraseaRegisterForm extends AbstractType
             ],
         ]);
 
-        $builder->add('password', 'repeated', [
-            'type'              => 'password',
+        $builder->add('password', RepeatedType::class, [
+            'type'              => PasswordType::class,
             'required'          => true,
             'invalid_message'   => 'Please provide the same passwords.',
             'first_name'        => 'password',
@@ -58,7 +65,7 @@ class PhraseaRegisterForm extends AbstractType
         ]);
 
         if ($this->app->hasTermsOfUse()) {
-            $builder->add('accept-tou', 'checkbox', [
+            $builder->add('accept-tou', CheckboxType::class, [
                 'label'         => 'Terms of Use',
                 'mapped'        => false,
                 "constraints"   => [
@@ -68,7 +75,7 @@ class PhraseaRegisterForm extends AbstractType
             ]);
         }
 
-        $builder->add('provider-id', 'hidden');
+        $builder->add('provider-id', HiddenType::class);
 
         $choices = $baseIds = [];
 
@@ -84,7 +91,7 @@ class PhraseaRegisterForm extends AbstractType
         }
 
         if (!$this->app['conf']->get(['registry', 'registration', 'auto-select-collections'])) {
-            $builder->add('collections', 'choice', [
+            $builder->add('collections', ChoiceType::class, [
                 'choices'     => $choices,
                 'multiple'    => true,
                 'expanded'    => false,

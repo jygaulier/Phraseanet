@@ -15,13 +15,16 @@ class ActivityTest extends \PhraseanetAuthenticatedWebTestCase
 
     public function __construct()
     {
+        parent::__construct();
         $this->dmax = new \DateTime('now');
         $this->dmin = new \DateTime('-1 month');
     }
 
     public function testDoReportConnexionsByUsers()
     {
-        self::$DI['client']->request('POST', '/report/activity/users/connexions', [
+        $client = self::getClient();
+
+        $client->request('POST', '/report/activity/users/connexions', [
             'dmin'          => $this->dmin->format('Y-m-d H:i:s'),
             'dmax'          => $this->dmax->format('Y-m-d H:i:s'),
             'sbasid'        => self::$DI['collection']->get_sbas_id(),
@@ -30,7 +33,7 @@ class ActivityTest extends \PhraseanetAuthenticatedWebTestCase
             'limit'         => 10,
         ]);
 
-        $response = self::$DI['client']->getResponse();
+        $response = $client->getResponse();
 
         $this->assertTrue($response->isOk());
     }

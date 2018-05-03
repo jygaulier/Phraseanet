@@ -21,7 +21,6 @@ use Alchemy\Phrasea\Model\Repositories\UserRepository;
 use Alchemy\Phrasea\Model\Repositories\UsrListEntryRepository;
 use Alchemy\Phrasea\Model\Repositories\UsrListOwnerRepository;
 use Alchemy\Phrasea\Model\Repositories\UsrListRepository;
-use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -157,8 +156,8 @@ class UsrListController extends Controller
 
         $list = $repository->findUserListByUserAndId($this->getAuthenticatedUser(), $list_id);
 
-        $entries = new ArrayCollection();
-        $owners = new ArrayCollection();
+        $entries = [];
+        $owners = [];
 
         foreach ($list->getOwners() as $owner) {
             $user = $owner->getUser();

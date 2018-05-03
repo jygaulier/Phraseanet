@@ -12,17 +12,19 @@
 namespace Alchemy\Phrasea\Form\Configuration;
 
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\FormBuilderInterface;
+
 
 class RegistrationFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('auto-select-collections', 'checkbox', [
+        $builder->add('auto-select-collections', CheckboxType::class, [
             'label'        => 'Auto select databases',
             'help_message' => 'This option disables the selecting of the databases on which a user can register himself, and registration is made on all granted databases.',
         ]);
-        $builder->add('auto-register-enabled', 'checkbox', [
+        $builder->add('auto-register-enabled', CheckboxType::class, [
             'label'        => 'Enable auto registration',
         ]);
     }

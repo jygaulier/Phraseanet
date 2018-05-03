@@ -73,14 +73,14 @@ use Alchemy\Phrasea\Core\Provider\TasksServiceProvider;
 use Alchemy\Phrasea\Core\Provider\TokensServiceProvider;
 use Alchemy\Phrasea\Core\Provider\UnicodeServiceProvider;
 use Alchemy\Phrasea\Core\Provider\WebhookServiceProvider;
+use Alchemy\Phrasea\Core\Provider\WebProfilerServiceProvider as PhraseaWebProfilerServiceProvider;
 use Alchemy\Phrasea\Core\Provider\WorkerConfigurationServiceProvider;
 use Alchemy\Phrasea\Core\Provider\ZippyServiceProvider;
-use Alchemy\Phrasea\Core\Provider\WebProfilerServiceProvider as PhraseaWebProfilerServiceProvider;
 use Alchemy\Phrasea\Databox\Caption\CaptionServiceProvider;
 use Alchemy\Phrasea\Databox\Subdef\MediaSubdefServiceProvider;
 use Alchemy\Phrasea\Exception\InvalidArgumentException;
-use Alchemy\Phrasea\Filesystem\FilesystemServiceProvider;
 use Alchemy\Phrasea\Filesystem\ApplicationPathServiceGenerator;
+use Alchemy\Phrasea\Filesystem\FilesystemServiceProvider;
 use Alchemy\Phrasea\Form\Extension\HelpTypeExtension;
 use Alchemy\Phrasea\Media\DatafilesResolver;
 use Alchemy\Phrasea\Media\MediaAccessorResolver;
@@ -89,7 +89,6 @@ use Alchemy\Phrasea\Media\TechnicalDataServiceProvider;
 use Alchemy\Phrasea\Model\Entities\User;
 use Alchemy\QueueProvider\QueueServiceProvider;
 use Alchemy\WorkerProvider\WorkerServiceProvider;
-use Doctrine\DBAL\Event\ConnectionEventArgs;
 use MediaVorus\Media\MediaInterface;
 use MediaVorus\MediaVorus;
 use Monolog\Handler\RotatingFileHandler;
@@ -108,6 +107,7 @@ use Sorien\Provider\PimpleDumpProvider;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Form\Exception\ExceptionInterface;
 use Symfony\Component\Form\Exception\FormException;
+use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormTypeInterface;
@@ -326,7 +326,7 @@ class Application extends SilexApplication
      *
      * @throws ExceptionInterface if any given option is not applicable to the given type
      */
-    public function form($type = 'form', $data = null, array $options = [], FormBuilderInterface $parent = null)
+    public function form($type = FormType::class, $data = null, array $options = [], FormBuilderInterface $parent = null)
     {
         return $this['form.factory']->create($type, $data, $options, $parent);
     }
